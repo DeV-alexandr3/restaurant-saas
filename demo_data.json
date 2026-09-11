@@ -1,4 +1,4 @@
-﻿[
+[
 {
   "model": "restaurants.restaurant",
   "pk": 1,
@@ -49,7 +49,7 @@
   "fields": {
     "restaurant": 1,
     "number": 1,
-    "name": "┴rea Interna",
+    "name": "Área Interna",
     "is_active": true,
     "created_at": "2026-08-26T20:18:33.042Z"
   }
@@ -60,7 +60,7 @@
   "fields": {
     "restaurant": 1,
     "number": 2,
-    "name": "┴rea Interna",
+    "name": "Área Interna",
     "is_active": true,
     "created_at": "2026-08-26T20:19:48.827Z"
   }
@@ -127,7 +127,7 @@
   "pk": 5,
   "fields": {
     "restaurant": 1,
-    "name": "Hamb·rguer",
+    "name": "Hambúrguer",
     "position": 4,
     "is_active": true,
     "created_at": "2026-08-24T03:39:34.241Z",
@@ -338,7 +338,7 @@
   "fields": {
     "restaurant": 1,
     "category": 5,
-    "name": "Hamb·rguer Napoli Burger",
+    "name": "Hambúrguer Napoli Burger",
     "description": "",
     "image": "",
     "price": "55.00",
@@ -353,7 +353,7 @@
   "fields": {
     "restaurant": 1,
     "category": 5,
-    "name": "Hamb·rguer Bacon Burger",
+    "name": "Hambúrguer Bacon Burger",
     "description": "",
     "image": "",
     "price": "30.00",
@@ -368,7 +368,7 @@
   "fields": {
     "restaurant": 1,
     "category": 5,
-    "name": "Hamb·rguer Duplo Cheddar",
+    "name": "Hambúrguer Duplo Cheddar",
     "description": "",
     "image": "",
     "price": "30.00",
@@ -383,7 +383,7 @@
   "fields": {
     "restaurant": 1,
     "category": 5,
-    "name": "Hamb·rguer Chicken Burger",
+    "name": "Hambúrguer Chicken Burger",
     "description": "",
     "image": "",
     "price": "25.00",
@@ -428,7 +428,7 @@
   "fields": {
     "restaurant": 1,
     "category": 14,
-    "name": "Guaranß 2L",
+    "name": "Guaraná 2L",
     "description": "",
     "image": "",
     "price": "10.00",
@@ -571,7 +571,7 @@
   "pk": 5,
   "fields": {
     "product": 1,
-    "name": "FamÝlia",
+    "name": "Família",
     "price": "55.00",
     "position": 4,
     "is_available": true,
@@ -649,7 +649,7 @@
   "pk": 11,
   "fields": {
     "product": 11,
-    "name": "MÚdia",
+    "name": "Média",
     "price": "35.00",
     "position": 2,
     "is_available": true,
@@ -675,7 +675,7 @@
   "pk": 13,
   "fields": {
     "product": 11,
-    "name": "FamÝlia",
+    "name": "Família",
     "price": "55.00",
     "position": 4,
     "is_available": true,
@@ -727,7 +727,7 @@
   "pk": 17,
   "fields": {
     "product": 12,
-    "name": "FamÝlia",
+    "name": "Família",
     "price": "55.00",
     "position": 4,
     "is_available": true,
@@ -779,7 +779,7 @@
   "pk": 21,
   "fields": {
     "product": 13,
-    "name": "FamÝlia",
+    "name": "Família",
     "price": "55.00",
     "position": 4,
     "is_available": true,
@@ -831,7 +831,7 @@
   "pk": 25,
   "fields": {
     "product": 16,
-    "name": "FamÝlia",
+    "name": "Família",
     "price": "55.00",
     "position": 4,
     "is_available": true,
@@ -883,7 +883,7 @@
   "pk": 29,
   "fields": {
     "product": 15,
-    "name": "FamÝlia",
+    "name": "Família",
     "price": "55.00",
     "position": 4,
     "is_available": true,
@@ -935,7 +935,7 @@
   "pk": 33,
   "fields": {
     "product": 14,
-    "name": "FamÝlia",
+    "name": "Família",
     "price": "55.00",
     "position": 4,
     "is_available": true,
@@ -2360,7 +2360,7 @@
   "pk": 138,
   "fields": {
     "group": 19,
-    "name": "Hamb·rguer",
+    "name": "Hambúrguer",
     "price": "7.00",
     "position": 5,
     "is_available": true,
@@ -2425,7 +2425,7 @@
   "pk": 143,
   "fields": {
     "group": 20,
-    "name": "Hamb·rguer",
+    "name": "Hambúrguer",
     "price": "7.00",
     "position": 5,
     "is_available": true,
@@ -2490,7 +2490,7 @@
   "pk": 153,
   "fields": {
     "group": 21,
-    "name": "Hamb·rguer",
+    "name": "Hambúrguer",
     "price": "7.00",
     "position": 5,
     "is_available": true,
@@ -2555,7 +2555,7 @@
   "pk": 158,
   "fields": {
     "group": 22,
-    "name": "Hamb·rguer",
+    "name": "Hambúrguer",
     "price": "7.00",
     "position": 5,
     "is_available": true,
@@ -2568,7 +2568,7 @@
   "pk": 1,
   "fields": {
     "restaurant": 1,
-    "name": "Muþarela",
+    "name": "Muçarela",
     "unit": "KG",
     "quantity": "5.600",
     "minimum_quantity": "1.900",
@@ -2596,7 +2596,7 @@
   "pk": 3,
   "fields": {
     "restaurant": 1,
-    "name": "PÒo",
+    "name": "Pão",
     "unit": "UN",
     "quantity": "30.000",
     "minimum_quantity": "2.000",
