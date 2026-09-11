@@ -1,0 +1,165 @@
+{% extends "restaurants/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link
+    rel="stylesheet"
+    href="{% static 'inventory/css/inventory.css' %}"
+>
+{% endblock %}
+
+{% block title %}
+Editar ingrediente
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>Editar ingrediente</h1>
+
+        <p>
+            {{ ingredient.product.name }}
+            —
+            {{ ingredient.inventory_item.name }}
+        </p>
+    </div>
+</div>
+
+{% if error %}
+    <div class="inventory-error">
+        {{ error }}
+    </div>
+{% endif %}
+
+<form
+    method="POST"
+    class="inventory-form"
+>
+
+    {% csrf_token %}
+
+    <div class="inventory-form-group">
+
+        <label>
+            Quantidade utilizada
+        </label>
+
+        <input
+            type="number"
+            name="quantity"
+            min="0.001"
+            step="0.001"
+            value="{{ ingredient.quantity }}"
+            required
+        >
+
+    </div>
+
+    <div class="inventory-form-group">
+
+        <label>Unidade</label>
+
+        <select
+            name="unit"
+            id="recipe-unit-select"
+            required
+        >
+            <option value="UN" {% if ingredient.unit == "UN" %}selected{% endif %}>
+                Unidade
+            </option>
+
+            <option value="KG" {% if ingredient.unit == "KG" %}selected{% endif %}>
+                Quilograma
+            </option>
+
+            <option value="G" {% if ingredient.unit == "G" %}selected{% endif %}>
+                Grama
+            </option>
+
+            <option value="L" {% if ingredient.unit == "L" %}selected{% endif %}>
+                Litro
+            </option>
+
+            <option value="ML" {% if ingredient.unit == "ML" %}selected{% endif %}>
+                Mililitro
+            </option>
+        </select>
+
+    </div>
+
+    <p>
+        Unidade:
+        <strong>
+            {{ ingredient.inventory_item.get_unit_display }}
+        </strong>
+    </p>
+
+    <button
+        type="submit"
+        class="inventory-save-button"
+    >
+        Salvar alteração
+    </button>
+
+</form>
+
+
+
+<script>
+    const recipeUnitSelect =
+        document.getElementById("recipe-unit-select");
+
+    const stockUnit =
+        "{{ ingredient.inventory_item.unit }}";
+
+    const currentUnit =
+        "{{ ingredient.unit }}";
+
+    const compatibleUnits = {
+        KG: [
+            ["KG", "Quilograma"],
+            ["G", "Grama"],
+        ],
+
+        G: [
+            ["G", "Grama"],
+            ["KG", "Quilograma"],
+        ],
+
+        L: [
+            ["L", "Litro"],
+            ["ML", "Mililitro"],
+        ],
+
+        ML: [
+            ["ML", "Mililitro"],
+            ["L", "Litro"],
+        ],
+
+        UN: [
+            ["UN", "Unidade"],
+        ],
+    };
+
+    const units =
+        compatibleUnits[stockUnit] || [];
+
+    units.forEach(([value, label]) => {
+
+        const option =
+            document.createElement("option");
+
+        option.value = value;
+        option.textContent = label;
+
+        if (value === currentUnit) {
+            option.selected = true;
+        }
+
+        recipeUnitSelect.appendChild(option);
+
+    });
+</script>
+
+{% endblock %}

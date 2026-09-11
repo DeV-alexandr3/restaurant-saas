@@ -1,0 +1,663 @@
+.stock-low {
+    display: inline-block;
+    margin-left: 10px;
+
+    padding: 4px 8px;
+
+    border-radius: 6px;
+
+    background: #fee2e2;
+    color: #991b1b;
+
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.inventory-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-top: 20px;
+}
+
+.inventory-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.inventory-table th,
+.inventory-table td {
+    padding: 14px 16px;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.inventory-table th {
+    background: #f9fafb;
+    color: #4b5563;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.inventory-table td {
+    color: #111827;
+}
+
+.inventory-table tbody tr:hover {
+    background: #f9fafb;
+}
+
+.stock-low {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 4px 8px;
+
+    background: #fee2e2;
+    color: #991b1b;
+
+    border-radius: 999px;
+
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.stock-status {
+    display: inline-block;
+    padding: 4px 8px;
+
+    border-radius: 999px;
+
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.stock-status.active {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.stock-status.inactive {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+
+.inventory-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.inventory-actions form {
+    margin: 0;
+}
+
+.inventory-edit-button,
+.inventory-status-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 7px 10px;
+
+    border-radius: 7px;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.inventory-edit-button {
+    background: #111827;
+    color: white;
+}
+
+.inventory-status-button {
+    background: white;
+    color: #374151;
+
+    border: 1px solid #d1d5db;
+}
+
+.inventory-create-button {
+    display: inline-flex;
+    margin-top: 12px;
+
+    padding: 10px 14px;
+
+    background: #111827;
+    color: white;
+
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.inventory-form {
+    max-width: 560px;
+    margin-top: 24px;
+
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+
+    padding: 24px;
+}
+
+.inventory-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    margin-bottom: 16px;
+}
+
+.inventory-form-group label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+}
+
+.inventory-form-group input,
+.inventory-form-group select {
+    width: 100%;
+    padding: 10px 12px;
+
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+.inventory-form-group input:focus,
+.inventory-form-group select:focus {
+    outline: none;
+    border-color: #111827;
+}
+
+.inventory-save-button {
+    padding: 10px 16px;
+
+    background: #111827;
+    color: white;
+
+    border: none;
+    border-radius: 8px;
+
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.inventory-save-button:hover {
+    opacity: 0.9;
+}
+
+.inventory-summary {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+
+    margin: 20px 0;
+}
+
+.inventory-summary-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+
+    padding: 18px;
+}
+
+.inventory-summary-card span {
+    display: block;
+
+    margin-bottom: 8px;
+
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.inventory-summary-card strong {
+    color: #111827;
+    font-size: 24px;
+}
+
+@media (max-width: 800px) {
+    .inventory-summary {
+        grid-template-columns: 1fr;
+    }
+}
+
+.inventory-movement-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 7px 10px;
+
+    background: #2563eb;
+    color: white;
+
+    border-radius: 7px;
+
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.inventory-error {
+    max-width: 560px;
+
+    margin-top: 16px;
+    padding: 12px 14px;
+
+    background: #fee2e2;
+    color: #991b1b;
+
+    border-radius: 8px;
+
+    font-weight: 600;
+}
+
+.inventory-history-button,
+.inventory-back-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 10px 14px;
+
+    background: white;
+    color: #111827;
+
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.inventory-history-button:hover,
+.inventory-back-button:hover {
+    background: #f3f4f6;
+}
+
+.movement-type {
+    display: inline-block;
+
+    padding: 4px 8px;
+
+    border-radius: 999px;
+
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.movement-type.in {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.movement-type.out {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.movement-type.adjust {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.recipe-remove-button {
+    padding: 7px 10px;
+
+    background: #fee2e2;
+    color: #991b1b;
+
+    border: none;
+    border-radius: 7px;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.recipe-remove-button:hover {
+    background: #fecaca;
+}
+
+.inventory-filters {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    margin: 20px 0;
+    flex-wrap: wrap;
+}
+
+.inventory-filters input,
+.inventory-filters select {
+    padding: 10px 12px;
+
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+
+    font-size: 14px;
+}
+
+.inventory-filters input {
+    min-width: 260px;
+}
+
+.inventory-filters button {
+    padding: 10px 14px;
+
+    border: none;
+    border-radius: 8px;
+
+    background: #111827;
+    color: white;
+
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.inventory-clear-filter {
+    padding: 10px 14px;
+
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+
+    background: white;
+    color: #374151;
+
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+
+    margin-top: 24px;
+}
+
+.pagination a {
+    padding: 9px 14px;
+
+    background: #111827;
+    color: white;
+
+    border-radius: 8px;
+    text-decoration: none;
+
+    font-weight: 600;
+}
+
+.pagination span {
+    color: #4b5563;
+    font-size: 14px;
+}
+
+.last-movement {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.last-movement strong {
+    font-size: 13px;
+    color: #111827;
+}
+
+.last-movement span,
+.last-movement small {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.no-movement {
+    font-size: 13px;
+    color: #9ca3af;
+}
+
+.low-stock-card {
+    position: relative;
+}
+
+.low-stock-popover {
+    position: absolute;
+
+    top: calc(100% + 10px);
+    right: 0;
+
+    width: 320px;
+    padding: 14px;
+
+    background: white;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.14);
+
+    opacity: 0;
+    visibility: hidden;
+
+    transform: translateY(-5px);
+
+    transition: 0.2s ease;
+
+    z-index: 100;
+}
+
+.low-stock-card:hover .low-stock-popover {
+    opacity: 1;
+    visibility: visible;
+
+    transform: translateY(0);
+}
+
+.low-stock-popover-title {
+    margin-bottom: 10px;
+
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.low-stock-popover-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 16px;
+
+    padding: 9px 0;
+
+    border-top: 1px solid #f3f4f6;
+}
+
+.low-stock-popover-item div {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.low-stock-popover-item span {
+    color: #6b7280;
+    font-size: 12px;
+}
+
+.inventory-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: auto;
+}
+
+.inventory-table th,
+.inventory-table td {
+    padding: 14px 16px;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.inventory-table td:nth-child(5),
+.inventory-table th:nth-child(5) {
+    white-space: normal;
+    min-width: 220px;
+}
+
+.inventory-table-wrapper {
+    overflow-x: auto;
+}
+
+.recipe-cost-summary {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+
+    margin-top: 20px;
+}
+
+.recipe-cost-card {
+    padding: 16px;
+
+    background: white;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+}
+
+.recipe-cost-card span {
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: #6b7280;
+    font-size: 13px;
+}
+
+.recipe-cost-card strong {
+    color: #111827;
+    font-size: 21px;
+}
+
+.recipe-cost-warning {
+    margin-top: 16px;
+    padding: 14px 16px;
+
+    border: 1px solid #f59e0b;
+    border-radius: 10px;
+
+    background: #fffbeb;
+}
+
+.recipe-cost-warning strong {
+    display: block;
+    margin-bottom: 8px;
+}
+
+.recipe-cost-warning span {
+    display: inline-block;
+
+    margin-right: 8px;
+    margin-bottom: 4px;
+
+    font-size: 14px;
+}
+
+.purchase-detail-info {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+
+    margin-bottom: 20px;
+}
+
+.purchase-detail-info > div {
+    padding: 16px;
+
+    background: white;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+}
+
+.purchase-detail-info span {
+    display: block;
+
+    margin-bottom: 6px;
+
+    color: #6b7280;
+    font-size: 13px;
+}
+
+.purchase-detail-info strong {
+    color: #111827;
+    font-size: 16px;
+}
+
+.purchase-detail-link {
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.purchase-detail-link:hover {
+    text-decoration: underline;
+}
+
+.purchase-cancel-button {
+    padding: 10px 14px;
+
+    border: none;
+    border-radius: 8px;
+
+    cursor: pointer;
+
+    background: #dc2626;
+    color: white;
+
+    font-weight: 600;
+}
+
+.purchase-cancel-button:hover {
+    opacity: 0.9;
+}
+
+.purchase-cancelled-badge {
+    display: inline-block;
+
+    padding: 8px 12px;
+
+    border-radius: 8px;
+
+    background: #fee2e2;
+    color: #991b1b;
+
+    font-weight: 600;
+}
+
+.purchase-status-active,
+.purchase-status-cancelled {
+    display: inline-block;
+    padding: 5px 9px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.purchase-status-active {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.purchase-status-cancelled {
+    background: #fee2e2;
+    color: #991b1b;
+}

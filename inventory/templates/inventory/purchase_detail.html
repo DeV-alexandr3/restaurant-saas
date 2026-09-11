@@ -1,0 +1,176 @@
+{% extends "restaurants/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link
+    rel="stylesheet"
+    href="{% static 'inventory/css/inventory.css' %}"
+>
+{% endblock %}
+
+{% block content %}
+
+<div class="inventory-page">
+
+    <div class="inventory-page-header">
+
+        <div>
+            <h1>
+                Compra #{{ purchase.id }}
+            </h1>
+
+            <p>
+                Detalhes da compra registrada.
+            </p>
+        </div>
+        {% if messages %}
+            {% for message in messages %}
+                <div class="message {{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <a
+            href="{% url 'purchase_list' %}"
+            class="inventory-back-button"
+        >
+            Voltar
+        </a>
+
+        {% if purchase.status == "ACTIVE" %}
+
+            <form
+                method="POST"
+                action="{% url 'purchase_cancel' purchase.id %}"
+                onsubmit="return confirm('Deseja realmente cancelar esta compra? O estoque será estornado.');"
+            >
+                {% csrf_token %}
+
+                <button
+                    type="submit"
+                    class="purchase-cancel-button"
+                >
+                    Cancelar compra
+                </button>
+
+            </form>
+
+        {% else %}
+
+            <span class="purchase-cancelled-badge">
+                Compra cancelada
+            </span>
+
+        {% endif %}
+
+    </div>
+
+
+    <div class="purchase-detail-info">
+
+        <div>
+            <span>Fornecedor</span>
+
+            <strong>
+                {% if purchase.supplier %}
+                    {{ purchase.supplier }}
+                {% else %}
+                    —
+                {% endif %}
+            </strong>
+        </div>
+
+
+        <div>
+            <span>Data da compra</span>
+
+            <strong>
+                {{ purchase.purchase_date|date:"d/m/Y" }}
+            </strong>
+        </div>
+
+
+        <div>
+            <span>Responsável</span>
+
+            <strong>
+                {% if purchase.created_by %}
+                    {{ purchase.created_by.email }}
+                {% else %}
+                    —
+                {% endif %}
+            </strong>
+        </div>
+
+
+        <div>
+            <span>Total da compra</span>
+
+            <strong>
+                R$ {{ purchase.total|floatformat:2 }}
+            </strong>
+        </div>
+
+    </div>
+
+
+    <div class="inventory-table-wrapper">
+
+        <table class="inventory-table">
+
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Quantidade</th>
+                    <th>Preço unitário</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for item in purchase_items %}
+
+                    <tr>
+
+                        <td>
+                            {{ item.inventory_item.name }}
+                        </td>
+
+                        <td>
+                            {{ item.quantity|floatformat:"-3" }}
+                            {{ item.inventory_item.get_unit_display }}
+                        </td>
+
+                        <td>
+                            R$ {{ item.unit_price|floatformat:2 }}
+                        </td>
+
+                        <td>
+                            <strong>
+                                R$ {{ item.total|floatformat:2 }}
+                            </strong>
+                        </td>
+
+                    </tr>
+
+                {% empty %}
+
+                    <tr>
+                        <td colspan="4">
+                            Nenhum item encontrado.
+                        </td>
+                    </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}

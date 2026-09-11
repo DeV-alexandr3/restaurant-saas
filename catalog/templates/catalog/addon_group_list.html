@@ -1,0 +1,155 @@
+{% extends "restaurants/base.html" %}
+
+{% block title %}
+Adicionais - {{ product.name }}
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>Adicionais</h1>
+        <p>{{ product.name }}</p>
+    </div>
+
+    <a href="{% url 'addon_group_create' product.id %}" class="btn-primary">
+        + Novo grupo
+    </a>
+</div>
+
+{% if membership.role == "ADMIN" and source_products %}
+
+    <div class="content-card">
+
+        <h3>Copiar adicionais de outro produto</h3>
+
+        <p>
+            Copie variações, grupos de adicionais e opções já configuradas.
+        </p>
+
+        <form
+            method="POST"
+            action="{% url 'copy_product_addons' product.id %}"
+        >
+            {% csrf_token %}
+
+            <select
+                name="source_product"
+                required
+            >
+                <option value="">
+                    Selecione um produto
+                </option>
+
+                {% for source_product in source_products %}
+
+                    <option value="{{ source_product.id }}">
+                        {{ source_product.name }}
+                    </option>
+
+                {% endfor %}
+            </select>
+
+            <button
+                type="submit"
+                class="btn-primary"
+            >
+                Copiar configurações
+            </button>
+
+        </form>
+
+    </div>
+
+{% endif %}
+
+<div class="content-card">
+
+    {% if addon_groups %}
+
+        <table class="category-table">
+            <thead>
+                <tr>
+                    <th>Posição</th>
+                    <th>Grupo</th>
+                    <th>Mínimo</th>
+                    <th>Máximo</th>
+                    <th>Status</th>
+                    {% if membership.role == "ADMIN" %}
+                        <th>Ações</th>
+                    {% endif %}
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for group in addon_groups %}
+                    <tr>
+                        <td>{{ group.position }}</td>
+
+                        <td>
+                            <strong>{{ group.name }}</strong>
+                        </td>
+
+                        <td>{{ group.min_choices }}</td>
+
+                        <td>{{ group.max_choices }}</td>
+
+                        <td>
+                            {% if group.is_active %}
+                                <span class="status-active">
+                                    Ativo
+                                </span>
+                            {% else %}
+                                <span class="status-inactive">
+                                    Inativo
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if membership.role == "ADMIN" %}
+                                <a 
+                                href="{% url 'addon_group_edit' product.id group.id %}" class="btn-edit"
+                                >
+                                    Editar
+                                </a>
+
+                                <a 
+                                href="{% url 'addon_list' product.id group.id %}" class="btn-variation"
+                                >
+                                    Opções
+                                </a>
+
+                                <form
+                                    method="POST"
+                                    action="{% url 'addon_group_delete' product.id group.id %}"
+                                    style="display: inline;"
+                                    onsubmit="return confirm('Tem certeza que deseja excluir este grupo?');"
+                                >
+                                    {% csrf_token %}
+
+                                    <button type="submit" class="btn-delete">
+                                        Excluir
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    {% else %}
+
+        <div class="empty-state">
+            <h3>Nenhum grupo de adicionais</h3>
+            <p>
+                Esse produto ainda não possui adicionais configurados.
+            </p>
+        </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

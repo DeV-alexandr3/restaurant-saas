@@ -1,0 +1,126 @@
+{% extends "restaurants/base.html" %}
+
+{% block title %}
+Mesas
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+
+    <div>
+        <h1>Mesas</h1>
+        <p>Gerencie as mesas do restaurante.</p>
+    </div>
+    {% if membership.role == "ADMIN" %}
+        <a
+            href="{% url 'table_create' %}"
+            class="btn-primary"
+        >
+            Nova mesa
+        </a>
+    {% endif %}
+
+</div>
+
+<div class="content-card">
+
+    {% if tables %}
+
+        <table class="category-table">
+
+            <thead>
+                <tr>
+                    <th>Número</th>
+                    <th>Nome</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for table in tables %}
+
+                    <tr>
+
+                        <td>
+                            Mesa {{ table.number }}
+                        </td>
+
+                        <td>
+                            {% if table.name %}
+                                {{ table.name }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+
+                        <td>
+
+                            {% if table.is_active %}
+                                <span class="status-active">
+                                    Ativa
+                                </span>
+                            {% else %}
+                                <span class="status-inactive">
+                                    Inativa
+                                </span>
+                            {% endif %}
+
+                        </td>
+
+                        <td>   
+                            {% if membership.role == "ADMIN" %}
+                                <a
+                                    href="{% url 'table_edit' table.id %}"
+                                    class="btn-edit"
+                                >
+                                    Editar
+                                </a>
+                            {% endif %}
+
+                            <form
+                                method="POST"
+                                action="{% url 'table_toggle_status' table.id %}"
+                                style="display: inline;"
+                            >
+                                {% csrf_token %}
+
+                                <button
+                                    type="submit"
+                                    class="btn-secondary"
+                                >
+                                    {% if table.is_active %}
+                                        Desativar
+                                    {% else %}
+                                        Ativar
+                                    {% endif %}
+                                </button>
+
+                            </form>
+
+                            <a
+                                href="{% url 'table_qr_page' table.id %}"
+                                class="btn-secondary"
+                            >
+                                QR Code
+                            </a>
+                        </td>
+                    </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    {% else %}
+
+        <p>Nenhuma mesa cadastrada.</p>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

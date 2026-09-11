@@ -1,0 +1,104 @@
+{% extends "restaurants/base.html" %}
+
+{% block title %}
+Variações - {{ product.name }}
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>Variações</h1>
+        <p>{{ product.name }}</p>
+    </div>
+
+    <a href="{% url 'product_variation_create' product.id %}" class="btn-primary">
+        + Nova variação
+    </a>
+</div>
+
+<div class="content-card">
+
+    {% if variations %}
+
+        <table class="category-table">
+            <thead>
+                <tr>
+                    <th>Posição</th>
+                    <th>Variação</th>
+                    <th>Preço</th>
+                    <th>Status</th>
+                    {% if membership.role == "ADMIN" %}
+                        <th>Ações</th>
+                    {% endif %}
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for variation in variations %}
+                    <tr>
+                        <td>{{ variation.position }}</td>
+
+                        <td>
+                            <strong>{{ variation.name }}</strong>
+                        </td>
+
+                        <td>
+                            R$ {{ variation.price }}
+                        </td>
+
+                        <td>
+                            {% if variation.is_available %}
+                                <span class="status-active">
+                                    Disponível
+                                </span>
+                            {% else %}
+                                <span class="status-inactive">
+                                    Indisponível
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        {% if membership.role == "ADMIN" %}
+                            <td>
+                                <a 
+                                href="{% url 'product_variation_edit' product.id variation.id %}" 
+                                class="btn-edit"
+                                >
+                                    Editar
+                                </a>
+
+                                <form
+                                    method="POST"
+                                    action="{% url 'product_variation_delete' product.id variation.id %}"
+                                    style="display: inline;"
+                                    onsubmit="return confirm('Tem certeza que deseja excluir esta variação?');"
+                                >
+                                    {% csrf_token %}
+
+                                    <button type="submit" class="btn-delete">
+                                        Excluir
+                                    </button>
+                                </form>
+                            </td>
+                            
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    {% else %}
+
+        <div class="empty-state">
+            <h3>Nenhuma variação cadastrada</h3>
+            <p>
+                Esse produto ainda não possui tamanhos ou variações.
+            </p>
+        </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

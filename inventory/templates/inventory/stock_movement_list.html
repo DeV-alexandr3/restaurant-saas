@@ -1,0 +1,241 @@
+{% extends "restaurants/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link
+    rel="stylesheet"
+    href="{% static 'inventory/css/inventory.css' %}"
+>
+{% endblock %}
+
+{% block title %}
+Movimentações de estoque
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>Movimentações de estoque</h1>
+        <p>Histórico de entradas, saídas e ajustes.</p>
+    </div>
+
+    <a
+        href="{% url 'inventory_list' %}"
+        class="inventory-back-button"
+    >
+        Voltar ao estoque
+    </a>
+</div>
+
+<form
+    method="GET"
+    class="inventory-filters"
+>
+
+    <input
+        type="text"
+        name="search"
+        value="{{ search }}"
+        placeholder="Item, motivo ou usuário..."
+    >
+
+    <select name="type">
+
+        <option value="">
+            Todos os tipos
+        </option>
+
+        <option
+            value="IN"
+            {% if movement_type == "IN" %}selected{% endif %}
+        >
+            Entrada
+        </option>
+
+        <option
+            value="OUT"
+            {% if movement_type == "OUT" %}selected{% endif %}
+        >
+            Saída
+        </option>
+
+        <option
+            value="ADJUST"
+            {% if movement_type == "ADJUST" %}selected{% endif %}
+        >
+            Ajuste
+        </option>
+
+    </select>
+
+    <div class="order-date-field">
+        <label>De</label>
+
+        <input
+            type="date"
+            name="date_from"
+            value="{{ date_from }}"
+        >
+    </div>
+
+    <div class="order-date-field">
+        <label>Até</label>
+
+        <input
+            type="date"
+            name="date_to"
+            value="{{ date_to }}"
+        >
+    </div>
+
+    <button type="submit">
+        Filtrar
+    </button>
+
+    {% if search or movement_type or date_from or date_to %}
+        <a
+            href="{% url 'stock_movement_list' %}"
+            class="inventory-clear-filter"
+        >
+            Limpar
+        </a>
+    {% endif %}
+
+</form>
+
+
+<div class="inventory-card">
+    <div class="inventory-table-wrapper">
+        <table class="inventory-table">
+
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Item</th>
+                    <th>Tipo</th>
+                    <th>Quantidade</th>
+                    <th>Motivo</th>
+                    <th>Usuário</th>
+                    <th>Fornecedor</th>
+                    <th>Valor total</th>
+                    <th>Custo unitário</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for movement in movements %}
+
+                    <tr>
+
+                        <td>
+                            {{ movement.created_at|date:"d/m/Y H:i" }}
+                        </td>
+
+                        <td>
+                            <strong>
+                                {{ movement.item.name }}
+                            </strong>
+                        </td>
+
+                        <td>
+                            <span class="movement-type {{ movement.movement_type|lower }}">
+                                {{ movement.get_movement_type_display }}
+                            </span>
+                        </td>
+
+                        <td>
+
+                            {% if movement.movement_type == "IN" %}
+                                +
+                            {% elif movement.movement_type == "OUT" %}
+                                -
+                            {% endif %}
+
+                            {{ movement.quantity }}
+                            {{ movement.item.get_unit_display }}
+
+                        </td>
+
+                        <td>
+                            {{ movement.reason|default:"—" }}
+                        </td>
+
+                        <td>
+                            {% if movement.user %}
+                                {{ movement.user.email }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if movement.movement_type == "IN" and movement.supplier %}
+                                {{ movement.supplier }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if movement.movement_type == "IN" and movement.total_cost %}
+                                R$ {{ movement.total_cost|floatformat:2 }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if movement.unit_cost %}
+                                R$ {{ movement.unit_cost|floatformat:2 }}
+                                / {{ movement.item.get_unit_display }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+
+                    </tr>
+
+                {% empty %}
+
+                    <tr>
+                        <td colspan="9">
+                            Nenhuma movimentação registrada.
+                        </td>
+                    </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+    </div>
+</div>
+
+{% if page_obj.has_other_pages %}
+
+    <div class="pagination">
+
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search }}{% endif %}{% if movement_type %}&type={{ movement_type }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}">
+                Anterior
+            </a>
+        {% endif %}
+
+        <span>
+            Página {{ page_obj.number }}
+            de {{ page_obj.paginator.num_pages }}
+        </span>
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search }}{% endif %}{% if movement_type %}&type={{ movement_type }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}">
+                Próxima
+            </a>
+        {% endif %}
+
+    </div>
+
+{% endif %}
+
+{% endblock %}

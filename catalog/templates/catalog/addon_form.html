@@ -1,0 +1,106 @@
+{% extends "restaurants/base.html" %}
+
+{% block title %}
+    {% if addon %}
+        Editar opção
+    {% else %}
+        Nova opção
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>
+            {% if addon %}
+                Editar opção
+            {% else %}
+                Nova opção
+            {% endif %}
+        </h1>
+        <p>{{ product.name }} — {{ group.name }}</p>
+    </div>
+</div>
+
+<div class="content-card">
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="name">Nome da opção</label>
+
+            <input
+                type="text"
+                id="name"
+                name="name"
+                value="{{ addon.name|default:'' }}"
+                placeholder="Ex: Bacon"
+                required
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="price">Preço adicional</label>
+
+            <input
+                type="number"
+                id="price"
+                name="price"
+                step="0.01"
+                min="0"
+                value="{{ addon.price|default:0 }}"
+                required
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="position">Posição</label>
+
+            <input
+                type="number"
+                id="position"
+                name="position"
+                value="{{ addon.position|default:0 }}"
+                min="0"
+            >
+        </div>
+
+        <div class="form-check">
+            <input
+                type="checkbox"
+                id="is_available"
+                name="is_available"
+                {% if not addon or addon.is_available %}
+                    checked
+                {% endif %} 
+            >
+
+            <label for="is_available">
+                Opção disponível
+            </label>
+        </div>
+
+        <div class="form-actions">
+            <a
+                href="{% url 'addon_list' product.id group.id %}"
+                class="btn-secondary"
+            >
+                Cancelar
+            </a>
+
+            <button type="submit" class="btn-primary">
+                {% if addon %}
+                    Salvar alterações
+                {% else %}
+                    Salvar opção
+                {% endif %}
+            </button>
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}

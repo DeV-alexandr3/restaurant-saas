@@ -1,0 +1,378 @@
+{% load static %}
+{% load l10n %}
+<!DOCTYPE html>
+
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Finalizar pedido - {{ restaurant.name }}
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="{% static 'catalog/css/public_menu.css' %}"
+    >
+
+    <style>
+        :root {
+            --restaurant-primary: {{ restaurant.primary_color }};
+            --restaurant-background: {{ restaurant.background_color }};
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <main class="checkout-container">
+
+        <a
+            href="{% url 'cart_detail' restaurant.slug %}"
+            class="back-link"
+        >
+            ← Voltar ao carrinho
+        </a>
+
+        <h1>Finalizar pedido</h1>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="checkout-field">
+                <label for="name">
+                    Seu nome
+                </label>
+
+                <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    required
+                >
+            </div>
+
+            <div class="checkout-field">
+                <label for="phone">
+                    Telefone
+                </label>
+
+                <input
+                    type="text"
+                    id="phone"
+                    name="phone"
+                    required
+                >
+            </div>
+
+            {% if session_table %}
+
+                <div class="checkout-table-info">
+                    <strong>
+                        Pedido para Mesa {{ session_table.number }}
+
+                        {% if session_table.name %}
+                            - {{ session_table.name }}
+                        {% endif %}
+                    </strong>
+
+                    <p>
+                        A mesa foi identificada automaticamente.
+                    </p>
+                </div>
+
+            {% endif %}
+
+            {% if session_table %}
+
+                <input
+                    type="hidden"
+                    name="order_type"
+                    value="table"
+                >
+
+            {% else %}
+
+                <div class="checkout-field">
+
+                    <label>
+                        Tipo do pedido
+                    </label>
+
+                    {% if restaurant.accepts_pickup %}
+                        <label>
+                            <input
+                                type="radio"
+                                name="order_type"
+                                value="pickup"
+                                required
+                            >
+                            Retirada
+                        </label>
+                    {% endif %}
+
+                    {% if restaurant.accepts_delivery %}
+                        <label>
+                            <input
+                                type="radio"
+                                name="order_type"
+                                value="delivery"
+                                {% if not restaurant.accepts_pickup %}required{% endif %}
+                            >
+                            Entrega
+                        </label>
+
+                    {% endif %}
+
+                    {% if restaurant.accepts_table_orders %}
+                        <label>
+                            <input
+                                type="radio"
+                                name="order_type"
+                                value="table"
+                                {% if not restaurant.accepts_pickup and not restaurant.accepts_delivery %}
+                                    required
+                                {% endif %}
+                            >
+                            Mesa
+                        </label>
+                    {% endif %}
+                    
+
+                </div>
+
+            {% endif %}
+
+            <div
+                id="delivery-fields"
+                class="checkout-extra-fields"
+                style="display: none;"
+            >
+                <div
+                    id="delivery-fee-info"
+                    class="delivery-fee-info"
+                    style="display: none;"
+                >
+                    Taxa de entrega:
+                    <strong>R$ {{ restaurant.delivery_fee }}</strong>
+                </div>
+                <div class="checkout-field">
+                    <label for="address">
+                        Endereço
+                    </label>
+
+                    <input
+                        type="text"
+                        id="address"
+                        name="address"
+                    >
+                </div>
+
+                <div class="checkout-field">
+                    <label for="number">
+                        Número
+                    </label>
+
+                    <input
+                        type="text"
+                        id="number"
+                        name="number"
+                    >
+                </div>
+
+                <div class="checkout-field">
+                    <label for="complement">
+                        Complemento
+                    </label>
+
+                    <input
+                        type="text"
+                        id="complement"
+                        name="complement"
+                    >
+                </div>
+            </div>
+
+            {% if not session_table %}
+
+                <div
+                    id="table-fields"
+                    class="checkout-extra-fields"
+                    style="display: none;"
+                >
+                    <div class="checkout-field">
+
+                        <label for="table_number">
+                            Escolha a mesa
+                        </label>
+
+                        <select
+                            id="table_number"
+                            name="table_number"
+                        >
+
+                            <option value="">
+                                Selecione uma mesa
+                            </option>
+
+                            {% for table in tables %}
+
+                                <option value="{{ table.number }}">
+
+                                    Mesa {{ table.number }}
+
+                                    {% if table.name %}
+                                        - {{ table.name }}
+                                    {% endif %}
+
+                                </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+                </div>
+            
+            {% endif %}
+
+            <div class="checkout-field">
+                <label for="notes">
+                    Observações do pedido
+                </label>
+
+                <textarea
+                    id="notes"
+                    name="notes"
+                    rows="4"
+                    placeholder="Ex.: sem cebola, sem tomate, molho à parte..."
+                ></textarea>
+            </div>
+            
+            <div class="checkout-summary">
+
+                <div class="checkout-summary-row">
+                    <span>Produtos</span>
+
+                    <strong>
+                        R$ {{ checkout_subtotal }}
+                    </strong>
+                </div>
+
+                <div
+                    id="checkout-delivery-fee"
+                    class="checkout-summary-row"
+                    style="display: none;"
+                >
+                    <span>Taxa de entrega</span>
+
+                    <strong>
+                        R$ {{ restaurant.delivery_fee }}
+                    </strong>
+                </div>
+
+                <div class="checkout-summary-total">
+                    <span>Total</span>
+
+                    <strong id="checkout-final-total">
+                        R$ {{ checkout_subtotal }}
+                    </strong>
+                </div>
+
+            </div>
+
+            <button
+                type="submit"
+                class="add-cart-button"
+            >
+                Confirmar dados
+            </button>
+
+        </form>
+
+    </main>
+
+<script>
+    const checkoutDeliveryFee =
+        document.getElementById("checkout-delivery-fee");
+
+    const checkoutFinalTotal =
+        document.getElementById("checkout-final-total");
+
+    const subtotal =
+        parseFloat("{{ checkout_subtotal|unlocalize }}");
+
+    const deliveryFee =
+        parseFloat("{{ restaurant.delivery_fee|unlocalize }}");
+
+    const deliveryFeeInfo =
+        document.getElementById("delivery-fee-info");
+
+    const orderTypes = document.querySelectorAll(
+        'input[name="order_type"]'
+    );
+
+    const deliveryFields =
+        document.getElementById("delivery-fields");
+
+    const tableFields =
+        document.getElementById("table-fields");
+
+    const addressInput =
+        document.getElementById("address");
+
+    const numberInput =
+        document.getElementById("number");
+
+    const tableInput =
+        document.getElementById("table_number");
+
+    orderTypes.forEach((radio) => {
+        radio.addEventListener("change", () => {
+
+            deliveryFields.style.display = "none";
+            tableFields.style.display = "none";
+            deliveryFeeInfo.style.display = "none";
+            checkoutDeliveryFee.style.display = "none";
+
+            checkoutFinalTotal.textContent =
+                `R$ ${subtotal.toFixed(2)}`;
+
+            addressInput.required = false;
+            numberInput.required = false;
+            tableInput.required = false;
+
+            if (radio.value === "delivery") {
+                deliveryFields.style.display = "block";
+                deliveryFeeInfo.style.display = "block";
+                checkoutDeliveryFee.style.display = "flex";
+
+                const finalTotal =
+                    subtotal + deliveryFee;
+
+                checkoutFinalTotal.textContent =
+                    `R$ ${finalTotal.toFixed(2)}`;
+
+                addressInput.required = true;
+                numberInput.required = true; 
+            }
+
+            if (radio.value === "table") {
+                tableFields.style.display = "block";
+
+                tableInput.required = true;
+            }
+        });
+    });
+</script>
+    
+</body>
+
+</html>

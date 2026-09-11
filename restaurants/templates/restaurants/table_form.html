@@ -1,0 +1,94 @@
+{% extends "restaurants/base.html" %}
+
+{% block title %}
+{% if table %}
+Editar mesa
+{% else %}
+Nova mesa
+{% endif %}
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+
+    <div>
+        <h1>
+            {% if table %}
+            Editar mesa
+            {% else %}
+            Nova mesa
+            {% endif %}
+        </h1>
+        <p>Cadastre uma mesa para o restaurante.</p>
+    </div>
+
+</div>
+
+<div class="content-card">
+
+    <form method="POST">
+
+        {% csrf_token %}
+
+        <div class="form-group">
+
+            <label for="number">
+                Número da mesa
+            </label>
+            {% if error %}
+                <div class="form-error">
+                    {{ error }}
+                </div>
+            {% endif %}
+
+            <input
+                type="number"
+                id="number"
+                name="number"
+                min="1"
+                value="{% if table %}{{ table.number }}{% endif %}"
+                required
+            >
+
+        </div>
+
+        <div class="form-group">
+
+            <label for="name">
+                Nome / identificação
+            </label>
+
+            <input
+                type="text"
+                id="name"
+                name="name"
+                value="{% if table %}{{ table.name }}{% endif %}"
+                placeholder="Ex: Varanda"
+            >
+
+        </div>
+
+        <div class="form-actions">
+
+            <a
+                href="{% url 'table_list' %}"
+                class="btn-secondary"
+            >
+                Cancelar
+            </a>
+
+            <button
+                type="submit"
+                class="btn-primary"
+            >
+                Salvar
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}

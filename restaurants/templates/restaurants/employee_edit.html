@@ -1,0 +1,80 @@
+{% extends "restaurants/base.html" %}
+
+{% block title %}
+Editar funcionário
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+
+    <div>
+        <h1>Editar funcionário</h1>
+        <p>{{ employee.user.email }}</p>
+    </div>
+
+</div>
+
+<div class="content-card">
+
+    <form method="POST">
+
+        {% csrf_token %}
+
+        <div class="form-group">
+
+            <label for="role">
+                Função
+            </label>
+
+            <select
+                id="role"
+                name="role"
+                required
+            >
+
+                <option
+                    value="EMPLOYEE"
+                    {% if employee.role == "EMPLOYEE" %}
+                        selected
+                    {% endif %}
+                >
+                    Funcionário
+                </option>
+
+                <option
+                    value="ADMIN"
+                    {% if employee.role == "ADMIN" %}
+                        selected
+                    {% endif %}
+                >
+                    Administrador
+                </option>
+
+            </select>
+
+        </div>
+
+        <div class="form-actions">
+
+            <a
+                href="{% url 'employee_list' %}"
+                class="btn-secondary"
+            >
+                Cancelar
+            </a>
+
+            <button
+                type="submit"
+                class="btn-primary"
+            >
+                Salvar
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}

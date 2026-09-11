@@ -1,0 +1,168 @@
+{% extends "restaurants/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link
+    rel="stylesheet"
+    href="{% static 'inventory/css/inventory.css' %}"
+>
+{% endblock %}
+
+{% block content %}
+
+<div class="inventory-page">
+
+    <div class="inventory-page-header">
+
+        <div>
+            <h1>Compras</h1>
+            <p>
+                Acompanhe as entradas e compras do estoque.
+            </p>
+        </div>
+
+        <a href="{% url 'purchase_create' %}" class="inventory-create-button">
+            Nova compra
+        </a>
+
+    </div>
+
+    <form method="GET" class="inventory-filters">
+
+        <input
+            type="text"
+            name="search"
+            value="{{ search }}"
+            placeholder="Buscar fornecedor"
+        >
+
+        <select name="status">
+            <option value="">Todos os status</option>
+
+            <option
+                value="ACTIVE"
+                {% if status == "ACTIVE" %}selected{% endif %}
+            >
+                Ativas
+            </option>
+
+            <option
+                value="CANCELLED"
+                {% if status == "CANCELLED" %}selected{% endif %}
+            >
+                Canceladas
+            </option>
+        </select>
+
+        <input
+            type="date"
+            name="date_from"
+            value="{{ date_from }}"
+        >
+
+        <input
+            type="date"
+            name="date_to"
+            value="{{ date_to }}"
+        >
+
+        <button type="submit">
+            Filtrar
+        </button>
+
+        <a href="{% url 'purchase_list' %}">
+            Limpar
+        </a>
+
+    </form>
+
+
+    <div class="inventory-table-wrapper">
+
+        <table class="inventory-table">
+
+            <thead>
+                <tr>
+                    <th>Compra</th>
+                    <th>Data</th>
+                    <th>Fornecedor</th>
+                    <th>Total</th>
+                    <th>Responsável</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for purchase in purchases %}
+
+                    <tr>
+
+                        <td>
+                            <a
+                                href="{% url 'purchase_detail' purchase.id %}"
+                                class="purchase-detail-link"
+                            >
+                                #{{ purchase.id }}
+                            </a>
+                        </td>
+
+                        <td>
+                            {{ purchase.purchase_date|date:"d/m/Y" }}
+                        </td>
+
+                        <td>
+                            {% if purchase.supplier %}
+                                {{ purchase.supplier }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            <strong>
+                                R$ {{ purchase.total|floatformat:2 }}
+                            </strong>
+                        </td>
+
+                        <td>
+                            {% if purchase.created_by %}
+                                {{ purchase.created_by.email }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if purchase.status == "ACTIVE" %}
+                                <span class="purchase-status-active">
+                                    Ativa
+                                </span>
+                            {% else %}
+                                <span class="purchase-status-cancelled">
+                                    Cancelada
+                                </span>
+                            {% endif %}
+                        </td>
+
+                    </tr>
+
+                {% empty %}
+
+                    <tr>
+                        <td colspan="5">
+                            Nenhuma compra registrada.
+                        </td>
+                    </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,359 @@
+{% extends "restaurants/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link
+    rel="stylesheet"
+    href="{% static 'inventory/css/inventory.css' %}"
+>
+{% endblock %}
+
+{% block title %}
+Estoque
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>Estoque</h1>
+        <p>Gerencie os itens do estoque do restaurante.</p>
+    </div>
+    {% if membership.role == "ADMIN" %}
+        <a href="{% url 'inventory_create' %}" class="inventory-create-button">
+            + Novo item
+        </a>
+    {% endif %}
+    {% if membership.role == "ADMIN" %}
+
+        <a
+            href="{% url 'stock_movement_list' %}"
+            class="inventory-history-button"
+        >
+            Histórico de movimentações
+        </a>
+
+    {% endif %}
+</div>
+
+<form method="GET" class="inventory-filters">
+
+    <input
+        type="text"
+        name="search"
+        value="{{ search }}"
+        placeholder="Pesquisar item..."
+    >
+
+    <select name="status">
+        <option value="">
+            Todos
+        </option>
+
+        <option
+            value="low"
+            {% if status_filter == "low" %}selected{% endif %}
+        >
+            Estoque baixo
+        </option>
+
+        <option
+            value="active"
+            {% if status_filter == "active" %}selected{% endif %}
+        >
+            Ativos
+        </option>
+
+        <option
+            value="inactive"
+            {% if status_filter == "inactive" %}selected{% endif %}
+        >
+            Inativos
+        </option>
+    </select>
+
+    <button type="submit">
+        Filtrar
+    </button>
+
+    {% if search or status_filter %}
+        <a
+            href="{% url 'inventory_list' %}"
+            class="inventory-clear-filter"
+        >
+            Limpar
+        </a>
+    {% endif %}
+
+</form>
+
+<div class="inventory-summary">
+
+    <div class="inventory-summary-card">
+        <span>Itens cadastrados</span>
+        <strong>{{ total_items }}</strong>
+    </div>
+
+    <div class="inventory-summary-card low-stock-card">
+        <span>Estoque baixo</span>
+        <strong>{{ low_stock_count }}</strong>
+        
+        <small>
+            Itens abaixo do mínimo
+        </small>
+
+        {% if low_stock_items %}
+            <div class="low-stock-popover">
+
+                <div class="low-stock-popover-title">
+                    ⚠ Itens com estoque baixo
+                </div>
+
+                {% for item in low_stock_items %}
+
+                    <div class="low-stock-popover-item">
+
+                        <div>
+                            <strong>{{ item.name }}</strong>
+
+                            <span>
+                                Mínimo:
+                                {{ item.minimum_quantity|floatformat:"-3" }}
+                            </span>
+                        </div>
+
+                        <strong>
+                            {{ item.quantity|floatformat:"-3" }}
+                        </strong>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="inventory-summary-card">
+        <span>Itens inativos</span>
+        <strong>{{ inactive_count }}</strong>
+    </div>
+
+    <div class="inventory-summary-card">
+        <span>Valor total do estoque</span>
+
+        <strong>
+            R$ {{ total_inventory_value|floatformat:2 }}
+        </strong>
+    </div>
+
+</div>
+
+<div class="inventory-card">
+
+    <table class="inventory-table">
+
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Quantidade</th>
+                <th>Unidade</th>
+                <th>Estoque mínimo</th>
+                <th>Status</th>
+                <th>Última movimentação</th>
+                <th>Custo médio</th>
+                <th>Valor em estoque</th>
+                {% if membership.role == "ADMIN" %}
+                    <th>Ações</th>
+                {% endif %}
+            </tr>
+        </thead>
+
+        <tbody>
+
+            {% for item in items %}
+
+                <tr>
+                    <td>
+                        <strong>{{ item.name }}</strong>
+
+                        {% if item.quantity <= item.minimum_quantity %}
+                            <span class="stock-low">
+                                Estoque baixo
+                            </span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {{ item.quantity }}
+                    </td>
+
+                    <td>
+                        {{ item.get_unit_display }}
+                    </td>
+
+                    <td>
+                        {{ item.minimum_quantity }}
+                    </td>
+
+                    <td>
+                        {% if item.is_active %}
+                            <span class="stock-status active">
+                                Ativo
+                            </span>
+                        {% else %}
+                            <span class="stock-status inactive">
+                                Inativo
+                            </span>
+                        {% endif %}
+                    </td>
+                    
+                    <td>
+                        {% with movement=item.last_movement %}
+
+                            {% if movement %}
+
+                                <div class="last-movement">
+
+                                    <strong>
+                                        {{ movement.get_movement_type_display }}
+                                        {{ movement.quantity|floatformat:"-3" }}
+                                    </strong>
+
+                                    <span>
+                                        {{ movement.created_at|date:"d/m/Y H:i" }}
+                                    </span>
+
+                                    {% if movement.reason %}
+                                        <small>
+                                            {{ movement.reason }}
+                                        </small>
+                                    {% endif %}
+
+                                </div>
+
+                            {% else %}
+
+                                <span class="no-movement">
+                                    Sem movimentações
+                                </span>
+
+                            {% endif %}
+
+                        {% endwith %}
+                    </td>
+
+                    <td>
+                        {% if item.average_unit_cost is not None %}
+                            R$ {{ item.average_unit_cost|floatformat:2 }}
+                            / {{ item.get_unit_display }}
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if item.stock_value is not None %}
+                            <strong>
+                                R$ {{ item.stock_value|floatformat:2 }}
+                            </strong>
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+
+                    {% if membership.role == "ADMIN" %}
+                        <td class="inventory-actions">
+
+                            <a
+                                href="{% url 'inventory_edit' item.id %}"
+                                class="inventory-edit-button"
+                            >
+                                Editar
+                            </a>
+
+                            <form
+                                method="POST"
+                                action="{% url 'inventory_toggle_status' item.id %}"
+                            >
+                                {% csrf_token %}
+
+                                <button
+                                    type="submit"
+                                    class="inventory-status-button"
+                                >
+                                    {% if item.is_active %}
+                                        Desativar
+                                    {% else %}
+                                        Ativar
+                                    {% endif %}
+                                </button>
+
+                            </form>
+
+                            {% if membership.role == "ADMIN" %}
+
+                                <a
+                                    href="{% url 'stock_movement_create' item.id %}"
+                                    class="inventory-movement-button"
+                                >
+                                    Movimentar
+                                </a>
+
+                            {% endif %}
+
+                        </td>
+                    {% endif %}
+
+                </tr>
+
+            {% empty %}
+
+                <tr>
+                    <td colspan="6">
+                        Nenhum item cadastrado no estoque.
+                    </td>
+                </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+{% if page_obj.has_other_pages %}
+
+    <div class="pagination">
+
+        {% if page_obj.has_previous %}
+
+            <a
+                href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}"
+            >
+                Anterior
+            </a>
+
+        {% endif %}
+
+        <span>
+            Página {{ page_obj.number }}
+            de {{ page_obj.paginator.num_pages }}
+        </span>
+
+        {% if page_obj.has_next %}
+
+            <a
+                href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}"
+            >
+                Próxima
+            </a>
+
+        {% endif %}
+
+    </div>
+
+{% endif %}
+
+{% endblock %}

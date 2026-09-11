@@ -1,0 +1,200 @@
+{% extends "restaurants/base.html" %}
+
+{% block title %}
+Pedido #{{ order.id }}
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+
+    <div>
+        <h1>Pedido #{{ order.id }}</h1>
+        <p>{{ order.customer_name }}</p>
+    </div>
+
+</div>
+
+<div class="content-card">
+
+    <h2>Informações do pedido</h2>
+
+    <p>
+        <strong>Cliente:</strong>
+        {{ order.customer_name }}
+    </p>
+
+    <p>
+        <strong>Telefone:</strong>
+        {{ order.customer_phone }}
+    </p>
+
+    <p>
+        <strong>Tipo:</strong>
+        {{ order.get_order_type_display }}
+    </p>
+
+    <p>
+        <strong>Status:</strong>
+        {{ order.get_status_display }}
+    </p>
+
+    <form
+        method="POST"
+        action="{% url 'order_update_status' order.id %}"
+        class="order-status-form"
+    >
+        {% if order.status != "FINISHED" and order.status != "REJECTED" and order.status != "CANCELLED" %}
+
+    <form
+        method="POST"
+        action="{% url 'order_update_status' order.id %}"
+    >
+        {% csrf_token %}
+
+                <label for="status">
+                    Alterar status
+                </label>
+
+                <select name="status" id="status">
+
+                    {% if order.status == "NEW" %}
+                        <option value="CONFIRMED">Confirmado</option>
+                        <option value="REJECTED">Rejeitado</option>
+                        <option value="CANCELLED">Cancelado</option>
+
+                    {% elif order.status == "CONFIRMED" %}
+                        <option value="PREPARING">Em preparo</option>
+                        <option value="CANCELLED">Cancelado</option>
+
+                    {% elif order.status == "PREPARING" %}
+                        <option value="READY">Pronto</option>
+                        <option value="CANCELLED">Cancelado</option>
+
+                    {% elif order.status == "READY" %}
+
+                        {% if order.order_type == "delivery" %}
+                            <option value="OUT_FOR_DELIVERY">
+                                Saiu para entrega
+                            </option>
+                        {% endif %}
+
+                        <option value="FINISHED">
+                            Finalizado
+                        </option>
+
+                        <option value="CANCELLED">
+                            Cancelado
+                        </option>
+
+                    {% elif order.status == "OUT_FOR_DELIVERY" %}
+                        <option value="FINISHED">
+                            Finalizado
+                        </option>
+
+                    {% endif %}
+
+                </select>
+
+                <button type="submit">
+                    Atualizar status
+                </button>
+
+            </form>
+
+        {% else %}
+
+            <div class="order-closed-message">
+                Este pedido está encerrado.
+            </div>
+
+        {% endif %}
+    </form>
+
+    {% if order.order_type == "delivery" %}
+
+        <p>
+            <strong>Endereço:</strong>
+            {{ order.address }},
+            {{ order.address_number }}
+        </p>
+
+        {% if order.complement %}
+            <p>
+                <strong>Complemento:</strong>
+                {{ order.complement }}
+            </p>
+        {% endif %}
+
+    {% endif %}
+
+    {% if order.order_type == "table" %}
+
+        <p>
+            <strong>Mesa:</strong>
+            {% if order.table %}
+                Mesa {{ order.table.number }}
+
+                {% if order.table.name %}
+                    - {{ order.table.name }}
+                {% endif %}
+            {% else %}
+                Mesa {{ order.table_number }}
+            {% endif %}
+        </p>
+
+    {% endif %}
+
+</div>
+
+<div class="content-card">
+
+    <h2>Itens</h2>
+
+    {% for item in order.items.all %}
+
+        <div class="order-item">
+
+            <h3>
+                {{ item.quantity }}x {{ item.product_name }}
+            </h3>
+
+            {% if item.variation_name %}
+                <p>
+                    {{ item.variation_name }}
+                </p>
+            {% endif %}
+
+            {% for addon in item.addons.all %}
+                <p>
+                    + {{ addon.addon_name }}
+                    — R$ {{ addon.addon_price }}
+                </p>
+            {% endfor %}
+
+            {% if order.notes %}
+                <div class="order-notes">
+                    <strong>Observações:</strong>
+                    <p>{{ order.notes }}</p>
+                </div>
+            {% endif %}
+
+            <strong>
+                R$ {{ item.total }}
+            </strong>
+
+        </div>
+
+    {% endfor %}
+
+</div>
+
+<div class="content-card">
+
+    <h2>
+        Total: R$ {{ order.total }}
+    </h2>
+
+</div>
+
+{% endblock %}

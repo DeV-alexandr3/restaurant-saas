@@ -1,0 +1,82 @@
+{% extends "restaurants/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'inventory/css/inventory.css' %}">
+{% endblock %}
+
+{% block title %}
+Novo item
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>Novo item de estoque</h1>
+        <p>Cadastre um ingrediente ou produto controlado em estoque.</p>
+    </div>
+</div>
+
+{% if error %}
+    <p>{{ error }}</p>
+{% endif %}
+
+<form method="POST" class="inventory-form">
+    {% csrf_token %}
+
+    <div class="inventory-form-group">
+        <label>Nome</label>
+
+        <input
+            type="text"
+            name="name"
+            required
+        >
+    </div>
+
+    <div class="inventory-form-group">
+        <label>Unidade de medida</label>
+
+        <select name="unit" required>
+            <option value="UN">Unidade</option>
+            <option value="KG">Quilograma</option>
+            <option value="G">Grama</option>
+            <option value="L">Litro</option>
+            <option value="ML">Mililitro</option>
+        </select>
+    </div>
+
+    <div class="inventory-form-group">
+        <label>Quantidade atual</label>
+
+        <input
+            type="number"
+            name="quantity"
+            step="0.001"
+            min="0"
+            value="0"
+            required
+        >
+    </div>
+
+    <div class="inventory-form-group">
+        <label>Estoque mínimo</label>
+
+        <input
+            type="number"
+            name="minimum_quantity"
+            step="0.001"
+            min="0"
+            value="0"
+            required
+        >
+    </div>
+
+    <button type="submit" class="inventory-form-group">
+        Salvar item
+    </button>
+
+</form>
+
+{% endblock %}

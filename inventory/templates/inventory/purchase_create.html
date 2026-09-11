@@ -1,0 +1,182 @@
+{% extends "restaurants/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link
+    rel="stylesheet"
+    href="{% static 'inventory/css/inventory.css' %}"
+>
+{% endblock %}
+
+{% block content %}
+
+<div class="inventory-page">
+
+    <div class="inventory-page-header">
+
+        <div>
+            <h1>Nova compra</h1>
+
+            <p>
+                Registre uma compra e atualize o estoque.
+            </p>
+        </div>
+
+    </div>
+
+
+    {% if error %}
+        <div class="inventory-error">
+            {{ error }}
+        </div>
+    {% endif %}
+
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <div class="inventory-form-group">
+
+            <label>
+                Fornecedor
+            </label>
+
+            <input
+                type="text"
+                name="supplier"
+                placeholder="Ex.: Açougue Mineiros"
+            >
+
+        </div>
+
+
+        <div class="inventory-form-group">
+
+            <label>
+                Data da compra
+            </label>
+
+            <input
+                type="date"
+                name="purchase_date"
+                required
+            >
+
+        </div>
+
+
+        <h2>Itens da compra</h2>
+
+
+        <div id="purchase-items">
+
+            <div class="purchase-item-row">
+
+                <select
+                    name="inventory_item"
+                    required
+                >
+
+                    <option value="">
+                        Selecione um item
+                    </option>
+
+                    {% for item in inventory_items %}
+
+                        <option value="{{ item.id }}">
+                            {{ item.name }}
+                            ({{ item.get_unit_display }})
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+
+                <input
+                    type="number"
+                    name="quantity"
+                    step="0.001"
+                    min="0.001"
+                    placeholder="Quantidade"
+                    required
+                >
+
+
+                <input
+                    type="number"
+                    name="unit_price"
+                    step="0.01"
+                    min="0"
+                    placeholder="Preço por unidade"
+                    required
+                >
+
+            </div>
+
+        </div>
+
+
+        <button
+            type="button"
+            id="add-purchase-item"
+        >
+            + Adicionar item
+        </button>
+
+
+        <button
+            type="submit"
+            class="inventory-create-button"
+        >
+            Salvar compra
+        </button>
+
+    </form>
+
+</div>
+
+
+<script>
+
+    const container = document.getElementById(
+        "purchase-items"
+    );
+
+    const addButton = document.getElementById(
+        "add-purchase-item"
+    );
+
+
+    addButton.addEventListener(
+        "click",
+        function () {
+
+            const firstRow =
+                container.querySelector(
+                    ".purchase-item-row"
+                );
+
+            const newRow =
+                firstRow.cloneNode(true);
+
+            newRow
+                .querySelectorAll(
+                    "input, select"
+                )
+                .forEach(
+                    function (field) {
+                        field.value = "";
+                    }
+                );
+
+            container.appendChild(
+                newRow
+            );
+
+        }
+    );
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,242 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        {{ product.name }} - {{ restaurant.name }}
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="{% static 'catalog/css/public_menu.css' %}"
+    >
+
+    <style>
+        :root {
+            --restaurant-primary: {{ restaurant.primary_color }};
+            --restaurant-background: {{ restaurant.background_color }};
+        }
+    </style>
+</head>
+
+<body>
+
+    <main class="product-detail-container">
+
+        <div class="product-detail-nav">
+
+            <a
+                href="{% url 'public_menu' restaurant.slug %}"
+                class="back-link"
+            >
+                ← Voltar ao cardápio
+            </a>
+
+            <a
+                href="{% url 'cart_detail' restaurant.slug %}"
+                class="cart-link"
+            >
+                🛒 Ver carrinho
+
+                {% if cart_count > 0 %}
+                    <span class="cart-badge">
+                        {{ cart_count }}
+                    </span>
+                {% endif %}
+            </a>
+        
+        </div>
+
+        <div class="product-detail-card">
+
+            {% if product.image %}
+
+                <img
+                    src="{{ product.image.url }}"
+                    alt="{{ product.name }}"
+                    class="product-detail-image"
+                >
+
+            {% endif %}
+
+            <div class="product-detail-content">
+
+                <h1>{{ product.name }}</h1>
+
+                {% if product.description %}
+
+                    <p class="product-description">
+                        {{ product.description }}
+                    </p>
+
+                {% endif %}
+
+                <form
+                    method="POST"
+                    action="{% url 'add_to_cart' restaurant.slug product.id %}"
+                >
+                    {% csrf_token %}
+
+                    {% if variations %}
+
+                        <section class="product-options">
+
+                            <h2>Escolha uma opção</h2>
+
+                            {% for variation in variations %}
+
+                                <label class="option-item">
+
+                                    <input
+                                        type="radio"
+                                        name="variation"
+                                        value="{{ variation.id }}"
+                                    >
+
+                                    <span>
+                                        {{ variation.name }}
+                                    </span>
+
+                                    <strong>
+                                        R$ {{ variation.price }}
+                                    </strong>
+
+                                </label>
+
+                            {% endfor %}
+
+                        </section>
+
+                    {% else %}
+
+                        <div class="simple-product-price">
+                            R$ {{ product.price }}
+                        </div>
+
+                    {% endif %}
+
+
+                    {% for group in addon_groups %}
+
+                        <section class="product-options">
+
+                            <div class="option-header">
+
+                                <h2>{{ group.name }}</h2>
+
+                                <span>
+                                    Escolha até {{ group.max_choices }}
+                                </span>
+
+                            </div>
+
+                            {% for addon in group.addons.all %}
+
+                                {% if addon.is_available %}
+
+                                    <label class="option-item">
+
+                                        {% if group.max_choices == 1 %}
+
+                                            <input
+                                                type="radio"
+                                                name="addon_group_{{ group.id }}"
+                                                value="{{ addon.id }}"
+                                            >
+
+                                        {% else %}
+
+                                            <input
+                                                type="checkbox"
+                                                name="addon"
+                                                value="{{ addon.id }}"
+                                            >
+
+                                        {% endif %}
+
+                                        <span>
+                                            {{ addon.name }}
+                                        </span>
+
+                                        <strong>
+                                            + R$ {{ addon.price }}
+                                        </strong>
+
+                                    </label>
+
+                                {% endif %}
+
+                            {% empty %}
+
+                                <p>
+                                    Nenhuma opção disponível.
+                                </p>
+
+                            {% endfor %}
+
+                        </section>
+
+                    {% endfor %}
+                    
+                    {% if messages %}
+
+                        <div class="cart-messages">
+
+                            {% for message in messages %}
+                                <div class="cart-message">
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+
+                        </div>
+
+                    {% endif %}
+
+                    <button
+                        type="submit"
+                        class="add-cart-button"
+                    >
+                        Adicionar ao carrinho
+                    </button>
+                </form>
+            </div>
+
+        </div>
+
+    </main>
+
+</body>
+
+<script>
+    const scrollKey = "product_scroll_position";
+
+    window.addEventListener("beforeunload", function () {
+        sessionStorage.setItem(
+            scrollKey,
+            window.scrollY
+        );
+    });
+
+    window.addEventListener("load", function () {
+        const savedPosition =
+            sessionStorage.getItem(scrollKey);
+
+        if (savedPosition !== null) {
+            window.scrollTo(
+                0,
+                parseInt(savedPosition)
+            );
+        }
+    });
+</script>
+
+</html>

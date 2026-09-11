@@ -1,0 +1,117 @@
+{% extends "restaurants/base.html" %}
+
+{% block title %}
+Funcionários
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+
+    <div>
+        <h1>Funcionários</h1>
+        <p>Gerencie quem tem acesso ao restaurante.</p>
+    </div>
+
+    <a
+        href="{% url 'employee_create' %}"
+        class="btn-primary"
+    >
+        Novo funcionário
+    </a>
+
+</div>
+
+<div class="content-card">
+
+    {% if employees %}
+
+        <table class="category-table">
+
+            <thead>
+                <tr>
+                    <th>E-mail</th>
+                    <th>Função</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for employee in employees %}
+
+                    <tr>
+
+                        <td>
+                            {{ employee.user.email }}
+                        </td>
+
+                        <td>
+                            {{ employee.get_role_display }}
+                        </td>
+
+                        <td>
+                            {% if employee.is_active %}
+                                <span class="status-active">
+                                    Ativo
+                                </span>
+                            {% else %}
+                                <span class="status-inactive">
+                                    Inativo
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+
+                            <a
+                                href="{% url 'employee_edit' employee.id %}"
+                                class="btn-edit"
+                            >
+                                Editar
+                            </a>
+
+                            {% if employee.user != request.user %}
+
+                                <form
+                                    method="POST"
+                                    action="{% url 'employee_toggle_status' employee.id %}"
+                                    style="display: inline;"
+                                >
+                                    {% csrf_token %}
+
+                                    <button
+                                        type="submit"
+                                        class="btn-secondary"
+                                    >
+                                        {% if employee.is_active %}
+                                            Desativar
+                                        {% else %}
+                                            Ativar
+                                        {% endif %}
+                                    </button>
+
+                                </form>
+
+                            {% endif %}
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    {% else %}
+
+        <p>Nenhum funcionário cadastrado.</p>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

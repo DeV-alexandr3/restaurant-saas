@@ -1,0 +1,378 @@
+{% extends "restaurants/base.html" %}
+
+{% block title %}
+Dashboard
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <h1>Dashboard</h1>
+</div>
+
+<div class="dashboard-cards">
+
+    <div class="dashboard-card">
+        <span>Pedidos hoje</span>
+        <strong>{{ today_orders_count }}</strong>
+    </div>
+
+    <div class="dashboard-card">
+        <span>Faturamento hoje</span>
+        <strong>
+            R$ {{ today_total_sales|floatformat:2 }}
+        </strong>
+    </div>
+
+    <div class="dashboard-card">
+        <span>Ticket médio hoje</span>
+        <strong>
+            R$ {{ today_average_ticket|floatformat:2 }}
+        </strong>
+    </div>
+
+    <div class="dashboard-card">
+        <span>Pedidos novos</span>
+        <strong>{{ today_new_orders_count }}</strong>
+    </div>
+
+    <div class="dashboard-card stock-card">
+
+        <span>Estoque baixo</span>
+
+        <strong>
+            {{ low_stock_count }}
+        </strong>
+
+        {% if low_stock_items %}
+            <div class="stock-tooltip">
+
+                {% for item in low_stock_items %}
+
+                    <div class="stock-tooltip-item">
+
+                        <span>
+                            {{ item.name }}
+                        </span>
+
+                        <strong>
+                            {{ item.quantity|floatformat:"-3" }}
+
+                            {% if item.unit == "KG" %}
+                                kg
+                            {% elif item.unit == "G" %}
+                                g
+                            {% elif item.unit == "L" %}
+                                L
+                            {% elif item.unit == "ML" %}
+                                ml
+                            {% else %}
+                                un.
+                            {% endif %}
+                        </strong>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+        {% endif %}
+
+    </div>
+
+</div>
+
+<div class="dashboard-section">
+
+    <div class="dashboard-section-header">
+        <h2>Pedidos recentes</h2>
+
+        <a href="{% url 'order_list' %}">
+            Ver todos
+        </a>
+    </div>
+
+    <div class="dashboard-recent-orders">
+
+        {% for order in recent_orders %}
+
+            <a
+                href="{% url 'order_detail' order.id %}"
+                class="recent-order"
+            >
+                <div>
+                    <strong>
+                        Pedido #{{ order.id }}
+                    </strong>
+
+                    <span>
+                        {{ order.customer_name }}
+                    </span>
+                </div>
+
+                <div>
+                    <span>
+                        {{ order.get_status_display }}
+                    </span>
+
+                    <strong>
+                        R$ {{ order.total|floatformat:2 }}
+                    </strong>
+                </div>
+
+            </a>
+
+        {% empty %}
+
+            <p>Nenhum pedido ainda.</p>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+
+<div class="dashboard-section">
+
+    <div class="dashboard-section-header">
+        <h2>Vendas dos últimos 7 dias</h2>
+    </div>
+
+    <div class="dashboard-chart">
+        <canvas id="sales-chart"></canvas>
+    </div>
+
+</div>
+
+{{ sales_labels|json_script:"sales-labels" }}
+{{ sales_values|json_script:"sales-values" }}
+
+<div class="dashboard-section">
+
+    <div class="dashboard-section-header">
+        <h2>Pedidos por status</h2>
+    </div>
+
+    <div class="dashboard-chart">
+        <canvas id="status-chart"></canvas>
+    </div>
+
+</div>
+
+{{ status_labels|json_script:"status-labels" }}
+{{ status_values|json_script:"status-values" }}
+
+<div class="dashboard-section">
+
+    <div class="dashboard-section-header">
+        <h2>Produtos mais vendidos</h2>
+    </div>
+
+    <div class="quick-period-filters">
+
+        <a
+            href="?products_period=today"
+            class="{% if products_period == 'today' %}active{% endif %}"
+        >
+            Hoje
+        </a>
+
+        <a
+            href="?products_period=7days"
+            class="{% if products_period == '7days' %}active{% endif %}"
+        >
+            7 dias
+        </a>
+
+        <a
+            href="?products_period=30days"
+            class="{% if products_period == '30days' %}active{% endif %}"
+        >
+            30 dias
+        </a>
+
+    </div>
+
+    <div class="dashboard-chart">
+        <canvas id="top-products-chart"></canvas>
+    </div>
+
+</div>
+
+{{ top_product_labels|json_script:"top-product-labels" }}
+{{ top_product_values|json_script:"top-product-values" }}
+
+<div class="dashboard-section">
+
+    <div class="dashboard-section-header">
+        <h2>Pedidos por tipo</h2>
+    </div>
+
+    <div class="dashboard-chart">
+        <canvas id="order-type-chart"></canvas>
+    </div>
+
+</div>
+
+{{ order_type_labels|json_script:"order-type-labels" }}
+{{ order_type_values|json_script:"order-type-values" }}
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    const salesLabels = JSON.parse(
+        document.getElementById("sales-labels").textContent
+    );
+
+    const salesValues = JSON.parse(
+        document.getElementById("sales-values").textContent
+    );
+
+    const salesChart = document.getElementById("sales-chart");
+
+    new Chart(salesChart, {
+        type: "line",
+
+        data: {
+            labels: salesLabels,
+
+            datasets: [{
+                label: "Vendas (R$)",
+                data: salesValues,
+                tension: 0.3
+            }]
+        },
+
+        options: {
+            responsive: true,
+
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    const statusLabels = JSON.parse(
+        document.getElementById("status-labels").textContent
+    );
+
+    const statusValues = JSON.parse(
+        document.getElementById("status-values").textContent
+    );
+
+    const statusChart =
+        document.getElementById("status-chart");
+
+    new Chart(statusChart, {
+        type: "doughnut",
+
+        data: {
+            labels: statusLabels,
+
+            datasets: [{
+                data: statusValues
+            }]
+        },
+
+        options: {
+            responsive: true,
+
+            plugins: {
+                legend: {
+                    position: "bottom"
+                }
+            }
+        }
+    });
+
+    const topProductLabels = JSON.parse(
+        document.getElementById(
+            "top-product-labels"
+        ).textContent
+    );
+
+    const topProductValues = JSON.parse(
+        document.getElementById(
+            "top-product-values"
+        ).textContent
+    );
+
+    const topProductsChart =
+        document.getElementById(
+            "top-products-chart"
+        );
+
+    new Chart(topProductsChart, {
+        type: "bar",
+
+        data: {
+            labels: topProductLabels,
+
+            datasets: [{
+                label: "Quantidade vendida",
+                data: topProductValues
+            }]
+        },
+
+        options: {
+            responsive: true,
+
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    const orderTypeLabels = JSON.parse(
+        document.getElementById(
+            "order-type-labels"
+        ).textContent
+    );
+
+    const orderTypeValues = JSON.parse(
+        document.getElementById(
+            "order-type-values"
+        ).textContent
+    );
+
+    const orderTypeChart =
+        document.getElementById(
+            "order-type-chart"
+        );
+
+    new Chart(orderTypeChart, {
+        type: "doughnut",
+
+        data: {
+            labels: orderTypeLabels,
+
+            datasets: [{
+                data: orderTypeValues
+            }]
+        },
+
+        options: {
+            responsive: true,
+
+            plugins: {
+                legend: {
+                    position: "bottom"
+                }
+            }
+        }
+    });
+</script>
+
+{% endblock %}

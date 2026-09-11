@@ -1,0 +1,327 @@
+{% extends "restaurants/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'inventory/css/inventory.css' %}">
+{% endblock %}
+
+{% block title %}
+Ficha técnica
+{% endblock %}
+{% if error %}
+    <div class="inventory-error">
+        {{ error }}
+    </div>
+{% endif %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>Ficha técnica</h1>
+        <p>{{ product.name }}</p>
+    </div>
+</div>
+
+<div class="inventory-card">
+
+    <table class="inventory-table">
+
+        <thead>
+            <tr>
+                <th>Ingrediente</th>
+                <th>Quantidade usada</th>
+                <th>Custo da unidade</th>
+                <th>Custo na receita</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+
+        <form method="POST" class="inventory-form recipe-form">
+
+            {% csrf_token %}
+
+            <div class="inventory-form-group">
+
+                <label>Ingrediente</label>
+
+                <select
+                    name="inventory_item"
+                    id="inventory-item-select"
+                    required
+                >
+                    <option value="">
+                        Selecione um ingrediente
+                    </option>
+
+                    {% for item in inventory_items %}
+                        <option value="{{ item.id }}" data-unit="{{ item.unit }}">
+                            {{ item.name }}
+                            ({{ item.get_unit_display }})
+                        </option>
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+            <div class="inventory-form-group">
+
+                <label>Quantidade utilizada</label>
+
+                <input
+                    type="number"
+                    name="quantity"
+                    min="0.001"
+                    step="0.001"
+                    required
+                >
+
+            </div>
+
+            <div class="inventory-form-group" >
+
+                <label>Unidade</label>
+
+                <select
+                    name="unit"
+                    id="recipe-unit-select"
+                    required
+                >
+                    <option value="UN">Unidade</option>
+                    <option value="KG">Quilograma</option>
+                    <option value="G">Grama</option>
+                    <option value="L">Litro</option>
+                    <option value="ML">Mililitro</option>
+                </select>
+
+            </div>
+
+            <button
+                type="submit"
+                class="inventory-save-button"
+            >
+                Adicionar ingrediente
+            </button>
+
+        </form>
+
+        <tbody>
+
+            {% for item in ingredient_costs %}
+                <tr>
+
+                    <td>
+                        {{ item.ingredient.inventory_item.name }}
+                    </td>
+
+                    <td>
+                        {{ item.ingredient.quantity|floatformat:"-3" }}
+
+                        {% if item.ingredient.unit == "G" %}
+                            g
+                        {% elif item.ingredient.unit == "KG" %}
+                            kg
+                        {% elif item.ingredient.unit == "ML" %}
+                            ml
+                        {% elif item.ingredient.unit == "L" %}
+                            L
+                        {% else %}
+                            un.
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if item.cost is not None %}
+                            R$ {{ item.cost|floatformat:2 }}
+                        {% else %}
+                            Sem custo cadastrado
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if item.cost is not None %}
+                            <strong>
+                                R$ {{ item.cost|floatformat:2 }}
+                            </strong>
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+
+
+                    <td class="inventory-actions">
+                        <a
+                            href="{% url 'product_recipe_edit' item.ingredient.id %}"
+                            class="inventory-edit-button"
+                        >
+                            Editar
+                        </a>
+
+                        <form
+                            method="POST"
+                            action="{% url 'product_recipe_remove' item.ingredient.id %}"
+                        >
+                            {% csrf_token %}
+
+                            <button
+                                type="submit"
+                                class="recipe-remove-button"
+                            >
+                                Remover
+                            </button>
+                        </form>
+                    </td>
+
+                </tr>
+            {% empty %}
+
+                <tr>
+                    <td colspan="4">
+                        Nenhum ingrediente cadastrado.
+                    </td>
+                </tr>
+
+            {% endfor %}
+
+        </tbody>  
+
+    </table>
+
+
+
+</div>
+
+<div class="recipe-cost-summary">
+
+    <div class="recipe-cost-card">
+        <span>Preço de venda</span>
+
+        <strong>
+            R$ {{ product.price|floatformat:2 }}
+        </strong>
+    </div>
+
+    <div class="recipe-cost-card">
+        <span>Custo estimado</span>
+
+        {% if has_missing_cost %}
+            <strong>Custo incompleto</strong>
+        {% else %}
+            <strong>
+                R$ {{ estimated_cost|floatformat:2 }}
+            </strong>
+        {% endif %}
+    </div>
+
+    <div class="recipe-cost-card">
+        <span>Margem bruta em R$</span>
+
+        {% if has_missing_cost %}
+            <strong>—</strong>
+        {% else %}
+            <strong>
+                R$ {{ gross_margin|floatformat:2 }}
+            </strong>
+        {% endif %}
+    </div>
+
+    <div class="recipe-cost-card">
+        <span>Margem bruta em %</span>
+
+        {% if has_missing_cost %}
+            <strong>—</strong>
+        {% else %}
+            <strong>
+                {{ gross_margin_percentage|floatformat:2 }}%
+            </strong>
+        {% endif %}
+    </div>
+    {% if has_missing_cost %}
+
+        <div class="recipe-cost-warning">
+
+            <strong>
+                Existem ingredientes sem custo cadastrado:
+            </strong>
+
+            {% for item_name in missing_cost_items %}
+                <span>{{ item_name }}</span>
+            {% endfor %}
+
+        </div>
+
+    {% endif %}
+</div>
+
+<script>
+    const inventoryItemSelect =
+        document.getElementById("inventory-item-select");
+
+    const recipeUnitSelect =
+        document.getElementById("recipe-unit-select");
+
+    const compatibleUnits = {
+        KG: [
+            ["KG", "Quilograma"],
+            ["G", "Grama"],
+        ],
+
+        G: [
+            ["G", "Grama"],
+            ["KG", "Quilograma"],
+        ],
+
+        L: [
+            ["L", "Litro"],
+            ["ML", "Mililitro"],
+        ],
+
+        ML: [
+            ["ML", "Mililitro"],
+            ["L", "Litro"],
+        ],
+
+        UN: [
+            ["UN", "Unidade"],
+        ],
+    };
+
+    inventoryItemSelect.addEventListener("change", () => {
+
+        const selectedOption =
+            inventoryItemSelect.options[
+                inventoryItemSelect.selectedIndex
+            ];
+
+        const stockUnit =
+            selectedOption.dataset.unit;
+
+        recipeUnitSelect.innerHTML = "";
+
+        if (!stockUnit) {
+
+            recipeUnitSelect.innerHTML =
+                '<option value="">Selecione a unidade</option>';
+
+            return;
+        }
+
+        const units =
+            compatibleUnits[stockUnit] || [];
+
+        units.forEach(([value, label]) => {
+
+            const option =
+                document.createElement("option");
+
+            option.value = value;
+            option.textContent = label;
+
+            recipeUnitSelect.appendChild(option);
+
+        });
+
+    });
+</script>
+{% endblock %}

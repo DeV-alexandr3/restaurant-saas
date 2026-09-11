@@ -1,0 +1,71 @@
+{% extends "restaurants/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'inventory/css/inventory.css' %}">
+{% endblock %}
+
+{% block title %}
+Editar item
+{% endblock %}
+
+{% block content %}
+
+<h1>Editar item</h1>
+
+<form method="POST" class="inventory-form">
+    {% csrf_token %}
+
+    <div class="inventory-form-group">
+        <label>Nome</label>
+        <input
+            type="text"
+            name="name"
+            value="{{ item.name }}"
+            required
+        >
+    </div>
+
+    <div class="inventory-form-group">
+        <label>Unidade</label>
+
+        <select name="unit">
+            <option value="UN" {% if item.unit == "UN" %}selected{% endif %}>Unidade</option>
+            <option value="KG" {% if item.unit == "KG" %}selected{% endif %}>Quilograma</option>
+            <option value="G" {% if item.unit == "G" %}selected{% endif %}>Grama</option>
+            <option value="L" {% if item.unit == "L" %}selected{% endif %}>Litro</option>
+            <option value="ML" {% if item.unit == "ML" %}selected{% endif %}>Mililitro</option>
+        </select>
+    </div>
+
+    <div class="inventory-form-group">
+        <label>Quantidade atual</label>
+        <input
+            type="number"
+            name="quantity"
+            step="0.001"
+            min="0"
+            value="{{ item.quantity }}"
+            required
+        >
+    </div>
+
+    <div class="inventory-form-group">
+        <label>Estoque mínimo</label>
+        <input
+            type="number"
+            name="minimum_quantity"
+            step="0.001"
+            min="0"
+            value="{{ item.minimum_quantity }}"
+            required
+        >
+    </div>
+
+    <button type="submit" class="inventory-form-group">
+        Salvar alterações
+    </button>
+
+</form>
+
+{% endblock %}

@@ -1,0 +1,155 @@
+{% extends "restaurants/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link
+    rel="stylesheet"
+    href="{% static 'inventory/css/inventory.css' %}"
+>
+{% endblock %}
+
+{% block title %}
+Movimentar estoque
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>Movimentar estoque</h1>
+
+        <p>
+            {{ item.name }} —
+            Estoque atual:
+            <strong>
+                {{ item.quantity }}
+                {{ item.get_unit_display }}
+            </strong>
+        </p>
+    </div>
+</div>
+
+
+{% if error %}
+    <div class="inventory-error">
+        {{ error }}
+    </div>
+{% endif %}
+
+
+<form method="POST" class="inventory-form">
+
+    {% csrf_token %}
+
+    <div class="inventory-form-group">
+
+        <label>Tipo de movimentação</label>
+
+        <select
+            name="movement_type"
+            id="movement-type-select"
+            required
+        >
+            <option value="IN">
+                Entrada
+            </option>
+
+            <option value="OUT">
+                Saída
+            </option>
+
+            <option value="ADJUST">
+                Ajuste
+            </option>
+
+        </select>
+
+    </div>
+
+
+    <div class="inventory-form-group">
+
+        <label>Quantidade</label>
+
+        <input
+            type="number"
+            name="quantity"
+            min="0"
+            step="0.001"
+            required
+        >
+
+    </div>
+
+
+    <div class="inventory-form-group">
+
+        <label>Motivo</label>
+
+        <input
+            type="text"
+            name="reason"
+            placeholder="Ex: Compra de fornecedor"
+        >
+
+    </div>
+
+    <div id="purchase-fields" style="display: none;">
+
+        <div class="inventory-form-group">
+            <label>Fornecedor</label>
+
+            <input
+                type="text"
+                name="supplier"
+                placeholder="Ex: Distribuidora X"
+            >
+        </div>
+
+        <div class="inventory-form-group">
+            <label>Valor total da compra</label>
+
+            <input
+                type="number"
+                name="total_cost"
+                min="0"
+                step="0.01"
+                placeholder="0,00"
+            >
+        </div>
+
+    </div>
+
+
+    <button
+        type="submit"
+        class="inventory-save-button"
+    >
+        Registrar movimentação
+    </button>
+
+</form>
+
+<script>
+    const movementTypeSelect =
+        document.getElementById("movement-type-select");
+
+    const purchaseFields =
+        document.getElementById("purchase-fields");
+
+    function updatePurchaseFields() {
+        if (movementTypeSelect.value === "IN") {
+            purchaseFields.style.display = "block";
+        } else {
+            purchaseFields.style.display = "none";
+        }
+    }
+
+    movementTypeSelect.addEventListener(
+        "change",
+        updatePurchaseFields
+    );
+
+    updatePurchaseFields();
+</script>
+{% endblock %}

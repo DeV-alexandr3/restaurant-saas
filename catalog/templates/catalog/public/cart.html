@@ -1,0 +1,156 @@
+{% load static %}
+
+<!DOCTYPE html>
+
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Carrinho - {{ restaurant.name }}
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="{% static 'catalog/css/public_menu.css' %}"
+    >
+
+    <style>
+        :root {
+            --restaurant-primary: {{ restaurant.primary_color }};
+            --restaurant-background: {{ restaurant.background_color }};
+        }
+    </style>
+</head>
+
+<body>
+
+    <main class="cart-container">
+
+        <a
+            href="{% url 'public_menu' restaurant.slug %}"
+            class="back-link"
+        >
+            ← Continuar comprando
+        </a>
+
+        <h1>Seu carrinho</h1>
+
+        {% if cart_items %}
+
+            <div class="cart-items">
+
+                {% for item in cart_items %}
+
+                    <div class="cart-item">
+
+                        <div class="cart-item-info">
+
+                            <h2>
+                                {{ item.product.name }}
+                            </h2>
+
+                            {% if item.variation %}
+                                <p>
+                                    {{ item.variation.name }}
+                                </p>
+                            {% endif %}
+
+                            {% for addon in item.addons %}
+                                <p class="cart-addon">
+                                    + {{ addon.name }}
+                                </p>
+                            {% endfor %}
+
+                            <div class="quantity-control">
+
+                                <form
+                                    method="POST"
+                                    action="{% url 'cart_quantity' restaurant.slug item.index 'decrease' %}"
+                                >
+                                    {% csrf_token %}
+
+                                    <button type="submit">
+                                        -
+                                    </button>
+                                </form>
+
+                                <span>
+                                    {{ item.quantity }}
+                                </span>
+
+                                <form
+                                    method="POST"
+                                    action="{% url 'cart_quantity' restaurant.slug item.index 'increase' %}"
+                                >
+                                    {% csrf_token %}
+
+                                    <button type="submit">
+                                        +
+                                    </button>
+                                </form>
+
+                            </div>
+
+                            <form
+                                method="POST"
+                                action="{% url 'cart_remove' restaurant.slug item.index %}"
+                            >
+                                {% csrf_token %}
+
+                                <button
+                                    type="submit"
+                                    class="cart-remove-button"
+                                >
+                                    Remover
+                                </button>
+                            </form>
+
+                        </div>
+
+                        <div class="cart-item-price">
+                            R$ {{ item.total }}
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+            <div class="cart-summary">
+
+                <span>Total</span>
+
+                <strong>
+                    R$ {{ cart_total }}
+                </strong>
+
+            </div>
+
+            <a
+                href="{% url 'checkout' restaurant.slug %}"
+                class="checkout-button"
+            >
+                Continuar para o pedido
+            </a>
+
+        {% else %}
+
+            <div class="empty-cart">
+                <p>Seu carrinho está vazio.</p>
+            </div>
+
+        {% endif %}
+
+    </main>
+
+</body>
+
+</html>

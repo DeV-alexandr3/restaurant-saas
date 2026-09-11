@@ -1,0 +1,296 @@
+{% extends "restaurants/base.html" %}
+{% load l10n %}
+
+{% block title %}
+Pedidos
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+
+    <div>
+        <h1>Pedidos</h1>
+        <p>Acompanhe os pedidos do restaurante.</p>
+    </div>
+
+</div>
+
+<form method="GET" class="order-search">
+
+    {% if status_filter %}
+        <input
+            type="hidden"
+            name="status"
+            value="{{ status_filter }}"
+        >
+    {% endif %}
+
+    <input
+        type="text"
+        name="search"
+        value="{{ search }}"
+        placeholder="Pedido, cliente ou telefone"
+    >
+
+    <div class="order-date-field">
+        <label for="date_from">De</label>
+        <input
+            type="date"
+            id="date_from"
+            name="date_from"
+            value="{{ date_from }}"
+        >
+    </div>
+
+    <div class="order-date-field">
+        <label for="date_to">Até</label>
+        <input
+            type="date"
+            id="date_to"
+            name="date_to"
+            value="{{ date_to }}"
+        >
+    </div>
+
+    <div class="quick-period-filters">
+
+        <a
+            href="?period=today{% if status_filter %}&status={{ status_filter }}{% endif %}{% if search %}&search={{ search }}{% endif %}"
+            class="{% if period == 'today' %}active{% endif %}"
+        >
+            Hoje
+        </a>
+
+        <a
+            href="?period=7days{% if status_filter %}&status={{ status_filter }}{% endif %}{% if search %}&search={{ search }}{% endif %}"
+            class="{% if period == '7days' %}active{% endif %}"
+        >
+            Últimos 7 dias
+        </a>
+
+        <a
+            href="?period=30days{% if status_filter %}&status={{ status_filter }}{% endif %}{% if search %}&search={{ search }}{% endif %}"
+            class="{% if period == '30days' %}active{% endif %}"
+        >
+            Últimos 30 dias
+        </a>
+
+    </div>
+
+    <button type="submit">
+        Pesquisar
+    </button>
+
+    {% if search %}
+        <a
+            href="?{% if status_filter %}status={{ status_filter }}{% endif %}"
+            class="clear-search-button"
+        >
+            Limpar
+        </a>
+    {% endif %}
+
+</form>
+
+<div class="orders-summary">
+
+    <div class="summary-card">
+        <span>Pedidos encontrados</span>
+        <strong>{{ summary.total_orders }}</strong>
+    </div>
+
+    <div class="summary-card">
+        <span>Total vendido</span>
+        <strong>
+            R$ {{ sales_summary.total_sales|default:"0.00" |floatformat:2|localize }}
+        </strong>
+    </div>
+
+    <div class="summary-card">
+        <span>Ticket médio</span>
+        <strong>
+            R$ {{ sales_summary.average_ticket|default:"0.00" |floatformat:2|localize }}
+        </strong>
+    </div>
+
+</div>
+<button
+    type="button"
+    id="copy-excel-button"
+    class="copy-excel-button"
+>
+    📋 Copiar para Excel
+</button>
+<div class="order-filters">
+
+    <a
+        href="{% url 'order_list' %}"
+        class="{% if not status_filter %}active{% endif %}"
+    >
+        Todos
+    </a>
+
+    {% for value, label in status_choices %}
+
+        <a
+            href="{% url 'order_list' %}?status={{ value }}"
+            class="{% if status_filter == value %}active{% endif %}"
+        >
+            {% if value == "NEW" %}
+                {{ label }} ({{ new_orders_count }})
+            {% else %}
+                {{ label }}
+            {% endif %}
+        </a>
+
+    {% endfor %}
+
+</div>
+
+<div class="content-card">
+
+    {% if orders %}
+
+        <table class="category-table" id="orders-table">
+
+            <thead>
+                <tr>
+                    <th>Pedido</th>
+                    <th>Cliente</th>
+                    <th>Tipo</th>
+                    <th>Status</th>
+                    <th>Total</th>
+                    <th>Data</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for order in orders %}
+
+                    <tr>
+
+                        <td>
+                            <a href="{% url 'order_detail' order.id %}">
+                                #{{ order.id }}
+                            </a>
+                        </td>
+
+                        <td>
+                            {{ order.customer_name }}
+                        </td>
+
+                        <td>
+                            {{ order.get_order_type_display }}
+                        </td>
+
+                        <td>
+                            <span class="order-status order-status-{{ order.status|lower }}">
+                                {{ order.get_status_display }}
+                            </span>
+                        </td>
+
+                        <td>
+                            R$ {{ order.total }}
+                        </td>
+
+                        <td>
+                            {{ order.created_at|date:"d/m/Y H:i" }}
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    {% else %}
+
+        <p>Nenhum pedido encontrado.</p>
+
+    {% endif %}
+
+</div>
+
+{% if page_obj.has_other_pages %}
+    <div class="pagination">
+
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}&search={{ search }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}{% if period %}&period={{ period }}{% endif %}">
+                Anterior
+            </a>
+        {% endif %}
+
+        <span>
+            Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+        </span>
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}&search={{ search }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}{% if period %}&period={{ period }}{% endif %}">
+                Próxima
+            </a>
+        {% endif %}
+
+    </div>
+{% endif %}
+
+<script>
+    const copyExcelButton =
+        document.getElementById("copy-excel-button");
+
+    const ordersTable =
+        document.getElementById("orders-table");
+
+    copyExcelButton.addEventListener("click", async () => {
+
+        const rows = ordersTable.querySelectorAll("tr");
+
+        let text = "";
+
+        rows.forEach(row => {
+
+            const cells = row.querySelectorAll("th, td");
+
+            const rowValues = [];
+
+            cells.forEach(cell => {
+
+                rowValues.push(
+                    cell.innerText.trim()
+                );
+
+            });
+
+            text += rowValues.join("\t") + "\n";
+
+        });
+
+        try {
+
+            await navigator.clipboard.writeText(text);
+
+            copyExcelButton.textContent =
+                "✅ Copiado!";
+
+            setTimeout(() => {
+
+                copyExcelButton.textContent =
+                    "📋 Copiar para Excel";
+
+            }, 2000);
+
+        } catch (error) {
+
+            alert(
+                "Não foi possível copiar os pedidos."
+            );
+
+        }
+
+    });
+</script>
+
+{% endblock %}

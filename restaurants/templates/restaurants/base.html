@@ -1,0 +1,310 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'restaurants/css/dashboard.css' %}">
+    {% block extra_css %}
+    <link rel="stylesheet" href="{% static 'inventory/css/inventory.css' %}">
+    {% endblock %}
+    <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
+    />
+    <title>{% block title %}Painel{% endblock %}</title>
+</head>
+
+<body>
+
+    <aside>
+        <h2>{{ restaurant.name }}</h2>
+
+        <nav>
+            <a href="{% url 'dashboard' %}" class="sidebar-link">
+                <span class="material-symbols-outlined">
+                    dashboard
+                </span>
+                Dashboard
+            </a>
+            <a href="{% url 'order_list' %}" class="sidebar-order-link">
+                <span class="material-symbols-outlined">
+                    shopping_cart
+                </span>
+                <span>Pedidos</span>
+
+
+                    <span
+                        id="new-orders-badge"
+                        class="sidebar-order-badge"
+                        {% if new_orders_count == 0 %}
+                            style="display: none;"
+                        {% endif %}
+                    >
+                        {{ new_orders_count }}
+                    </span>
+    
+            </a>
+            <a href="{% url 'category_list' %}" class="sidebar-link">
+                <span class="material-symbols-outlined">
+                    category
+                </span>
+                Categorias
+            </a>
+            <a href="{% url 'product_list' %}" class="sidebar-link">
+                <span class="material-symbols-outlined">
+                    restaurant_menu
+                </span>
+                Produtos
+            </a>
+            <a href="{% url 'inventory_list' %}" class="sidebar-link">
+                <span class="material-symbols-outlined">
+                    inventory_2
+                </span>
+                Estoque
+            </a>
+            <a href="{% url 'table_list' %}" class="sidebar-link">
+                <span class="material-symbols-outlined">
+                    table_restaurant
+                </span>
+                Mesas
+            </a>
+            {% if membership.role == "ADMIN" %}
+                <a href="{% url 'employee_list' %}" class="sidebar-link">
+                    <span class="material-symbols-outlined">
+                        groups
+                    </span>
+                    Funcionários
+                </a>
+                <a href="{% url 'purchase_list' %}" class="sidebar-link">
+                    <span class="material-symbols-outlined">
+                        receipt_long
+                    </span>
+
+                    Compras
+                </a>
+                <a href="{% url 'restaurant_settings' %}" class="sidebar-link">
+                    <span class="material-symbols-outlined">
+                        settings
+                    </span>
+                    Configurações
+                </a>
+            {% endif %}
+            <a href="{% url 'logout' %}" class="sidebar-link">
+                <span class="material-symbols-outlined">
+                    logout
+                </span> 
+                Sair
+            </a>
+        </nav>
+    </aside>
+
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <audio id="new-order-sound" preload="auto">
+        <source src="{% static 'restaurants/sounds/new-order.mp3' %}" type="audio/mpeg">
+    </audio>
+
+<script>
+    let previousLatestOrderId = null;
+    let firstCheck = true;
+    let soundEnabled = false;
+
+    const newOrderSound =
+        document.getElementById("new-order-sound");
+
+    const badge =
+        document.getElementById("new-orders-badge");
+
+    const originalTitle = document.title;
+
+
+    // =========================
+    // LIBERAR SOM
+    // =========================
+
+    function enableOrderSound() {
+        if (soundEnabled || !newOrderSound) {
+            return;
+        }
+
+        newOrderSound.volume = 0;
+
+        newOrderSound.play()
+            .then(() => {
+                newOrderSound.pause();
+                newOrderSound.currentTime = 0;
+                newOrderSound.volume = 1;
+
+                soundEnabled = true;
+
+                console.log(
+                    "Som de pedidos ativado"
+                );
+
+                document.removeEventListener(
+                    "click",
+                    enableOrderSound
+                );
+            })
+            .catch(error => {
+                console.log(
+                    "Erro ao liberar áudio:",
+                    error
+                );
+            });
+    }
+
+    document.addEventListener(
+        "click",
+        enableOrderSound
+    );
+
+
+    // =========================
+    // CONSULTAR PEDIDOS
+    // =========================
+
+    function updateNewOrdersCount() {
+
+        fetch("{% url 'new_orders_count' %}")
+            .then(response => {
+
+                if (!response.ok) {
+                    throw new Error(
+                        `Erro HTTP: ${response.status}`
+                    );
+                }
+
+                return response.json();
+            })
+            .then(data => {
+
+                const currentCount = data.count;
+                const latestOrderId =
+                    data.latest_order_id;
+
+
+                // =========================
+                // BADGE
+                // =========================
+
+                if (badge) {
+
+                    badge.textContent =
+                        currentCount;
+
+                    if (currentCount > 0) {
+                        badge.style.display =
+                            "inline-flex";
+                    } else {
+                        badge.style.display =
+                            "none";
+                    }
+                }
+
+
+                // =========================
+                // PRIMEIRA CONSULTA
+                // =========================
+
+                if (firstCheck) {
+
+                    previousLatestOrderId =
+                        latestOrderId;
+
+                    firstCheck = false;
+
+                    return;
+                }
+
+
+                // =========================
+                // NOVO PEDIDO
+                // =========================
+
+                if (
+                    latestOrderId !== null &&
+                    latestOrderId !==
+                        previousLatestOrderId
+                ) {
+
+                    if (badge) {
+                        badge.classList.add(
+                            "new-order-alert"
+                        );
+                    }
+
+                    document.title =
+                        "🔔 Novo pedido!";
+
+
+                    // -------------------------
+                    // SOM
+                    // -------------------------
+
+                    if (
+                        soundEnabled &&
+                        newOrderSound
+                    ) {
+
+                        newOrderSound.currentTime = 0;
+
+                        newOrderSound.play()
+                            .catch(error => {
+                                console.log(
+                                    "Erro ao tocar áudio:",
+                                    error
+                                );
+                            });
+                    }
+
+
+                    // -------------------------
+                    // REMOVER ALERTA
+                    // -------------------------
+
+                    setTimeout(() => {
+
+                        if (badge) {
+                            badge.classList.remove(
+                                "new-order-alert"
+                            );
+                        }
+
+                        document.title =
+                            originalTitle;
+
+                    }, 5000);
+                }
+
+
+                previousLatestOrderId =
+                    latestOrderId;
+            })
+            .catch(error => {
+
+                console.log(
+                    "Erro ao atualizar pedidos:",
+                    error
+                );
+            });
+    }
+
+
+    // =========================
+    // INICIAR POLLING
+    // =========================
+
+    updateNewOrdersCount();
+
+    setInterval(
+        updateNewOrdersCount,
+        5000
+    );
+</script>
+</body>
+</html>

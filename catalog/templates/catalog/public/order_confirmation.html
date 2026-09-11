@@ -1,0 +1,166 @@
+{% load static %}
+
+<!DOCTYPE html>
+
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Pedido #{{ order.id }} - {{ restaurant.name }}
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="{% static 'catalog/css/public_menu.css' %}"
+    >
+
+    <style>
+        :root {
+            --restaurant-primary: {{ restaurant.primary_color }};
+            --restaurant-background: {{ restaurant.background_color }};
+        }
+    </style>
+</head>
+
+<body>
+
+    <main class="order-confirmation-container">
+
+        <div class="order-confirmation-card">
+
+            
+
+            <h1>Pedido realizado!</h1>
+
+            <p class="order-number">
+                Pedido #{{ order.id }}
+            </p>
+
+            <div class="order-confirmation-info">
+
+                <p>
+                    <strong>Cliente:</strong>
+                    {{ order.customer_name }}
+                </p>
+
+                <p>
+                    <strong>Status:</strong>
+                    {{ order.get_status_display }}
+                </p>
+
+                {% if order.status != "FINISHED" and order.status != "CANCELLED" and order.status != "REJECTED" %}
+                    <p>
+                        <strong>Tempo estimado:</strong>
+                        {{ order.estimated_time_minutes }} minutos
+                    </p>
+                {% endif %}
+
+                <p>
+                    <strong>Tipo:</strong>
+                    {{ order.get_order_type_display }}
+                </p>
+                
+                {% if order.order_type == "delivery" %}
+                    <p>
+                        <strong>Taxa de entrega:</strong>
+                        R$ {{ order.delivery_fee }}
+                    </p>
+                {% endif %}
+
+                <p>
+                    <strong>Total:</strong>
+                    R$ {{ order.total }}
+                </p>
+
+            </div>
+
+            <a
+                href="{% url 'public_menu' restaurant.slug %}"
+                class="order-back-button"
+            >
+                Voltar ao cardápio
+            </a>
+
+        </div>
+
+        <div class="order-tracking">
+
+            <h2>Acompanhe seu pedido</h2>
+
+            <div class="tracking-step {% if order.status != 'NEW' %}completed{% endif %}">
+                <span>Pedido recebido</span>
+            </div>
+
+            <div class="tracking-step
+                {% if order.status == 'NEW' %}
+                    current
+                {% elif order.status == 'CONFIRMED' or order.status == 'PREPARING' or order.status == 'READY' or order.status == 'OUT_FOR_DELIVERY' or order.status == 'FINISHED' %}
+                    completed
+                {% endif %}
+            ">
+                <span>Confirmado</span>
+            </div>
+
+            <div class="tracking-step
+                {% if order.status == 'PREPARING' %}
+                    current
+                {% elif order.status == 'READY' or order.status == 'OUT_FOR_DELIVERY' or order.status == 'FINISHED' %}
+                    completed
+                {% endif %}
+            ">
+                <span>Em preparo</span>
+            </div>
+
+            <div class="tracking-step
+                {% if order.status == 'READY' %}
+                    current
+                {% elif order.status == 'OUT_FOR_DELIVERY' or order.status == 'FINISHED' %}
+                    completed
+                {% endif %}
+            ">
+                <span>Pronto</span>
+            </div>
+
+            {% if order.order_type == "delivery" %}
+                <div class="tracking-step
+                    {% if order.status == 'OUT_FOR_DELIVERY' %}
+                        current
+                    {% elif order.status == 'FINISHED' %}
+                        completed
+                    {% endif %}
+                ">
+                    <span>Saiu para entrega</span>
+                </div>
+            {% endif %}
+
+            <div class="tracking-step
+                {% if order.status == 'FINISHED' %}
+                    completed
+                {% endif %}
+            ">
+                <span>Finalizado</span>
+            </div>
+
+        </div>
+
+    </main>
+
+{% if order.status != "FINISHED" and order.status != "REJECTED" and order.status != "CANCELLED" %}
+
+<script>
+    setTimeout(() => {
+        window.location.reload();
+    }, 8000);
+</script>
+
+{% endif %}
+</body>
+
+</html>

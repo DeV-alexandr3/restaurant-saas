@@ -1,0 +1,97 @@
+{% extends "restaurants/base.html" %}
+
+{% block title %}
+Categorias
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>Categorias</h1>
+        <p>Organize as categorias do cardápio do restaurante.</p>
+    </div>
+
+    {% if membership.role == "ADMIN" %}
+        <a href="{% url 'category_create' %}" class="btn-primary">
+            + Nova categoria
+        </a>
+    {% endif %}
+</div>
+
+<div class="content-card">
+
+    {% if categories %}
+
+        <table class="category-table">
+            <thead>
+                <tr>
+                    <th>Posição</th>
+                    <th>Nome</th>
+                    <th>Status</th>
+                    {% if membership.role == "ADMIN" %}
+                        <th>Ações</th>
+                    {% endif %}
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for category in categories %}
+                    <tr>
+                        <td>{{ category.position }}</td>
+
+                        <td>
+                            <strong>{{ category.name }}</strong>
+                        </td>
+
+                        <td>
+                            {% if category.is_active %}
+                                <span class="status-active">
+                                    Ativa
+                                </span>
+                            {% else %}
+                                <span class="status-inactive">
+                                    Inativa
+                                </span>
+                            {% endif %}
+                        </td>
+                        {% if membership.role == "ADMIN" %}
+                            <td>
+                                    <a
+                                        href="{% url 'category_edit' category.id %}"
+                                        class="btn-edit"
+                                    >
+                                        Editar
+                                    </a>
+
+                                    <form
+                                        method="POST"
+                                        action="{% url 'category_delete' category.id %}"
+                                        style="display: inline;"
+                                        onsubmit="return confirm('Tem certeza que deseja excluir esta categoria?');"
+                                    >
+                                        {% csrf_token %}
+
+                                        <button type="submit" class="btn-delete">
+                                            Excluir
+                                        </button>
+                                    </form>
+                            </td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    {% else %}
+
+        <div class="empty-state">
+            <h3>Nenhuma categoria cadastrada</h3>
+            <p>Crie a primeira categoria do seu cardápio.</p>
+        </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

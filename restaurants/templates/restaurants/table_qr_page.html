@@ -1,0 +1,71 @@
+{% extends "restaurants/base.html" %}
+
+{% block title %}
+QR Code - Mesa {{ table.number }}
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>QR Code da Mesa {{ table.number }}</h1>
+
+        {% if table.name %}
+            <p>{{ table.name }}</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="content-card">
+
+    <div class="table-qr-card">
+
+        <h2>{{ restaurant.name }}</h2>
+
+        <p class="table-qr-number">
+            Mesa {{ table.number }}
+
+            {% if table.name %}
+                - {{ table.name }}
+            {% endif %}
+        </p>
+
+        <img
+            src="{% url 'table_qr_code' table.id %}"
+            alt="QR Code da Mesa {{ table.number }}"
+            class="table-qr-image"
+        >
+
+        <p class="table-qr-instruction">
+            Escaneie para acessar o cardápio
+        </p>
+
+        <p class="table-qr-url">
+            {{ table_url }}
+        </p>
+
+        <div class="table-qr-actions">
+
+            <a
+                href="{{ table_url }}"
+                target="_blank"
+                class="btn-secondary"
+            >
+                Abrir cardápio
+            </a>
+
+            <button
+                type="button"
+                class="btn-primary"
+                onclick="window.print()"
+            >
+                Imprimir
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

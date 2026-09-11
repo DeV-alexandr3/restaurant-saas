@@ -1,0 +1,241 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link
+        rel="stylesheet"
+        href="{% static 'catalog/css/public_menu.css' %}"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <style>
+        :root {
+            --restaurant-primary: {{ restaurant.primary_color }};
+            --restaurant-background: {{ restaurant.background_color }};
+        }
+    </style>
+
+    <title>{{ restaurant.name }}</title>
+</head>
+
+<body>
+
+    <header 
+        class="restaurant-header"
+        {% if restaurant.banner %}
+            style="
+                background-image:
+                    linear-gradient(
+                        rgba(17, 24, 39, 0.65),
+                        rgba(17, 24, 39, 0.65)
+                    ),
+                    url('{{ restaurant.banner.url }}');
+            "
+        {% endif %}
+    >
+        <div class="header-content">
+
+            {% if restaurant.logo %}
+                <img
+                    src="{{ restaurant.logo.url }}"
+                    alt="{{ restaurant.name }}"
+                    class="restaurant-logo"
+                >
+            {% endif %}
+
+            <h1>{{ restaurant.name }}</h1>
+            
+            
+            <p>Confira nosso cardápio</p>
+            <div class="header-actions">
+                <a
+                    href="{% url 'cart_detail' restaurant.slug %}"
+                    class="cart-link"
+                >
+                    🛒 Ver carrinho
+
+                    {% if cart_count > 0 %}
+                        <span class="cart-badge">
+                            {{ cart_count }}
+                        </span>
+                    {% endif %}
+                </a>
+                
+                {% if last_order %}
+                    <a
+                        href="{% url 'order_confirmation' slug=restaurant.slug public_token=last_order.public_token %}"
+                        class="track-order-button"
+                    >
+                    {% if last_order.status == "FINISHED" or last_order.status == "CANCELLED" or last_order.status == "REJECTED" %}
+                        📄 Ver último pedido
+                    {% else %}
+                        📦 Acompanhar meu pedido
+                    {% endif %}
+                    </a>
+                {% endif %}
+            </div>
+            {% if current_table %}
+            
+                <div class="current-table-box">
+
+                    <span>
+                        Mesa {{ current_table.number }}
+
+                        {% if current_table.name %}
+                            - {{ current_table.name }}
+                        {% endif %}
+                    </span>
+
+                    <form
+                        method="POST"
+                        action="{% url 'change_table_context' restaurant.slug %}"
+                    >
+                        {% csrf_token %}
+
+                        <select name="table_id" required>
+                            {% for table in active_tables %}
+                                <option
+                                    value="{{ table.id }}"
+                                    {% if current_table and current_table.id == table.id %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    Mesa {{ table.number }}
+                                    {% if table.name %}
+                                        - {{ table.name }}
+                                    {% endif %}
+                                </option>
+                            {% endfor %}
+                        </select>
+
+                        <button
+                            type="submit"
+                            class="remove-table-button"
+                        >
+                            Trocar mesa
+                        </button>
+                    </form>
+
+                    <form
+                        method="POST"
+                        action="{% url 'remove_table_context' restaurant.slug %}"
+                    >
+                        {% csrf_token %}
+
+                        <button
+                            type="submit"
+                            class="remove-table-button"
+                        >
+                            Remover mesa
+                        </button>
+                    </form>
+
+                </div>
+
+            {% endif %}
+        </div>
+    </header>
+
+    
+
+    <main class="menu-container">
+
+        <div class="category-shortcuts">
+            {% for category in categories %}
+                <a href="#category-{{ category.id }}">
+                    {{ category.name }}
+                </a>
+            {% endfor %}
+        </div>
+
+        {% for category in categories %}
+
+            <section class="menu-category" id="category-{{ category.id }}">
+
+                <h2>{{ category.name }}</h2>
+
+                <div class="product-grid">
+
+                    {% for product in category.products.all %}
+
+                        {% if product.is_available %}
+
+                            <article class="product-card">
+
+                                {% if product.image %}
+                                    <img
+                                        src="{{ product.image.url }}"
+                                        alt="{{ product.name }}"
+                                        class="product-card-image"
+                                    >
+                                {% endif %}
+
+                                <div class="product-card-content">
+
+                                    <h3>{{ product.name }}</h3>
+
+                                    {% if product.description %}
+                                        <p>
+                                            {{ product.description }}
+                                        </p>
+                                    {% endif %}
+
+                                    <div class="product-card-footer">
+
+                                        <strong>
+                                            R$ {{ product.price }}
+                                        </strong>
+
+                                        <a
+                                            href="{% url 'public_product_detail' restaurant.slug product.id %}"
+                                            class="product-detail-button"
+                                        >
+                                            Ver produto
+                                        </a>
+
+                                    </div>
+
+                                </div>
+
+                            </article>
+
+                        {% endif %}
+
+                    {% empty %}
+
+                        <p>Nenhum produto disponível.</p>
+
+                    {% endfor %}
+
+                </div>
+
+            </section>
+
+        {% empty %}
+
+            <p>Nenhuma categoria disponível.</p>
+
+        {% endfor %}
+
+    </main>
+
+</body>
+</html>

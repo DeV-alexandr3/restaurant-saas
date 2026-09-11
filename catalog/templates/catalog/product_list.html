@@ -1,0 +1,138 @@
+{% extends "restaurants/base.html" %}
+
+{% block title %}
+Produtos
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>Produtos</h1>
+        <p>Gerencie os produtos do cardápio.</p>
+    </div>
+
+    {% if membership.role == "ADMIN" %}
+        <a href="{% url 'product_create' %}" class="btn-primary">
+            + Novo produto
+        </a>
+    {% endif %}
+</div>
+
+<div class="content-card">
+
+    {% if products %}
+
+        <table class="category-table">
+            <thead>
+                <tr>
+                    <th>Imagem</th>
+                    <th>Produto</th>
+                    <th>Categoria</th>
+                    <th>Preço</th>
+                    <th>Status</th>
+                    {% if membership.role == "ADMIN" %}
+                        <th>Ações</th>
+                    {% endif %}
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for product in products %}
+                    <tr>
+                        <td>
+                            {% if product.image %}
+                                <img
+                                    src="{{ product.image.url }}"
+                                    alt="{{ product.name }}"
+                                    class="product-image"
+                                >
+                            {% else %}
+                                <span>Sem imagem</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <strong>{{ product.name }}</strong>
+                        </td>
+
+                        <td>
+                            {{ product.category.name }}
+                        </td>
+
+                        <td>
+                            R$ {{ product.price }}
+                        </td>
+
+                        <td>
+                            {% if product.is_available %}
+                                <span class="status-active">
+                                    Disponível
+                                </span>
+                            {% else %}
+                                <span class="status-inactive">
+                                    Indisponível
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if membership.role == "ADMIN" %}
+                                <a 
+                                href="{% url 'product_edit' product.id %}" 
+                                class="btn-edit"
+                                >
+                                    Editar
+                                </a>
+
+                                <a
+                                    href="{% url 'product_variation_list' product.id %}"
+                                    class="btn-variation"
+                                >
+                                    Variações
+                                </a>
+
+                                <a
+                                    href="{% url 'addon_group_list' product.id %}"
+                                    class="btn-addon"
+                                >
+                                    Adicionais
+                                </a>
+
+                                <a
+                                    href="{% url 'product_recipe' product.id %}"
+                                    class="product-recipe-button"
+                                >
+                                    Ficha técnica
+                                </a>
+
+                                <form
+                                    method="POST"
+                                    action="{% url 'product_delete' product.id %}"
+                                    style="display: inline;"
+                                    onsubmit="return confirm('Tem certeza que deseja excluir este produto?');"
+                                >
+                                    {% csrf_token %}
+
+                                    <button type="submit" class="btn-delete">
+                                        Excluir
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    {% else %}
+
+        <div class="empty-state">
+            <h3>Nenhum produto cadastrado</h3>
+            <p>Cadastre o primeiro produto do cardápio.</p>
+        </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

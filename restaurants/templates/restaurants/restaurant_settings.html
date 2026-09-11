@@ -1,0 +1,226 @@
+{% extends "restaurants/base.html" %}
+
+{% block title %}
+Configurações
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+
+    <div>
+        <h1>Configurações</h1>
+        <p>Personalize as informações do restaurante.</p>
+    </div>
+
+</div>
+
+<div class="content-card">
+
+    <form
+        method="POST"
+        enctype="multipart/form-data"
+    >
+
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="name">
+                Nome do restaurante
+            </label>
+
+            <input
+                type="text"
+                id="name"
+                name="name"
+                value="{{ restaurant.name }}"
+                required
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="phone">
+                Telefone
+            </label>
+
+            <input
+                type="text"
+                id="phone"
+                name="phone"
+                value="{{ restaurant.phone }}"
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="primary_color">
+                Cor principal
+            </label>
+
+            <input
+                type="color"
+                id="primary_color"
+                name="primary_color"
+                value="{{ restaurant.primary_color }}"
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="background_color">
+                Cor de fundo
+            </label>
+
+            <input
+                type="color"
+                id="background_color"
+                name="background_color"
+                value="{{ restaurant.background_color }}"
+            >
+        </div>
+
+        <div class="form-group">
+            <label>Tipos de pedido aceitos</label>
+
+            <label>
+                <input
+                    type="checkbox"
+                    name="accepts_pickup"
+                    {% if restaurant.accepts_pickup %}checked{% endif %}
+                >
+                Retirada
+            </label>
+
+            <label>
+                <input
+                    type="checkbox"
+                    name="accepts_delivery"
+                    {% if restaurant.accepts_delivery %}checked{% endif %}
+                >
+                Entrega
+            </label>
+
+            <label>
+                <input
+                    type="checkbox"
+                    name="accepts_table_orders"
+                    {% if restaurant.accepts_table_orders %}checked{% endif %}
+                >
+                Pedido na mesa
+            </label>
+        </div>
+
+        <div class="form-group">
+            <label for="minimum_order">
+                Pedido mínimo
+            </label>
+
+            <input
+                type="number"
+                id="minimum_order"
+                name="minimum_order"
+                min="0"
+                step="0.01"
+                value="{{ restaurant.minimum_order }}"
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="delivery_fee">
+                Taxa de entrega
+            </label>
+
+            <input
+                type="number"
+                id="delivery_fee"
+                name="delivery_fee"
+                min="0"
+                step="0.01"
+                value="{{ restaurant.delivery_fee }}"
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="estimated_time_minutes">
+                Tempo estimado de preparo (minutos)
+            </label>
+
+            <input
+                type="number"
+                id="estimated_time_minutes"
+                name="estimated_time_minutes"
+                min="1"
+                value="{{ restaurant.estimated_time_minutes }}"
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="logo">
+                Logo
+            </label>
+
+            <input
+                type="file"
+                id="logo"
+                name="logo"
+                accept="image/*"
+            >
+
+            {% if restaurant.logo %}
+                <img
+                    src="{{ restaurant.logo.url }}"
+                    alt="Logo"
+                    style="max-width: 140px; margin-top: 10px;"
+                >
+                <label>
+                    <input
+                        type="checkbox"
+                        name="remove_logo"
+                    >
+                    Remover logo
+                </label>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="banner">
+                Banner
+            </label>
+
+            <input
+                type="file"
+                id="banner"
+                name="banner"
+                accept="image/*"
+            >
+
+            {% if restaurant.banner %}
+                <img
+                    src="{{ restaurant.banner.url }}"
+                    alt="Banner"
+                    style="max-width: 300px; margin-top: 10px;"
+                >
+                <label>
+                    <input
+                        type="checkbox"
+                        name="remove_banner"
+                    >
+                    Remover banner
+                </label>
+            {% endif %}
+        </div>
+
+        <div class="form-actions">
+
+            <button
+                type="submit"
+                class="btn-primary"
+            >
+                Salvar configurações
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}

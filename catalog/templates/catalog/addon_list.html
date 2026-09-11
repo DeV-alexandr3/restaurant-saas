@@ -1,0 +1,103 @@
+{% extends "restaurants/base.html" %}
+
+{% block title %}
+Opções - {{ group.name }}
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>{{ group.name }}</h1>
+        <p>{{ product.name }}</p>
+    </div>
+
+    <a href="{% url 'addon_create' product.id group.id %}" class="btn-primary">
+        + Nova opção
+    </a>
+</div>
+
+<div class="content-card">
+
+    {% if addons %}
+
+        <table class="category-table">
+            <thead>
+                <tr>
+                    <th>Posição</th>
+                    <th>Opção</th>
+                    <th>Preço</th>
+                    <th>Status</th>
+                    {% if membership.role == "ADMIN" %}
+                        <th>Ações</th>
+                    {% endif %}
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for addon in addons %}
+                    <tr>
+                        <td>{{ addon.position }}</td>
+
+                        <td>
+                            <strong>{{ addon.name }}</strong>
+                        </td>
+
+                        <td>
+                            R$ {{ addon.price }}
+                        </td>
+
+                        <td>
+                            {% if addon.is_available %}
+                                <span class="status-active">
+                                    Disponível
+                                </span>
+                            {% else %}
+                                <span class="status-inactive">
+                                    Indisponível
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if membership.role == "ADMIN" %}
+                                <a
+                                    href="{% url 'addon_edit' product.id group.id addon.id %}"
+                                    class="btn-edit"
+                                >
+                                    Editar
+                                </a>
+
+                                <form
+                                    method="POST"
+                                    action="{% url 'addon_delete' product.id group.id addon.id %}"
+                                    style="display: inline;"
+                                    onsubmit="return confirm('Tem certeza que deseja excluir esta opção?');"
+                                >
+                                    {% csrf_token %}
+
+                                    <button type="submit" class="btn-delete">
+                                        Excluir
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    {% else %}
+
+        <div class="empty-state">
+            <h3>Nenhuma opção cadastrada</h3>
+            <p>
+                Adicione as opções disponíveis para este grupo.
+            </p>
+        </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

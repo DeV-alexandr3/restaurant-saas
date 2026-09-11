@@ -1,0 +1,1293 @@
+/* =========================================================
+   RESET E CONFIGURAÇÕES GERAIS
+========================================================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: "Poppins", sans-serif;
+    background: var(--restaurant-background);
+    color: #1f2937;
+}
+
+/* =========================================================
+   CABEÇALHO / BANNER DO RESTAURANTE
+========================================================= */
+
+.restaurant-header {
+    min-height: 380px;
+    padding: 48px 20px;
+
+    background-color: var(--restaurant-primary);
+    background-size: cover;
+    background-position: center;
+
+    display: flex;
+    align-items: center;
+
+    color: white;
+
+    position: relative;
+}
+
+.header-content {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.header-content h1 {
+    font-family: "Playfair Display", serif;
+    font-size: 42px;
+    line-height: 1.1;
+    margin-bottom: 8px;
+}
+
+.header-content p {
+    margin-top: 4px;
+    margin-bottom: 20px;
+
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.menu-container {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 36px 20px;
+}
+
+.menu-category {
+    margin-bottom: 42px;
+}
+
+.menu-category h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #111827;
+}
+
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(
+        auto-fill,
+        minmax(280px, 1fr)
+    );
+    gap: 20px;
+}
+
+/* =========================================================
+   CARDS DE PRODUTO
+========================================================= */
+
+/* =========================================================
+   CARDS DE PRODUTO
+========================================================= */
+
+.product-card {
+    background: white;
+    border-radius: 18px;
+    overflow: hidden;
+
+    border: 1px solid rgba(17, 24, 39, 0.06);
+
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.07);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.product-card:hover {
+    transform: translateY(-4px);
+
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.12);
+
+    border-color: rgba(17, 24, 39, 0.10);
+}
+
+.product-card-image {
+    width: 100%;
+    height: 210px;
+
+    object-fit: cover;
+
+    transition: transform 0.3s ease;
+}
+
+.product-card:hover .product-card-image {
+    transform: scale(1.02);
+}
+
+.product-card-content {
+    padding: 20px;
+
+    display: flex;
+    flex-direction: column;
+
+    min-height: 190px;
+}
+
+.product-card-content h3 {
+    font-size: 20px;
+    line-height: 1.3;
+
+    margin-bottom: 8px;
+
+    color: #111827;
+}
+
+.product-card-content p {
+    color: #6b7280;
+
+    font-size: 14px;
+    line-height: 1.6;
+
+    margin-bottom: 20px;
+
+    flex: 1;
+}
+
+.product-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 14px;
+
+    margin-top: auto;
+}
+
+.product-card-footer strong {
+    font-size: 20px;
+    color: #111827;
+}
+
+.product-detail-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 10px 16px;
+
+    background: var(--restaurant-primary);
+    color: white;
+
+    border-radius: 10px;
+
+    font-weight: 700;
+    text-decoration: none;
+
+    transition:
+        transform 0.2s ease,
+        opacity 0.2s ease;
+}
+
+.product-detail-button:hover {
+    transform: translateY(-1px);
+    opacity: 0.9;
+}
+
+/* =========================================================
+   ATALHOS DE CATEGORIA
+========================================================= */
+
+.category-shortcuts {
+    display: flex;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+
+    background: var(--restaurant-background);
+
+    padding-top: 14px;
+    padding-bottom: 14px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);  
+    gap: 10px;
+    flex-wrap: wrap;
+
+    margin-bottom: 32px;
+}
+
+.category-shortcuts a {
+    padding: 10px 18px;
+
+    background: white;
+    color: #1f2937;
+
+    border-radius: 999px;
+
+    text-decoration: none;
+    font-weight: 600;
+
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.category-shortcuts a:hover {
+    transform: translateY(-2px);
+
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+}
+
+@media (max-width: 768px) {
+
+    .category-shortcuts {
+        display: flex;
+        flex-wrap: nowrap;
+
+        overflow-x: auto;
+
+        gap: 10px;
+
+        padding: 12px 16px;
+
+        scrollbar-width: none;
+    }
+
+    .category-shortcuts::-webkit-scrollbar {
+        display: none;
+    }
+
+    .category-shortcuts a {
+        flex-shrink: 0;
+    }
+
+}
+
+@media (max-width: 600px) {
+
+    .restaurant-header {
+        padding: 30px 18px;
+    }
+
+    .header-content h1 {
+        font-size: 26px;
+    }
+
+    .menu-container {
+        padding: 26px 16px;
+    }
+
+    .product-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* =========================================================
+   DETALHE DO PRODUTO
+========================================================= */
+
+.product-detail-container {
+    width: 100%;
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 30px 20px 50px;
+}
+
+.product-detail-container > .back-link,
+.product-detail-container > .cart-link {
+    margin-right: 14px;
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+
+    margin-bottom: 20px;
+
+    color: #374151;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.back-link:hover {
+    color: #111827;
+}
+
+.product-detail-card {
+    background: white;
+    border-radius: 18px;
+    overflow: hidden;
+
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.product-detail-image {
+    width: 100%;
+    height: 380px;
+
+    object-fit: cover;
+}
+
+.product-detail-content {
+    padding: 28px;
+}
+
+.product-detail-content h1 {
+    font-size: 32px;
+    line-height: 1.2;
+
+    margin-bottom: 10px;
+
+    color: #111827;
+}
+
+.product-description {
+    color: #6b7280;
+    line-height: 1.6;
+
+    margin-bottom: 28px;
+}
+
+.simple-product-price {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 26px;
+}
+
+/* =========================================================
+   NAVEGAÇÃO DO DETALHE DO PRODUTO
+========================================================= */
+
+.product-detail-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 16px;
+
+    margin-bottom: 20px;
+}
+
+.product-detail-nav .back-link,
+.product-detail-nav .cart-link {
+    margin: 0;
+}
+
+/* =========================================================
+   OPÇÕES / VARIAÇÕES / ADICIONAIS
+========================================================= */
+
+.product-options {
+    border-top: 1px solid #e5e7eb;
+    padding: 24px 0;
+}
+
+.product-options h2 {
+    font-size: 18px;
+    margin-bottom: 14px;
+
+    color: #111827;
+}
+
+.option-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 20px;
+    margin-bottom: 12px;
+}
+
+.option-header span {
+    padding: 5px 10px;
+
+    background: #f3f4f6;
+    border-radius: 999px;
+
+    color: #6b7280;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.option-item {
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 14px 0;
+
+    border-bottom: 1px solid #f0f1f3;
+
+    cursor: pointer;
+}
+
+.option-item:hover {
+    background: rgba(0, 0, 0, 0.015);
+}
+
+.option-item span {
+    flex: 1;
+}
+
+.add-cart-button {
+    width: 100%;
+    margin-top: 22px;
+    padding: 15px 18px;
+
+    border: none;
+    border-radius: 12px;
+
+    background-color: var(--restaurant-primary);
+    color: white;
+
+    font-size: 16px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.2s ease,
+        opacity 0.2s ease;
+}
+
+.add-cart-button:hover {
+    transform: translateY(-1px);
+}
+
+.cart-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 30px 20px;
+}
+
+
+
+/* =========================================================
+   CARD DOS ITENS DO CARRINHO
+========================================================= */
+.cart-item {
+    background: white;
+    border-radius: 16px;
+    padding: 22px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+
+    gap: 24px;
+
+    border: 1px solid rgba(17, 24, 39, 0.06);
+
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.07);
+}
+
+.cart-item h2 {
+    font-size: 22px;
+    line-height: 1.3;
+
+    margin-bottom: 6px;
+
+    color: #111827;
+}
+
+.cart-item p {
+    margin: 4px 0;
+
+    color: #4b5563;
+
+    line-height: 1.5;
+}
+
+.cart-addon {
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.cart-item-price {
+    font-size: 21px;
+    font-weight: 700;
+
+    color: #111827;
+
+    white-space: nowrap;
+}
+
+
+
+/* =========================================================
+   RESUMO DO CARRINHO
+========================================================= */
+.cart-summary {
+    margin-top: 24px;
+    padding: 22px;
+
+    background: white;
+    border-radius: 16px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    font-size: 22px;
+
+    border: 1px solid rgba(17, 24, 39, 0.06);
+
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.07);
+}
+
+.cart-summary strong {
+    font-size: 24px;
+    color: #111827;
+}
+
+.empty-cart {
+    background: white;
+    padding: 30px;
+    border-radius: 14px;
+    text-align: center;
+}
+
+.cart-remove-button {
+    margin-top: 10px;
+    padding: 8px 14px;
+
+    border: none;
+    border-radius: 8px;
+
+    cursor: pointer;
+
+    font-weight: 600;
+}
+
+/* =========================================================
+   CONTROLE DE QUANTIDADE DO CARRINHO
+========================================================= */
+
+.quantity-control {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+
+    margin-top: 14px;
+
+    padding: 6px;
+
+    background: #f3f4f6;
+    border-radius: 12px;
+}
+
+.quantity-control form {
+    margin: 0;
+}
+
+.quantity-control button {
+    width: 36px;
+    height: 36px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+    border-radius: 9px;
+
+    background: white;
+    color: #111827;
+
+    cursor: pointer;
+
+    font-size: 18px;
+    font-weight: 700;
+
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+
+    transition:
+        transform 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+.quantity-control button:hover {
+    transform: translateY(-1px);
+
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+}
+
+.quantity-control span {
+    min-width: 26px;
+
+    text-align: center;
+
+    font-weight: 700;
+    font-size: 16px;
+}
+
+
+/* =========================================================
+   BOTÃO REMOVER ITEM
+========================================================= */
+
+.cart-remove-button {
+    margin-top: 12px;
+
+    padding: 8px 13px;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 9px;
+
+    background: white;
+    color: #b91c1c;
+
+    cursor: pointer;
+
+    font-weight: 600;
+
+    transition:
+        background 0.15s ease,
+        border-color 0.15s ease;
+}
+
+.cart-remove-button:hover {
+    background: #fef2f2;
+    border-color: #fecaca;
+}
+
+/* =========================================================
+   CARRINHO / CONTADOR
+========================================================= */
+
+.cart-container h1 {
+    margin: 28px 0 22px;
+
+    font-size: 32px;
+    line-height: 1.2;
+}
+
+.cart-items {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.cart-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 8px;
+
+    min-height: 42px;
+    padding: 10px 16px;
+
+    border-radius: 10px;
+
+    background: white;
+    color: var(--restaurant-primary);
+
+    text-decoration: none;
+    font-weight: 700;
+
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.cart-link:hover {
+    transform: translateY(-1px);
+
+    box-shadow: 0 5px 14px rgba(0, 0, 0, 0.12);
+}
+
+.checkout-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    margin-top: 16px;
+    padding: 15px 20px;
+
+    border-radius: 12px;
+
+    background-color: var(--restaurant-primary);
+    color: white;
+
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 700;
+
+    transition:
+        transform 0.2s ease,
+        opacity 0.2s ease;
+}
+
+.checkout-button:hover {
+    transform: translateY(-1px);
+    opacity: 0.92;
+}
+
+.cart-badge {
+    min-width: 22px;
+    height: 22px;
+
+    padding: 0 6px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 999px;
+
+    background: var(--restaurant-primary);
+    color: white;
+
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+/* =========================================================
+   CHECKOUT / FINALIZAÇÃO DO PEDIDO
+========================================================= */
+
+.checkout-container {
+    width: 100%;
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 32px 20px 50px;
+}
+
+.checkout-container h1 {
+    font-size: 32px;
+    line-height: 1.2;
+
+    margin: 18px 0 26px;
+
+    color: #111827;
+}
+
+.checkout-container form {
+    background: white;
+
+    padding: 28px;
+
+    border-radius: 18px;
+
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.checkout-container .add-cart-button {
+    margin-top: 22px;
+}
+
+.checkout-container .back-link {
+    margin-bottom: 0;
+}
+/* =========================================================
+   CAMPOS DO CHECKOUT
+========================================================= */
+
+.checkout-field {
+    display: flex;
+    flex-direction: column;
+
+    gap: 8px;
+
+    margin-bottom: 18px;
+}
+
+.checkout-field > label {
+    font-size: 14px;
+    font-weight: 600;
+
+    color: #374151;
+}
+
+.checkout-field input[type="text"],
+.checkout-field select {
+    width: 100%;
+
+    min-height: 46px;
+
+    padding: 11px 13px;
+
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+
+    background: white;
+    color: #111827;
+
+    font-family: inherit;
+    font-size: 15px;
+
+    outline: none;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.checkout-field input[type="text"]:focus,
+.checkout-field select:focus {
+    border-color: var(--restaurant-primary);
+
+    box-shadow:
+        0 0 0 3px rgba(0, 0, 0, 0.05);
+}
+
+.checkout-extra-fields {
+    margin-top: 20px;
+    padding-top: 20px;
+
+    border-top: 1px solid #e5e7eb;
+}
+
+/* =========================================================
+   TIPO DO PEDIDO
+========================================================= */
+
+.checkout-field label:has(input[type="radio"]) {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 8px;
+
+    margin-right: 10px;
+    margin-top: 8px;
+
+    padding: 10px 14px;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+
+    background: #f9fafb;
+
+    cursor: pointer;
+
+    font-weight: 600;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.checkout-field label:has(input[type="radio"]):hover {
+    background: #f3f4f6;
+}
+
+.checkout-field label:has(input[type="radio"]:checked) {
+    border-color: var(--restaurant-primary);
+
+    background: #f9fafb;
+}
+
+/* =========================================================
+   Mesa automatica / QR Code
+========================================================= */
+
+.checkout-table-info {
+    margin-bottom: 22px;
+
+    padding: 14px 16px;
+
+    border-radius: 12px;
+
+    background: #f3f4f6;
+
+    line-height: 1.5;
+}
+
+.checkout-table-info p {
+    margin-top: 4px;
+
+    color: #6b7280;
+
+    font-size: 14px;
+}
+
+/* =========================================================
+   RESUMO DO CHECKOUT
+========================================================= */
+
+.checkout-summary {
+    margin-top: 26px;
+
+    padding: 20px;
+
+    background: #f9fafb;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+}
+
+.checkout-summary-row,
+.checkout-summary-total {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    padding: 9px 0;
+}
+
+.checkout-summary-row {
+    color: #4b5563;
+}
+
+.checkout-summary-total {
+    margin-top: 10px;
+    padding-top: 16px;
+
+    border-top: 1px solid #d1d5db;
+
+    color: #111827;
+
+    font-size: 21px;
+    font-weight: 700;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* =========================================================
+   CONFIRMAÇÃO / ACOMPANHAMENTO DO PEDIDO
+========================================================= */
+
+.order-confirmation-container {
+    width: 100%;
+    max-width: 760px;
+
+    margin: 0 auto;
+    padding: 32px 20px 50px;
+}
+
+.order-confirmation-card {
+    background: white;
+
+    padding: 32px;
+
+    border-radius: 18px;
+
+    text-align: center;
+
+    border: 1px solid rgba(17, 24, 39, 0.06);
+
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.order-confirmation-card h1 {
+    font-size: 32px;
+    line-height: 1.2;
+
+    margin-bottom: 8px;
+
+    color: #111827;
+}
+
+.order-number {
+    font-size: 22px;
+    font-weight: 700;
+
+    margin-bottom: 28px;
+
+    color: #374151;
+}
+
+.order-confirmation-info {
+    max-width: 420px;
+
+    margin: 0 auto;
+
+    text-align: left;
+}
+
+.order-confirmation-info p {
+    margin: 9px 0;
+
+    color: #374151;
+
+    line-height: 1.5;
+}
+
+.order-confirmation-info strong {
+    color: #111827;
+}
+
+/* =========================================================
+   ACOMPANHAMENTO DO PEDIDO
+========================================================= */
+
+.order-tracking {
+    margin-top: 32px;
+}
+
+.order-tracking h2 {
+    font-size: 26px;
+
+    margin-bottom: 20px;
+
+    color: #111827;
+}
+
+.tracking-step {
+    position: relative;
+
+    padding: 16px 18px;
+    margin-bottom: 10px;
+
+    border-radius: 12px;
+
+    background: #f3f4f6;
+
+    color: #374151;
+
+    font-weight: 600;
+
+    border: 1px solid transparent;
+
+    transition:
+        transform 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.tracking-step.completed {
+    background: #ecfdf3;
+    color: #166534;
+}
+
+.tracking-step.current {
+    background: #fff7ed;
+
+    border-color: #fb923c;
+
+    color: #9a3412;
+
+    box-shadow: 0 4px 12px rgba(251, 146, 60, 0.12);
+}
+
+.tracking-step.completed::before {
+    content: "✓";
+    margin-right: 8px;
+
+    font-weight: 800;
+}
+
+.tracking-step.current::before {
+    content: "●";
+    margin-right: 8px;
+}
+
+.order-back-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-top: 22px;
+    padding: 11px 18px;
+
+    border-radius: 10px;
+
+    background: var(--restaurant-primary);
+    color: white;
+
+    text-decoration: none;
+    font-weight: 700;
+
+    transition:
+        transform 0.2s ease,
+        opacity 0.2s ease;
+}
+
+.order-back-button:hover {
+    transform: translateY(-1px);
+    opacity: 0.92;
+}
+
+.current-table-box {
+    max-width: 1100px;
+    margin: 15px auto 0;
+    padding: 12px 16px;
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+}
+
+.current-table-box span {
+    font-weight: 600;
+    color: white;
+    margin-right: auto;
+}
+
+.current-table-box form {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+}
+
+.current-table-box select {
+    padding: 8px 10px;
+    border: none;
+    border-radius: 7px;
+}
+
+.remove-table-button {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 7px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.restaurant-logo {
+    width: 110px;
+    height: 110px;
+
+    object-fit: cover;
+
+    border-radius: 50%;
+    border: 4px solid rgba(255, 255, 255, 0.95);
+
+    margin-bottom: 16px;
+
+    background: white;
+
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+}
+
+.restaurant-banner {
+    max-width: 1100px;
+    margin: 20px auto;
+    padding: 0 20px;
+}
+
+.restaurant-banner img {
+    width: 100%;
+    max-height: 320px;
+    object-fit: cover;
+    border-radius: 16px;
+}
+
+.cart-messages {
+    margin-bottom: 20px;
+}
+
+.cart-message {
+    padding: 14px 16px;
+    border-radius: 10px;
+
+    background: #fee2e2;
+    color: #991b1b;
+
+    font-weight: 600;
+}
+
+.delivery-fee-info {
+    margin-top: 8px;
+    padding: 10px 12px;
+
+    border-radius: 8px;
+
+    background: #f3f4f6;
+
+    font-size: 14px;
+}
+
+.checkout-summary {
+    margin-top: 24px;
+    padding: 20px;
+
+    background: white;
+    border-radius: 12px;
+}
+
+.checkout-summary-row,
+.checkout-summary-total {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+
+    padding: 8px 0;
+}
+
+.checkout-summary-total {
+    margin-top: 10px;
+    padding-top: 14px;
+
+    border-top: 1px solid #ddd;
+
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.order-estimated-time {
+    margin: 16px 0;
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: #f3f4f6;
+    font-size: 15px;
+}
+
+.track-order-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-top: 10px;
+    padding: 10px 16px;
+
+    background: white;
+    color: var(--restaurant-primary);
+
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 700;
+
+    transition: 0.2s ease;
+}
+
+.track-order-button:hover {
+    transform: translateY(-1px);
+    opacity: 0.9;
+}
+
+.checkout-field textarea {
+    width: 100%;
+
+    min-height: 100px;
+
+    padding: 11px 13px;
+
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+
+    background: white;
+    color: #111827;
+
+    font-family: inherit;
+    font-size: 15px;
+
+    resize: vertical;
+    outline: none;
+}
