@@ -14,6 +14,7 @@ from pathlib import Path
 import os
 from dotenv import load_dotenv
 import dj_database_url
+import cloudinary
 
 
 LOGIN_URL = "login"
@@ -22,6 +23,11 @@ LOGIN_URL = "login"
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 load_dotenv(BASE_DIR / ".env")
+
+CLOUDINARY_URL = os.getenv("CLOUDINARY_URL")
+
+if CLOUDINARY_URL:
+    cloudinary.config(cloudinary_url=CLOUDINARY_URL, secure=True)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.1/howto/deployment/checklist/
@@ -58,6 +64,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    "cloudinary",
     "accounts",
     "restaurants",
     "catalog",
@@ -191,6 +198,9 @@ MAILERS = {
     },
 }
 
-MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
-
+cloudinary.config(
+    cloud_name = "tzgw2klv",  # Substitua pelo seu cloud name real	
+    api_key = "627127479483572",        # Substitua pela sua API Key
+    api_secret = "h1LjKhNERjF71TjCk9uSan2-WFQ",  # Substitua pelo seu API Secret
+    secure = True
+)

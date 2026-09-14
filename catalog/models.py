@@ -2,6 +2,7 @@ from django.db import models
 
 from restaurants.models import Restaurant
 import uuid
+from cloudinary.models import CloudinaryField
 
 
 class Category(models.Model):
@@ -65,8 +66,8 @@ class Product(models.Model):
         blank=True
     )
 
-    image = models.ImageField(
-        upload_to="products/",
+    image = CloudinaryField(
+        "image",
         blank=True,
         null=True,
     )

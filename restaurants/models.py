@@ -1,4 +1,5 @@
 from django.db import models
+from cloudinary.models import CloudinaryField
 
 
 class Restaurant(models.Model):
@@ -26,14 +27,14 @@ class Restaurant(models.Model):
         auto_now=True
     )
 
-    logo = models.ImageField(
-        upload_to="restaurants/logos/",
+    logo = CloudinaryField(
+        "logo",
         blank=True,
         null=True,
     )
 
-    banner = models.ImageField(
-        upload_to="restaurants/banners/",
+    banner = CloudinaryField(
+        "banner",
         blank=True,
         null=True,
     )
