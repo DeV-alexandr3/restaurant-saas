@@ -41,18 +41,7 @@
                 ← Voltar ao cardápio
             </a>
 
-            <a
-                href="{% url 'cart_detail' restaurant.slug %}"
-                class="cart-link"
-            >
-                🛒 Ver carrinho
-
-                {% if cart_count > 0 %}
-                    <span class="cart-badge">
-                        {{ cart_count }}
-                    </span>
-                {% endif %}
-            </a>
+            
         
         </div>
 
@@ -213,6 +202,23 @@
         </div>
 
     </main>
+
+        <!-- =========================================================
+         CARRINHO FLUTUANTE
+    ========================================================= -->
+
+    <a
+        href="{% url 'cart_detail' restaurant.slug %}"
+        class="cart-link"
+    >
+        <span class="cart-link-icon">🛒</span>
+
+        {% if cart_count > 0 %}
+            <span class="cart-badge">
+                {{ cart_count }}
+            </span>
+        {% endif %}
+    </a>
 
 </body>
 

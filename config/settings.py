@@ -46,6 +46,11 @@ DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 ALLOWED_HOSTS = [
     "127.0.0.1",
     "localhost",
+    "192.168.1.9",
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://192.168.1.9:8000",
 ]
 
 render_hostname = os.getenv("RENDER_EXTERNAL_HOSTNAME")

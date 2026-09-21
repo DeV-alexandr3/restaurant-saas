@@ -801,8 +801,8 @@ def restaurant_settings(request):
     if request.method == "POST":
         restaurant.name = request.POST.get("name", "").strip()
         restaurant.phone = request.POST.get("phone", "").strip()
-        minimum_order_value = request.POST.get("minimum_order", "0")
-        delivery_fee_value = request.POST.get("delivery_fee", "0")
+        minimum_order_value = request.POST.get("minimum_order", "")
+        delivery_fee_value = request.POST.get("delivery_fee", "")
         estimated_time_value = request.POST.get("estimated_time_minutes", "30")
 
         restaurant.accepts_pickup = (
@@ -817,13 +817,31 @@ def restaurant_settings(request):
             request.POST.get("accepts_table_orders") == "on"
         )
 
+        if not (
+            restaurant.accepts_pickup
+            or restaurant.accepts_delivery
+            or restaurant.accepts_table_orders
+        ):
+            return render(
+                request,
+                "restaurants/restaurant_settings.html",
+                {
+                    "restaurant": restaurant,
+                    "error": "Selecione pelo menos um tipo de pedido.",
+                },
+            )
+
         try:
             minimum_order = Decimal(
-                minimum_order_value or "0"
+                Decimal(minimum_order_value)
+                if minimum_order_value.strip()
+                else restaurant.minimum_order
             )
 
             delivery_fee = Decimal(
-                delivery_fee_value or "0"
+                Decimal(delivery_fee_value)
+                if delivery_fee_value.strip()
+                else restaurant.delivery_fee
             )
 
             estimated_time_minutes = int(

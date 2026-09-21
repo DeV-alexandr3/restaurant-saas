@@ -26,6 +26,11 @@
         rel="stylesheet"
     >
 
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=Poppins:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
     <style>
         :root {
             --restaurant-primary: {{ restaurant.primary_color }};
@@ -38,123 +43,135 @@
 
 <body>
 
-    <header 
+    <!-- =========================================================
+        CABEÇALHO / BANNER DO RESTAURANTE
+    ========================================================= -->
+
+    <header
         class="restaurant-header"
         {% if restaurant.banner %}
             style="
                 background-image:
-                    linear-gradient(
-                        rgba(17, 24, 39, 0.65),
-                        rgba(17, 24, 39, 0.65)
-                    ),
+                    
                     url('{{ restaurant.banner.url }}');
             "
         {% endif %}
     >
         <div class="header-content">
 
-            {% if restaurant.logo %}
-                <img
-                    src="{{ restaurant.logo.url }}"
-                    alt="{{ restaurant.name }}"
-                    class="restaurant-logo"
-                >
-            {% endif %}
+            <div class="header-main">
 
-            <h1>{{ restaurant.name }}</h1>
-            
-            
-            <p>Confira nosso cardápio</p>
+                {% if restaurant.logo %}
+                    <img
+                        src="{{ restaurant.logo.url }}"
+                        alt="{{ restaurant.name }}"
+                        class="restaurant-logo"
+                    >
+                {% endif %}
+
+                <div class="header-text">
+                    <h1 class="restaurant-name">{{ restaurant.name }} </h1>
+                </div>
+
+            </div>
+
+            <!-- <p class="header-subtitle">Confira nosso cardápio</p> -->
+
             <div class="header-actions">
-                <a
-                    href="{% url 'cart_detail' restaurant.slug %}"
-                    class="cart-link"
-                >
-                    🛒 Ver carrinho
 
-                    {% if cart_count > 0 %}
-                        <span class="cart-badge">
-                            {{ cart_count }}
-                        </span>
-                    {% endif %}
-                </a>
-                
                 {% if last_order %}
                     <a
                         href="{% url 'order_confirmation' slug=restaurant.slug public_token=last_order.public_token %}"
                         class="track-order-button"
                     >
-                    {% if last_order.status == "FINISHED" or last_order.status == "CANCELLED" or last_order.status == "REJECTED" %}
-                        📄 Ver último pedido
-                    {% else %}
-                        📦 Acompanhar meu pedido
-                    {% endif %}
+                        {% if last_order.status == "FINISHED" or last_order.status == "CANCELLED" or last_order.status == "REJECTED" %}
+                            📄 Ver último pedido
+                        {% else %}
+                            📦 Acompanhar meu pedido
+                        {% endif %}
                     </a>
                 {% endif %}
-            </div>
-            {% if current_table %}
-            
-                <div class="current-table-box">
 
-                    <span>
-                        Mesa {{ current_table.number }}
+                {% if current_table %}
 
-                        {% if current_table.name %}
-                            - {{ current_table.name }}
-                        {% endif %}
-                    </span>
+                    <div class="current-table-box">
 
-                    <form
-                        method="POST"
-                        action="{% url 'change_table_context' restaurant.slug %}"
-                    >
-                        {% csrf_token %}
+                        <!-- Form 1: só o select -->
+                        <form
+                            method="POST"
+                            action="{% url 'change_table_context' restaurant.slug %}"
+                            class="table-select-form"
+                        >
+                            {% csrf_token %}
 
-                        <select name="table_id" required>
-                            {% for table in active_tables %}
-                                <option
-                                    value="{{ table.id }}"
-                                    {% if current_table and current_table.id == table.id %}
-                                        selected
-                                    {% endif %}
+                            <select name="table_id" required>
+                                {% for table in active_tables %}
+                                    <option
+                                        value="{{ table.id }}"
+                                        {% if current_table and current_table.id == table.id %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        Mesa {{ table.number }}
+                                        {% if table.name %}
+                                            - {{ table.name }}
+                                        {% endif %}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </form>
+
+                        <!-- Container dos dois botões -->
+                        <div class="table-buttons">
+
+                            <!-- Form 2: Trocar mesa -->
+                            <form
+                                method="POST"
+                                action="{% url 'change_table_context' restaurant.slug %}"
+                                class="table-button-form"
+                            >
+                                {% csrf_token %}
+
+                                <input
+                                    type="hidden"
+                                    name="table_id"
+                                    value="{{ current_table.id }}"
                                 >
-                                    Mesa {{ table.number }}
-                                    {% if table.name %}
-                                        - {{ table.name }}
-                                    {% endif %}
-                                </option>
-                            {% endfor %}
-                        </select>
 
-                        <button
-                            type="submit"
-                            class="remove-table-button"
-                        >
-                            Trocar mesa
-                        </button>
-                    </form>
+                                <button
+                                    type="submit"
+                                    class="remove-table-button"
+                                >
+                                    Trocar mesa
+                                </button>
+                            </form>
 
-                    <form
-                        method="POST"
-                        action="{% url 'remove_table_context' restaurant.slug %}"
-                    >
-                        {% csrf_token %}
+                            <!-- Form 3: Remover mesa -->
+                            <form
+                                method="POST"
+                                action="{% url 'remove_table_context' restaurant.slug %}"
+                                class="table-button-form"
+                            >
+                                {% csrf_token %}
 
-                        <button
-                            type="submit"
-                            class="remove-table-button"
-                        >
-                            Remover mesa
-                        </button>
-                    </form>
+                                <button
+                                    type="submit"
+                                    class="remove-table-button"
+                                >
+                                    Remover mesa
+                                </button>
+                            </form>
 
-                </div>
+                        </div>
 
-            {% endif %}
+                    </div>
+
+                {% endif %}
+
+            </div>
+
         </div>
     </header>
-
-    
 
     <main class="menu-container">
 
@@ -170,7 +187,7 @@
 
             <section class="menu-category" id="category-{{ category.id }}">
 
-                <h2>{{ category.name }}</h2>
+                <h2>{{ category.name }} </h2>
 
                 <div class="product-grid">
 
@@ -236,6 +253,23 @@
         {% endfor %}
 
     </main>
+
+    <!-- =========================================================
+         CARRINHO FLUTUANTE
+    ========================================================= -->
+
+    <a
+        href="{% url 'cart_detail' restaurant.slug %}"
+        class="cart-link"
+    >
+        <span class="cart-link-icon">🛒</span>
+
+        {% if cart_count > 0 %}
+            <span class="cart-badge">
+                {{ cart_count }}
+            </span>
+        {% endif %}
+    </a>
 
 </body>
 </html>
