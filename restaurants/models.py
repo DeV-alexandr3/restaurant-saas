@@ -1,5 +1,6 @@
 from django.db import models
 from cloudinary.models import CloudinaryField
+from django.core.validators import RegexValidator
 
 
 class Restaurant(models.Model):
@@ -77,6 +78,64 @@ class Restaurant(models.Model):
         default=30,
     )
 
+        # ---------- Personalização visual ----------
+
+    title_color = models.CharField(
+        max_length=7,
+        default="#D22A2A",
+        verbose_name="Cor dos títulos",
+    )
+
+    text_color = models.CharField(
+        max_length=7,
+        default="#1F2937",
+        verbose_name="Cor do texto",
+    )
+
+    card_bg_color = models.CharField(
+        max_length=7,
+        default="#FFF9F2",
+        verbose_name="Cor de fundo dos cards",
+    )
+
+    title_font = models.CharField(
+        max_length=100,
+        default="Playfair Display",
+        blank=True,
+        verbose_name="Fonte dos títulos",
+    )
+
+    body_font = models.CharField(
+        max_length=100,
+        default="Poppins",
+        blank=True,
+        verbose_name="Fonte do corpo",
+    )
+
+    restaurant_name_font = models.CharField(
+        max_length=100,
+        default="Playfair Display",
+        blank=True,
+        verbose_name="Fonte do nome do restaurante",
+    )
+
+    shortcut_bg_color = models.CharField(
+        max_length=30,
+        default="rgba(255, 255, 255, 0.05)",
+        verbose_name="Cor de fundo dos atalhos de categoria",
+    )
+
+    restaurant_name_italic = models.BooleanField(
+        default=True,
+        verbose_name="Nome do restaurante em itálico",
+    )
+
+    product_detail_bg = models.CharField(
+        max_length=30,
+        default="#FFFFFF",
+        verbose_name="Cor de fundo da página de produto",
+    )   
+
     class Meta:
         constraints = [
             models.CheckConstraint(
@@ -92,6 +151,55 @@ class Restaurant(models.Model):
                 name="restaurant_delivery_fee_non_negative",
             ),
         ]
+
+    def get_google_fonts_url(self):
+        """
+        Retorna a URL do Google Fonts carregando apenas
+        as fontes configuradas para este restaurante.
+        """
+        fonts = set()
+
+        if self.restaurant_name_font:
+            fonts.add(
+                f"family={self.restaurant_name_font.replace(' ', '+')}:ital,wght@0,400;0,700;1,400;1,700"
+            )
+
+        if self.title_font:
+            fonts.add(
+                f"family={self.title_font.replace(' ', '+')}:ital,wght@0,400;0,700;1,400;1,700"
+            )
+
+        if self.body_font and self.body_font != self.title_font:
+            fonts.add(
+                f"family={self.body_font.replace(' ', '+')}:wght@400;500;600;700"
+            )
+
+        if not fonts:
+            return None
+
+        return (
+            "https://fonts.googleapis.com/css2?"
+            + "&".join(fonts)
+            + "&display=swap"
+        )
+
+    def get_css_variables(self):
+        """
+        Retorna o bloco de variáveis CSS que será injetado no template público.
+        """
+        return (
+            f"--restaurant-primary: {self.primary_color};\n"
+            f"--restaurant-background: {self.background_color};\n"
+            f"--restaurant-title-color: {self.title_color};\n"
+            f"--restaurant-text-color: {self.text_color};\n"
+            f"--restaurant-card-bg: {self.card_bg_color};\n"
+             f"--restaurant-product-detail-bg: {self.product_detail_bg};\n"
+            f"--restaurant-shortcut-bg: {self.shortcut_bg_color};\n"
+            f"--restaurant-title-font: '{self.title_font}', serif;\n"
+            f"--restaurant-body-font: '{self.body_font}', sans-serif;\n"
+            f"--restaurant-name-font: '{self.restaurant_name_font}', serif;\n"
+            f"--restaurant-name-style: {'italic' if self.restaurant_name_italic else 'normal'};"
+        )
 
     def __str__(self):
         return self.name

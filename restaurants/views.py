@@ -900,6 +900,8 @@ def restaurant_settings(request):
             "#f6f7f9",
         )
 
+        
+
         color_pattern = r"^#[0-9A-Fa-f]{6}$"
 
         if not re.match(color_pattern, primary_color):
@@ -924,6 +926,83 @@ def restaurant_settings(request):
 
         restaurant.primary_color = primary_color
         restaurant.background_color = background_color
+
+        # ---------- Personalização de fontes e cores ----------
+
+        title_color = request.POST.get(
+            "title_color",
+            restaurant.title_color,
+        )
+
+        text_color = request.POST.get(
+            "text_color",
+            restaurant.text_color,
+        )
+
+        card_bg_color = request.POST.get(
+            "card_bg_color",
+            restaurant.card_bg_color,
+        )
+
+        for field_name, field_value in [
+            ("title_color", title_color),
+            ("text_color", text_color),
+            ("card_bg_color", card_bg_color),
+        ]:
+            if not re.match(color_pattern, field_value):
+                return render(
+                    request,
+                    "restaurants/restaurant_settings.html",
+                    {
+                        "restaurant": restaurant,
+                        "error": f"A cor {field_name} informada é inválida.",
+                    },
+                )
+
+        restaurant.title_color = title_color
+        restaurant.text_color = text_color
+        restaurant.card_bg_color = card_bg_color
+
+        restaurant.title_font = request.POST.get(
+            "title_font",
+            restaurant.title_font,
+        ).strip()
+
+        restaurant.body_font = request.POST.get(
+            "body_font",
+            restaurant.body_font,
+        ).strip()
+
+        restaurant.restaurant_name_font = request.POST.get(
+            "restaurant_name_font",
+            restaurant.restaurant_name_font,
+        ).strip()
+
+        restaurant.shortcut_bg_color = request.POST.get(
+            "shortcut_bg_color",
+            restaurant.shortcut_bg_color,
+        ).strip()
+
+        restaurant.restaurant_name_italic = (
+            request.POST.get("restaurant_name_italic") == "on"
+        )
+
+        product_detail_bg = request.POST.get(
+            "product_detail_bg",
+            restaurant.product_detail_bg,
+        )
+
+        if not re.match(color_pattern, product_detail_bg):
+            return render(
+                request,
+                "restaurants/restaurant_settings.html",
+                {
+                    "restaurant": restaurant,
+                    "error": "A cor de fundo da página de produto é inválida.",
+                },
+            )
+
+        restaurant.product_detail_bg = product_detail_bg
 
         logo = request.FILES.get("logo")
         banner = request.FILES.get("banner")

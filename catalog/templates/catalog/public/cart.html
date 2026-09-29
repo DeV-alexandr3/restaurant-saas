@@ -21,10 +21,9 @@
         href="{% static 'catalog/css/public_menu.css' %}"
     >
 
-    <style>
+    <style>     
         :root {
-            --restaurant-primary: {{ restaurant.primary_color }};
-            --restaurant-background: {{ restaurant.background_color }};
+            {{ restaurant.get_css_variables|safe }}
         }
     </style>
 </head>

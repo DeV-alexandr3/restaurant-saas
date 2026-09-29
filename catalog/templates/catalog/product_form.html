@@ -1,5 +1,5 @@
 {% extends "restaurants/base.html" %}
-
+{% load l10n %}
 {% block title %}
     {% if product %}
         Editar produto
@@ -95,7 +95,7 @@
                 name="price"
                 step="0.01"
                 min="0"
-                value="{{ product.price|default:'' }}"
+                value="{{ product.price|unlocalize }}"
                 required
             >
         </div>

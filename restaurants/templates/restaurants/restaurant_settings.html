@@ -39,6 +39,33 @@ Configurações
         </div>
 
         <div class="form-group">
+            <label>Link do cardápio público</label>
+
+            <div class="public-menu-link">
+                <a
+                    href="{% url 'public_menu' restaurant.slug %}"
+                    target="_blank"
+                    rel="noopener"
+                >
+                    /r/{{ restaurant.slug }}/
+                </a>
+
+                <button
+                    type="button"
+                    class="copy-link-button"
+                    onclick="copiarLink(this)"
+                    data-link="{{ request.scheme }}://{{ request.get_host }}{% url 'public_menu' restaurant.slug %}"
+                >
+                    Copiar
+                </button>
+            </div>
+
+            <p class="public-menu-hint">
+                Esse é o link que o cliente acessa pra ver o cardápio.
+            </p>
+        </div>
+
+        <div class="form-group">
             <label for="phone">
                 Telefone
             </label>
@@ -75,6 +102,109 @@ Configurações
                 name="background_color"
                 value="{{ restaurant.background_color }}"
             >
+        </div>
+
+        <div class="form-group">
+            <label for="id_shortcut_bg_color">
+                Cor de fundo dos atalhos de categoria
+            </label>
+            <input
+                type="text"
+                id="id_shortcut_bg_color"
+                name="shortcut_bg_color"
+                value="{{ restaurant.shortcut_bg_color }}"
+                placeholder="Ex: rgba(255, 255, 255, 0.05)"
+            >
+            <small>
+                Aceita valores como <code>rgba(255, 255, 255, 0.05)</code>,
+                <code>#1A1A1A</code>, ou qualquer cor CSS válida.
+            </small>
+        </div>
+
+        <div class="form-group">
+            <label for="id_title_color">Cor dos títulos</label>
+            <input
+                type="color"
+                id="id_title_color"
+                name="title_color"
+                value="{{ restaurant.title_color }}"
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="id_text_color">Cor do texto</label>
+            <input
+                type="color"
+                id="id_text_color"
+                name="text_color"
+                value="{{ restaurant.text_color }}"
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="id_product_detail_bg">
+                Cor de fundo da página de produto
+            </label>
+            <input
+                type="color"
+                id="id_product_detail_bg"
+                name="product_detail_bg"
+                value="{{ restaurant.product_detail_bg }}"
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="id_card_bg_color">Cor de fundo dos cards</label>
+            <input
+                type="color"
+                id="id_card_bg_color"
+                name="card_bg_color"
+                value="{{ restaurant.card_bg_color }}"
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="id_title_font">Fonte dos títulos</label>
+            <input
+                type="text"
+                id="id_title_font"
+                name="title_font"
+                value="{{ restaurant.title_font }}"
+                placeholder="Ex: Playfair Display"
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="id_body_font">Fonte do corpo</label>
+            <input
+                type="text"
+                id="id_body_font"
+                name="body_font"
+                value="{{ restaurant.body_font }}"
+                placeholder="Ex: Poppins"
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="id_restaurant_name_font">Fonte do nome do restaurante</label>
+            <input
+                type="text"
+                id="id_restaurant_name_font"
+                name="restaurant_name_font"
+                value="{{ restaurant.restaurant_name_font }}"
+                placeholder="Ex: Playfair Display"
+            >
+        </div>
+
+        <div class="form-group form-check">
+            <label>
+                <input
+                    type="checkbox"
+                    name="restaurant_name_italic"
+                    {% if restaurant.restaurant_name_italic %}checked{% endif %}
+                >
+                Nome do restaurante em itálico
+            </label>
         </div>
 
         <div class="form-group">
@@ -247,6 +377,19 @@ Configurações
             }
         });
     });
+
+    function copiarLink(button) {
+        const link = button.dataset.link;
+
+        navigator.clipboard.writeText(link).then(() => {
+            const original = button.textContent;
+            button.textContent = "Copiado!";
+
+            setTimeout(() => {
+                button.textContent = original;
+            }, 1500);
+        });
+    }
 </script>
 
 {% endblock %}

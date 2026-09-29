@@ -9,6 +9,7 @@ body {
     background-color: #f5f5f5;
     display: flex;
     min-height: 100vh;
+    overflow-x: hidden;
 }
 
 aside {
@@ -42,7 +43,9 @@ aside nav a:hover {
 
 main {
     flex: 1;
-    padding: 32px;
+    padding: 40px;
+    overflow-x: hidden;
+    min-width: 0; 
 }
 
 .page-header {
@@ -82,18 +85,24 @@ main {
     border-radius: 10px;
     padding: 22px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    overflow-x: auto;
+    
 }
 
 .category-table {
-    width: 100%;
+    width: 100%;   
+    min-width: 1200px;
     border-collapse: collapse;
+    overflow-x: auto;
 }
 
 .category-table th,
 .category-table td {
-    padding: 14px 12px;
+    padding: 14px 24px;
     text-align: left;
     border-bottom: 1px solid #e5e7eb;
+    white-space: nowrap;
+    vertical-align: middle;
 }
 
 .category-table th {
@@ -103,6 +112,46 @@ main {
 
 .category-table td {
     color: #111827;
+}
+
+.category-table td.col-acoes {
+    white-space: nowrap;
+}
+
+.category-table td.col-acoes > a,
+.category-table td.col-acoes > button,
+.category-table td.col-acoes > form {
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 6px;
+}
+
+.category-table td.col-acoes > form {
+    margin-right: 0;
+}
+
+.category-table th a {
+    color: inherit;
+    text-decoration: none;
+
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+
+    font-weight: 600;
+
+    transition: color 0.2s ease;
+}
+
+.category-table th a:hover {
+    color: #2563eb;
+}
+
+.main-content {
+    width: 100%;
+    max-width: 100%;
+
+    overflow-x: hidden;   /* impede a página de estourar */
 }
 
 .status-active,
@@ -842,4 +891,295 @@ main {
     background: #fee2e2;
     color: #991b1b;
     font-weight: 600;
+}
+
+/* =========================================================
+   FILTROS DE PRODUTOS (PAINEL)
+========================================================= */
+
+.product-search {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    margin-left: 16px;
+}
+
+.product-search input[type="text"] {
+    flex: 1;
+
+    min-height: 42px;
+    padding: 10px 14px;
+
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+
+    font-family: inherit;
+    font-size: 15px;
+
+    outline: none;
+
+    transition: border-color 0.2s ease;
+}
+
+.product-search input[type="text"]:focus {
+    border-color: var(--restaurant-primary, #2563eb);
+}
+
+.product-search button {
+    min-height: 42px;
+    padding: 10px 20px;
+
+    border: none;
+    border-radius: 10px;
+
+    background: var(--restaurant-primary, #2563eb);
+    color: white;
+
+    font-weight: 700;
+    cursor: pointer;
+
+    transition: opacity 0.2s ease;
+}
+
+.product-search button:hover {
+    opacity: 0.9;
+}
+
+/* Abas de categoria */
+
+.category-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+
+    margin-bottom: 20px;
+}
+
+.category-tab {
+    padding: 8px 16px;
+
+    background: white;
+    color: #374151;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 999px;
+
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease;
+}
+
+.category-tab:hover {
+    background: #f3f4f6;
+}
+
+.category-tab.active {
+    background: var(--restaurant-primary, #2563eb);
+    color: white;
+    border-color: transparent;
+}
+
+.product-search-clear {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 42px;
+    padding: 10px 20px;
+
+    background: white;
+    color: #374151;
+
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+
+    text-decoration: none;
+    font-weight: 600;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.product-search-clear:hover {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+}
+
+/* =========================================================
+   TOGGLE DE COLUNAS (PAINEL DE PRODUTOS)
+========================================================= */
+
+.product-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+
+    margin-bottom: 16px;
+}
+
+.product-toolbar .product-search {
+    flex: 1;
+
+    margin-bottom: 0;
+}
+
+.column-toggle-wrapper {
+    position: relative;
+}
+
+.column-toggle-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+
+    min-height: 42px;
+    padding: 10px 16px;
+
+    background: white;
+    color: #374151;
+
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+
+    font-weight: 600;
+    font-size: 14px;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.column-toggle-button:hover {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+}
+
+.column-toggle-menu {
+    position: absolute;
+
+    top: calc(100% + 6px);
+    right: 0;
+
+    min-width: 200px;
+
+    padding: 12px;
+
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+
+    z-index: 100;
+
+    display: none;
+}
+
+.column-toggle-menu.open {
+    display: block;
+}
+
+.column-toggle-menu label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    padding: 8px 4px;
+
+    cursor: pointer;
+
+    font-size: 14px;
+    color: #374151;
+
+    border-radius: 6px;
+
+    transition: background 0.15s ease;
+}
+
+.column-toggle-menu label:hover {
+    background: #f3f4f6;
+}
+
+.column-toggle-menu input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+
+    cursor: pointer;
+
+    accent-color: #2563eb;
+}
+
+/* Colunas escondidas */
+.category-table .col-hidden {
+    display: none !important;
+}
+
+/* =========================================================
+   LINK DO CARDÁPIO PÚBLICO (CONFIGURAÇÕES)
+========================================================= */
+
+.public-menu-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    padding: 12px 14px;
+
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+}
+
+.public-menu-link a {
+    flex: 1;
+
+    color: var(--restaurant-primary, #2563eb);
+    text-decoration: none;
+
+    font-weight: 600;
+    font-size: 15px;
+
+    word-break: break-all;
+}
+
+.public-menu-link a:hover {
+    text-decoration: underline;
+}
+
+.copy-link-button {
+    padding: 8px 14px;
+
+    border: none;
+    border-radius: 8px;
+
+    background: var(--restaurant-primary, #2563eb);
+    color: white;
+
+    font-weight: 600;
+    font-size: 13px;
+
+    cursor: pointer;
+
+    transition: opacity 0.2s ease;
+}
+
+.copy-link-button:hover {
+    opacity: 0.9;
+}
+
+.public-menu-hint {
+    margin-top: 6px;
+
+    color: #6b7280;
+    font-size: 13px;
 }

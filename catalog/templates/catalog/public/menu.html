@@ -5,36 +5,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    {% if restaurant.get_google_fonts_url %}
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="{{ restaurant.get_google_fonts_url }}" rel="stylesheet">
+    {% endif %}
+
     <link
         rel="stylesheet"
         href="{% static 'catalog/css/public_menu.css' %}"
     >
 
-    <link
-        rel="preconnect"
-        href="https://fonts.googleapis.com"
-    >
-
-    <link
-        rel="preconnect"
-        href="https://fonts.gstatic.com"
-        crossorigin
-    >
-
-    <link
-        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@400;500;600;700&display=swap"
-        rel="stylesheet"
-    >
-
-    <link
-        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=Poppins:wght@400;500;600;700&display=swap"
-        rel="stylesheet"
-    >
-
     <style>
         :root {
-            --restaurant-primary: {{ restaurant.primary_color }};
-            --restaurant-background: {{ restaurant.background_color }};
+            {{ restaurant.get_css_variables|safe }}
         }
     </style>
 

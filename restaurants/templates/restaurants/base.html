@@ -12,6 +12,13 @@
         rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
     />
+
+    {% if restaurant.get_google_fonts_url %}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="{{ restaurant.get_google_fonts_url }}" rel="stylesheet">
+    {% endif %}
+
     <title>{% block title %}Painel{% endblock %}</title>
 </head>
 

@@ -228,12 +228,53 @@ def product_list(request):
         restaurant=membership.restaurant
     ).select_related("category")
 
+    category_id = request.GET.get("category")
+    search_query = request.GET.get("q", "").strip()
+
+    if category_id:
+        products = products.filter(category_id=category_id)
+
+    if search_query:
+        products = products.filter(name__icontains=search_query)
+
+    categories = Category.objects.filter(
+        restaurant=membership.restaurant
+    ).order_by("position", "name")
+
+    selected_category = None
+
+    if category_id:
+        selected_category = categories.filter(id=category_id).first()
+
+    # Ordenação
+    sort_field = request.GET.get("sort", "name")
+    order = request.GET.get("order", "asc")
+
+    allowed_sort_fields = {
+        "name": "name",
+        "price": "price",
+        "category": "category__name",
+        "status": "is_available",
+    }
+
+    if sort_field not in allowed_sort_fields:
+        sort_field = "name"
+
+    sort_column = allowed_sort_fields[sort_field]
+
+    if order == "desc":
+        sort_column = f"-{sort_column}"
+
+    products = products.order_by(sort_column)
+
     return render(
         request,
         "catalog/product_list.html",
         {
             "restaurant": membership.restaurant,
             "products": products,
+            "categories": categories,
+            "selected_category": selected_category,
         },
     )
 

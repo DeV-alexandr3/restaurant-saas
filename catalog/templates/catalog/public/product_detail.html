@@ -21,9 +21,9 @@
     >
 
     <style>
+        
         :root {
-            --restaurant-primary: {{ restaurant.primary_color }};
-            --restaurant-background: {{ restaurant.background_color }};
+            {{ restaurant.get_css_variables|safe }}
         }
     </style>
 </head>
@@ -115,65 +115,38 @@
 
 
                     {% for group in addon_groups %}
-
                         <section class="product-options">
+                            <button
+                                type="button"
+                                class="addon-group-toggle"
+                                data-target="addon-group-{{ group.id }}"
+                            >
+                                <div class="option-header">
+                                    <h2>{{ group.name }}</h2>
+                                    <span>Escolha até {{ group.max_choices }}</span>
+                                </div>
+                                <span class="addon-toggle-arrow">▼</span>
+                            </button>
 
-                            <div class="option-header">
-
-                                <h2>{{ group.name }}</h2>
-
-                                <span>
-                                    Escolha até {{ group.max_choices }}
-                                </span>
-
+                            <div
+                                class="addon-group-content"
+                                id="addon-group-{{ group.id }}"
+                            >
+                                {% for addon in group.addons.all %}
+                                    {% if addon.is_available %}
+                                        <label class="option-item">
+                                            {% if group.max_choices == 1 %}
+                                                <input type="radio" name="addon_group_{{ group.id }}" value="{{ addon.id }}">
+                                            {% else %}
+                                                <input type="checkbox" name="addon" value="{{ addon.id }}">
+                                            {% endif %}
+                                            <span>{{ addon.name }}</span>
+                                            <strong>+ R$ {{ addon.price }}</strong>
+                                        </label>
+                                    {% endif %}
+                                {% endfor %}
                             </div>
-
-                            {% for addon in group.addons.all %}
-
-                                {% if addon.is_available %}
-
-                                    <label class="option-item">
-
-                                        {% if group.max_choices == 1 %}
-
-                                            <input
-                                                type="radio"
-                                                name="addon_group_{{ group.id }}"
-                                                value="{{ addon.id }}"
-                                            >
-
-                                        {% else %}
-
-                                            <input
-                                                type="checkbox"
-                                                name="addon"
-                                                value="{{ addon.id }}"
-                                            >
-
-                                        {% endif %}
-
-                                        <span>
-                                            {{ addon.name }}
-                                        </span>
-
-                                        <strong>
-                                            + R$ {{ addon.price }}
-                                        </strong>
-
-                                    </label>
-
-                                {% endif %}
-
-                            {% empty %}
-
-                                <p>
-                                    Nenhuma opção disponível.
-                                </p>
-
-                            {% endfor %}
-
                         </section>
-
                     {% endfor %}
                     
                     {% if messages %}
@@ -203,7 +176,7 @@
 
     </main>
 
-        <!-- =========================================================
+    <!-- =========================================================
          CARRINHO FLUTUANTE
     ========================================================= -->
 
@@ -242,6 +215,18 @@
                 parseInt(savedPosition)
             );
         }
+    });
+    
+    document.querySelectorAll(".addon-group-toggle").forEach((toggle) => {
+        toggle.addEventListener("click", () => {
+            const targetId = toggle.dataset.target;
+            const content = document.getElementById(targetId);
+
+            if (!content) return;
+
+            toggle.classList.toggle("open");
+            content.classList.toggle("open");
+        });
     });
 </script>
 

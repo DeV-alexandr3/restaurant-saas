@@ -19,13 +19,101 @@ Produtos
     {% endif %}
 </div>
 
+<div class="category-tabs">
+    <a
+        href="{% url 'product_list' %}"
+        class="category-tab {% if not selected_category %}active{% endif %}"
+    >
+        Todas
+    </a>
+
+    {% for category in categories %}
+        <a
+            href="?category={{ category.id }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"
+            class="category-tab {% if selected_category and selected_category.id == category.id %}active{% endif %}"
+        >
+            {{ category.name }}
+        </a>
+    {% endfor %}
+</div>
+
+
+
 <div class="content-card">
+
+    <div class="product-toolbar">
+
+        <form method="GET" class="product-search">
+            <input
+                type="text"
+                name="q"
+                placeholder="Buscar produto por nome..."
+                value="{{ request.GET.q|default:'' }}"
+            >
+
+            {% if selected_category %}
+                <input type="hidden" name="category" value="{{ selected_category.id }}">
+            {% endif %}
+
+            <button type="submit">
+                Buscar
+            </button>
+        </form>
+
+        <a href="{% url 'product_list' %}" class="product-search-clear">
+            Limpar
+        </a>
+
+        <div class="column-toggle-wrapper">
+            <button
+                type="button"
+                class="column-toggle-button"
+                id="column-toggle-button"
+            >
+                ⚙️ Colunas
+            </button>
+
+            <div class="column-toggle-menu" id="column-toggle-menu">
+                <label>
+                    <input type="checkbox" data-col="col-imagem" checked>
+                    Imagem
+                </label>
+
+                <label>
+                    <input type="checkbox" data-col="col-categoria" checked>
+                    Categoria
+                </label>
+
+                <label>
+                    <input type="checkbox" data-col="col-preco" checked>
+                    Preço
+                </label>
+
+                <label>
+                    <input type="checkbox" data-col="col-status" checked>
+                    Status
+                </label>
+
+                <label>
+                    <input type="checkbox" data-col="col-variacoes" checked>
+                    Variações
+                </label>
+
+                <label>
+                    <input type="checkbox" data-col="col-adicionais" checked>
+                    Adicionais
+                </label>
+            </div>
+        </div>
+
+    </div>
 
     {% if products %}
 
         <table class="category-table">
-            <thead>
+            <!--<thead>
                 <tr>
+                    <th>#</th>
                     <th>Imagem</th>
                     <th>Produto</th>
                     <th>Categoria</th>
@@ -34,6 +122,58 @@ Produtos
                     {% if membership.role == "ADMIN" %}
                         <th>Ações</th>
                     {% endif %}
+                    <th>Variações</th>
+                    <th>Adicionais</th>
+                </tr>
+            </thead>-->
+
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th class="col-imagem">Imagem</th>
+
+                    <th>
+                        <a href="?{% if request.GET.category %}category={{ request.GET.category }}&{% endif %}{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}sort=name&order={% if request.GET.sort == 'name' and request.GET.order == 'asc' %}desc{% else %}asc{% endif %}">
+                            Produto
+                            {% if request.GET.sort == 'name' %}
+                                {% if request.GET.order == 'asc' %}▲{% else %}▼{% endif %}
+                            {% endif %}
+                        </a>
+                    </th>
+
+                    <th class="col-categoria">
+                        <a href="?{% if request.GET.category %}category={{ request.GET.category }}&{% endif %}{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}sort=category&order={% if request.GET.sort == 'category' and request.GET.order == 'asc' %}desc{% else %}asc{% endif %}">
+                            Categoria
+                            {% if request.GET.sort == 'category' %}
+                                {% if request.GET.order == 'asc' %}▲{% else %}▼{% endif %}
+                            {% endif %}
+                        </a>
+                    </th>
+
+                    <th class="col-preco">
+                        <a href="?{% if request.GET.category %}category={{ request.GET.category }}&{% endif %}{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}sort=price&order={% if request.GET.sort == 'price' and request.GET.order == 'asc' %}desc{% else %}asc{% endif %}">
+                            Preço
+                            {% if request.GET.sort == 'price' %}
+                                {% if request.GET.order == 'asc' %}▲{% else %}▼{% endif %}
+                            {% endif %}
+                        </a>
+                    </th>
+
+                    <th class="col-status">
+                        <a href="?{% if request.GET.category %}category={{ request.GET.category }}&{% endif %}{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}sort=status&order={% if request.GET.sort == 'status' and request.GET.order == 'asc' %}desc{% else %}asc{% endif %}">
+                            Status
+                            {% if request.GET.sort == 'status' %}
+                                {% if request.GET.order == 'asc' %}▲{% else %}▼{% endif %}
+                            {% endif %}
+                        </a>
+                    </th>
+
+                    {% if membership.role == "ADMIN" %}
+                        <th>Ações</th>
+                    {% endif %}
+
+                    <th class="col-variacoes">Variações</th>
+                    <th class="col-adicionais">Adicionais</th>
                 </tr>
             </thead>
 
@@ -41,6 +181,9 @@ Produtos
                 {% for product in products %}
                     <tr>
                         <td>
+                            {{ forloop.counter }}
+                        </td>
+                        <td class="col-imagem">
                             {% if product.image %}
                                 <img
                                     src="{{ product.image.url }}"
@@ -51,19 +194,19 @@ Produtos
                                 <span>Sem imagem</span>
                             {% endif %}
                         </td>
-                        <td>
+                        <td class="col-nome">
                             <strong>{{ product.name }}</strong>
                         </td>
 
-                        <td>
+                        <td class="col-categoria">
                             {{ product.category.name }}
                         </td>
 
-                        <td>
+                        <td class="col-preco">
                             R$ {{ product.price }}
                         </td>
 
-                        <td>
+                        <td class="col-status">
                             {% if product.is_available %}
                                 <span class="status-active">
                                     Disponível
@@ -75,7 +218,7 @@ Produtos
                             {% endif %}
                         </td>
 
-                        <td>
+                        <td class="col-acoes">
                             {% if membership.role == "ADMIN" %}
                                 <a 
                                 href="{% url 'product_edit' product.id %}" 
@@ -119,6 +262,13 @@ Produtos
                                 </form>
                             {% endif %}
                         </td>
+                        <td class="col-variacoes">
+                            {{ product.variations.count }}
+                        </td>
+
+                        <td class="col-adicionais">
+                            {{ product.addon_groups.count }}
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>
@@ -134,5 +284,90 @@ Produtos
     {% endif %}
 
 </div>
+
+<script>
+    (function () {
+        const STORAGE_KEY = "product_list_columns";
+
+        const toggleButton = document.getElementById("column-toggle-button");
+        const menu = document.getElementById("column-toggle-menu");
+
+        if (!toggleButton || !menu) return;
+
+        const checkboxes = menu.querySelectorAll('input[type="checkbox"]');
+
+        // Abrir/fechar o menu
+        toggleButton.addEventListener("click", (e) => {
+            e.stopPropagation();
+            menu.classList.toggle("open");
+        });
+
+        // Fechar ao clicar fora
+        document.addEventListener("click", (e) => {
+            if (!menu.contains(e.target) && e.target !== toggleButton) {
+                menu.classList.remove("open");
+            }
+        });
+
+        // Aplicar visibilidade das colunas
+        function applyColumnVisibility(columnName, visible) {
+            const elements = document.querySelectorAll(
+                ".category-table ." + columnName
+            );
+
+            elements.forEach((el) => {
+                if (visible) {
+                    el.classList.remove("col-hidden");
+                } else {
+                    el.classList.add("col-hidden");
+                }
+            });
+        }
+
+        // Salvar estado no localStorage
+        function saveState() {
+            const state = {};
+
+            checkboxes.forEach((cb) => {
+                state[cb.dataset.col] = cb.checked;
+            });
+
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        }
+
+        // Carregar estado do localStorage
+        function loadState() {
+            const saved = localStorage.getItem(STORAGE_KEY);
+
+            if (!saved) return;
+
+            try {
+                const state = JSON.parse(saved);
+
+                checkboxes.forEach((cb) => {
+                    const col = cb.dataset.col;
+
+                    if (state.hasOwnProperty(col)) {
+                        cb.checked = state[col];
+                        applyColumnVisibility(col, state[col]);
+                    }
+                });
+            } catch (err) {
+                console.warn("Erro ao carregar preferências de colunas:", err);
+            }
+        }
+
+        // Listener nos checkboxes
+        checkboxes.forEach((cb) => {
+            cb.addEventListener("change", () => {
+                applyColumnVisibility(cb.dataset.col, cb.checked);
+                saveState();
+            });
+        });
+
+        // Aplica o estado salvo ao carregar
+        loadState();
+    })();
+</script>
 
 {% endblock %}

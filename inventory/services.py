@@ -232,7 +232,6 @@ def calculate_product_cost(product):
         })
 
     return {
-        "ingredient": ingredient,
         "total_cost": total_cost,
         "ingredient_costs": ingredient_costs,
         "has_missing_cost": has_missing_cost,
