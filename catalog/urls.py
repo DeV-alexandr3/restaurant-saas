@@ -267,4 +267,10 @@ urlpatterns = [
         views.qz_sign_message,
         name="qz_sign_message",
     ),
+
+    path(
+        "r/<slug:slug>/garcom/comanda/<int:session_id>/imprimir/",
+        views.waiter_print_session,
+        name="waiter_print_session",
+    ),
 ]

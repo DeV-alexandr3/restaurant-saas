@@ -21,6 +21,10 @@
         href="{% static 'catalog/css/waiter.css' %}"
     >
 
+    <audio id="print-sound" preload="auto">
+        <source src="{% static 'restaurants/sounds/new-order.mp3' %}" type="audio/mpeg">
+    </audio>
+
     <style>
         :root {
             {{ restaurant.get_css_variables|safe }}
@@ -34,6 +38,12 @@
         <h1>Painel do garçom</h1>
         <p>{{ restaurant.name }}</p>
     </header>
+
+    {% if total_to_print > 0 %}
+        <div class="print-alert">
+            🔔 {{ total_to_print }} comanda{{ total_to_print|pluralize }} para imprimir
+        </div>
+    {% endif %}
 
     <main class="waiter-container">
 
@@ -67,6 +77,11 @@
                             <span class="waiter-table-status">
                                 {{ item.sessions_count }} comanda{{ item.sessions_count|pluralize }}
                             </span>
+                            {% if item.sessions_to_print > 0 %}
+                                <span class="waiter-print-badge">
+                                    🖨️ {{ item.sessions_to_print }}
+                                </span>
+                            {% endif %}
                             <span class="waiter-table-total">
                                 R$ {{ item.total }}
                             </span>
@@ -94,6 +109,16 @@
 
     </main>
 
+    <script>
+        const totalToPrint = {{ total_to_print|default:0 }};
+
+        if (totalToPrint > 0) {
+            const sound = document.getElementById("print-sound");
+            sound.play().catch(() => {
+                // Ignora erro de autoplay (navegador bloqueia)
+            });
+        }
+    </script>
 </body>
 
 </html>

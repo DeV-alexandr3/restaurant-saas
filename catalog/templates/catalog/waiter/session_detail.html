@@ -148,9 +148,12 @@
         <button
             type="button"
             onclick="imprimirComanda()"
-            class="waiter-print-button"
+            class="waiter-print-button {% if session.needs_print %}needs-print{% endif %}"
         >
             🖨️ Imprimir comanda
+            {% if session.needs_print %}
+                <span class="print-badge">!</span>
+            {% endif %}
         </button>
 
         {% if items %}
@@ -312,6 +315,17 @@
 
                         await qz.print(config, data);
 
+                        // Depois de imprimir com sucesso
+                        fetch("{% url 'waiter_print_session' restaurant.slug session.id %}", {
+                            method: "POST",
+                            headers: {
+                                "X-CSRFToken": "{{ csrf_token }}",
+                            },
+                        }).then(() => {
+                            // Recarrega a página pra atualizar o estado
+                            window.location.reload();
+                        });
+
                         alert("Comanda enviada para impressão!");
 
                     } catch (err) {
@@ -328,6 +342,8 @@
                 alert("Erro ao imprimir: " + err);
             }
         }
+
+        
     </script>
 
 </body>

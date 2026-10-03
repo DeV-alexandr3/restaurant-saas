@@ -2837,53 +2837,39 @@ def change_table_context(request, slug):
 
 @login_required
 def waiter_panel(request, slug):
-    """
-    Painel do garçom: grid de mesas.
-    """
-    restaurant = get_object_or_404(
-        Restaurant,
-        slug=slug,
-        is_active=True,
-    )
-
+    restaurant = get_object_or_404(Restaurant, slug=slug, is_active=True)
     membership = get_current_membership(request.user)
 
     if not membership or membership.restaurant != restaurant:
         return HttpResponse("Acesso negado.", status=403)
 
-    tables = Table.objects.filter(
-        restaurant=restaurant,
-        is_active=True,
-    ).order_by("number")
+    tables = Table.objects.filter(restaurant=restaurant, is_active=True).order_by("number")
 
-    # Pra cada mesa, buscar comandas abertas
     tables_data = []
+    total_to_print = 0
 
     for table in tables:
-        sessions = TableSession.objects.filter(
-            table=table,
-            is_open=True,
-        )
+        sessions = TableSession.objects.filter(table=table, is_open=True)
 
-        total = sessions.aggregate(
-            total=Sum("total")
-        )["total"] or 0
+        sessions_to_print = sessions.filter(needs_print=True)
+
+        total_to_print += sessions_to_print.count()
+
+        total = sessions.aggregate(total=Sum("total"))["total"] or 0
 
         tables_data.append({
             "table": table,
             "sessions_count": sessions.count(),
+            "sessions_to_print": sessions_to_print.count(),
             "total": total,
             "is_occupied": sessions.exists(),
         })
 
-    return render(
-        request,
-        "catalog/waiter/panel.html",
-        {
-            "restaurant": restaurant,
-            "tables_data": tables_data,
-        },
-    )
+    return render(request, "catalog/waiter/panel.html", {
+        "restaurant": restaurant,
+        "tables_data": tables_data,
+        "total_to_print": total_to_print,
+    })
 
 @login_required
 def waiter_table_detail(request, slug, table_id):
@@ -3464,3 +3450,28 @@ def qz_sign_message(request):
     encoded = base64.b64encode(signature).decode("utf-8")
 
     return HttpResponse(encoded, content_type="text/plain")
+
+@login_required
+def waiter_print_session(request, slug, session_id):
+    """
+    Marca a comanda como impressa (needs_print = False).
+    """
+    restaurant = get_object_or_404(
+        Restaurant, slug=slug, is_active=True,
+    )
+
+    membership = get_current_membership(request.user)
+
+    if not membership or membership.restaurant != restaurant:
+        return HttpResponse("Acesso negado.", status=403)
+
+    session = get_object_or_404(
+        TableSession, id=session_id, restaurant=restaurant,
+    )
+
+    if request.method == "POST":
+        session.needs_print = False
+        session.printed_at = timezone.now()
+        session.save(update_fields=["needs_print", "printed_at"])
+
+    return redirect("waiter_session_detail", slug=restaurant.slug, session_id=session.id)

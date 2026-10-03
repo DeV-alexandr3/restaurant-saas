@@ -52,7 +52,7 @@
 
                     <a
                         href="{% url 'waiter_session_detail' restaurant.slug session.id %}"
-                        class="waiter-session-card"
+                        class="waiter-session-card {% if session.needs_print %}needs-print{% endif %}"
                     >
                         <div class="waiter-session-header">
                             <strong>
@@ -62,6 +62,13 @@
                                 R$ {{ session.total }}
                             </span>
                         </div>
+
+                        <span class="waiter-session-time">
+                            Aberta às {{ session.opened_at|date:"H:i" }}
+                            {% if session.needs_print %}
+                                · 🖨️ Para imprimir
+                            {% endif %}
+                        </span>
 
                         <span class="waiter-session-time">
                             Aberta às {{ session.opened_at|date:"H:i" }}

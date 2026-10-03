@@ -832,3 +832,74 @@
 .waiter-print-button:hover {
     opacity: 0.9;
 }
+
+/* Aviso no topo do painel */
+.print-alert {
+    background: #f59e0b;
+    color: white;
+
+    padding: 14px 18px;
+    margin: 0 20px 20px;
+
+    border-radius: 12px;
+
+    font-weight: 700;
+    font-size: 15px;
+
+    text-align: center;
+
+    animation: printAlertPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes printAlertPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+}
+
+/* Badge nas mesas */
+.waiter-print-badge {
+    display: inline-block;
+
+    padding: 3px 8px;
+
+    background: #f59e0b;
+    color: white;
+
+    border-radius: 999px;
+
+    font-size: 12px;
+    font-weight: 700;
+}
+
+/* Card de comanda precisa imprimir */
+.waiter-session-card.needs-print {
+    border-left: 4px solid #f59e0b;
+}
+
+/* Botão de imprimir com badge */
+.waiter-print-button.needs-print {
+    background: #f59e0b;
+    position: relative;
+}
+
+.waiter-print-button .print-badge {
+    position: absolute;
+
+    top: -6px;
+    right: -6px;
+
+    width: 22px;
+    height: 22px;
+
+    background: #dc2626;
+    color: white;
+
+    border-radius: 50%;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 14px;
+    font-weight: 700;
+}

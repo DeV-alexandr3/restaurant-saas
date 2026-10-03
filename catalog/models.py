@@ -461,6 +461,17 @@ class TableSession(models.Model):
         verbose_name="Fechada em",
     )
 
+    needs_print = models.BooleanField(
+        default=True,
+        verbose_name="Precisa imprimir",
+    )
+
+    printed_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name="Impressa em",
+    )
+
     class Meta:
         verbose_name = "Comanda"
         verbose_name_plural = "Comandas"
