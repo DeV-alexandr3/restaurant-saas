@@ -12,6 +12,8 @@ from .models import (
     TableSessionItemAddon,
 )
 
+import re
+
 from restaurants.services import get_current_membership
 from .models import (
     Category, 
