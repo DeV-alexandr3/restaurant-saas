@@ -1,0 +1,335 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>
+        Comanda #{{ session.id }} - {{ restaurant.name }}
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="{% static 'catalog/css/public_menu.css' %}"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{% static 'catalog/css/waiter.css' %}"
+    >
+
+    <style>
+        :root {
+            {{ restaurant.get_css_variables|safe }}
+        }
+    </style>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+
+<body class="waiter-page">
+
+    <header class="waiter-header">
+        <a
+            href="{% url 'waiter_table_detail' restaurant.slug table.id %}"
+            class="back-link"
+        >
+            ← Voltar
+        </a>
+
+        <h1>Comanda #{{ session.id }}</h1>
+        <p>Mesa {{ table.number }}{% if table.name %} - {{ table.name }}{% endif %}</p>
+    </header>
+
+    <main class="waiter-container">
+
+        {% if items %}
+
+            <div class="waiter-items">
+
+                {% for item in items %}
+
+                    <div class="waiter-item">
+
+                        <div class="waiter-item-info">
+
+                            <strong>
+                                {{ item.product_name }}
+                            </strong>
+
+                            {% if item.variation_name %}
+                                <span>{{ item.variation_name }}</span>
+                            {% endif %}
+
+                            {% for addon in item.addons.all %}
+                                <span class="waiter-item-addon">
+                                    + {{ addon.addon_name }}
+                                </span>
+                            {% endfor %}
+
+                            {% if item.notes %}
+                                <span class="waiter-item-notes">
+                                    Obs: {{ item.notes }}
+                                </span>
+                            {% endif %}
+
+                            <!-- QUANTIDADE -->
+                            <div class="waiter-item-quantity">
+
+                                <form
+                                    method="POST"
+                                    action="{% url 'waiter_update_item_quantity' restaurant.slug item.id 'decrease' %}"
+                                    style="display: inline;"
+                                >
+                                    {% csrf_token %}
+                                    <button type="submit" class="waiter-qty-button">−</button>
+                                </form>
+
+                                <span>{{ item.quantity }}</span>
+
+                                <form
+                                    method="POST"
+                                    action="{% url 'waiter_update_item_quantity' restaurant.slug item.id 'increase' %}"
+                                    style="display: inline;"
+                                >
+                                    {% csrf_token %}
+                                    <button type="submit" class="waiter-qty-button">+</button>
+                                </form>
+
+                            </div>
+
+                        </div>
+
+                        <div class="waiter-item-price">
+                            R$ {{ item.total }}
+                        </div>
+
+                        <form
+                            method="POST"
+                            action="{% url 'waiter_remove_item' restaurant.slug item.id %}"
+                            style="display: inline;"
+                            onsubmit="return confirm('Remover este item?');"
+                        >
+                            {% csrf_token %}
+                            <button type="submit" class="waiter-item-remove">
+                                Remover
+                            </button>
+                        </form>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+            <div class="waiter-session-summary">
+                <span>Total</span>
+                <strong>R$ {{ session.total }}</strong>
+            </div>
+
+        {% else %}
+
+            <div class="waiter-empty">
+                <p>Nenhum item lançado ainda.</p>
+            </div>
+
+        {% endif %}
+
+        <a
+            href="{% url 'waiter_add_item' restaurant.slug session.id %}"
+            class="waiter-add-item-button"
+        >
+            + Adicionar item
+        </a>
+
+        <button
+            type="button"
+            onclick="imprimirComanda()"
+            class="waiter-print-button"
+        >
+            🖨️ Imprimir comanda
+        </button>
+
+        {% if items %}
+
+        <form
+            method="POST"
+            action="{% url 'waiter_close_session' restaurant.slug session.id %}"
+            style="margin-top: 12px;"
+            onsubmit="return confirm('Fechar esta comanda? Ela não poderá ser alterada depois.');"
+        >
+            {% csrf_token %}
+
+            
+
+            <button
+                type="submit"
+                class="waiter-close-session-button"
+            >
+                ✓ Fechar comanda
+            </button>
+        </form>
+
+    {% else %}
+
+        <form
+            method="POST"
+            action="{% url 'waiter_cancel_session' restaurant.slug session.id %}"
+            style="margin-top: 12px;"
+            onsubmit="return confirm('Cancelar esta comanda vazia?');"
+        >
+            {% csrf_token %}
+
+            <button
+                type="submit"
+                class="waiter-cancel-session-button"
+            >
+                ✕ Cancelar comanda
+            </button>
+        </form>
+
+    {% endif %}
+
+    </main>
+
+   <!-- =========================================================
+        IMPRESSÃO AUTOMÁTICA (QZ TRAY)
+    ========================================================= -->
+
+    <script src="https://cdn.jsdelivr.net/npm/qz-tray@2.2.1/qz-tray.js"></script>
+
+    <script>
+        // Certificado
+        qz.security.setCertificatePromise(function(resolve, reject) {
+            fetch("{% static 'catalog/qz/digital-certificate.txt' %}", {
+                cache: 'no-store',
+                headers: {'Content-Type': 'text/plain'}
+            })
+            .then(function(response) {
+                response.ok ? resolve(response.text()) : reject(response.text());
+            });
+        });
+
+        // Assinatura
+        qz.security.setSignatureAlgorithm("SHA512");
+        qz.security.setSignaturePromise(function(toSign) {
+            return function(resolve, reject) {
+                fetch("{% url 'qz_sign_message' %}?request=" + encodeURIComponent(toSign))
+                    .then(function(response) {
+                        response.ok ? response.text().then(resolve) : reject(response.statusText);
+                    })
+                    .catch(reject);
+            };
+        });
+
+        // Função de impressão
+        async function imprimirComanda() {
+            try {
+                if (!qz.websocket.isActive()) {
+                    await qz.websocket.connect();
+                }
+
+                const printer = "Microsoft Print to PDF";
+
+                // Monta o HTML da comanda
+                let html = `
+                    <html>
+                    <head>
+                        <style>
+                            body {
+                                font-family: 'Courier New', monospace;
+                                font-size: 14px;
+                                width: 80mm;
+                                padding: 10px;
+                            }
+                            h1 { text-align: center; font-size: 16px; }
+                            hr { border: 1px dashed #000; }
+                            .item { margin-bottom: 8px; }
+                            .total { font-weight: bold; font-size: 16px; text-align: right; }
+                        </style>
+                    </head>
+                    <body>
+                        <h1>{{ restaurant.name }}</h1>
+                        <p><strong>Comanda:</strong> #{{ session.id }}</p>
+                        <p><strong>Mesa:</strong> {{ table.number }}{% if table.name %} - {{ table.name }}{% endif %}</p>
+                        <hr>
+                `;
+
+                {% for item in items %}
+                    html += `
+                        <div class="item">
+                            <strong>{{ item.quantity }}x {{ item.product_name }}</strong><br>
+                            {% if item.variation_name %}{{ item.variation_name }}<br>{% endif %}
+                            {% for addon in item.addons.all %}+ {{ addon.addon_name }}<br>{% endfor %}
+                            {% if item.notes %}Obs: {{ item.notes }}<br>{% endif %}
+                            R$ {{ item.total }}
+                        </div>
+                    `;
+                {% endfor %}
+
+                html += `
+                        <hr>
+                        <p class="total">TOTAL: R$ {{ session.total }}</p>
+                    </body>
+                    </html>
+                `;
+
+                // Cria um Blob com o HTML
+                const blob = new Blob([html], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+
+                // Cria um iframe invisível pra renderizar
+                const iframe = document.createElement('iframe');
+                iframe.style.position = 'fixed';
+                iframe.style.right = '0';
+                iframe.style.bottom = '0';
+                iframe.style.width = '0';
+                iframe.style.height = '0';
+                iframe.style.border = '0';
+                iframe.src = url;
+
+                document.body.appendChild(iframe);
+
+                // Espera o iframe carregar
+                iframe.onload = async function () {
+                    try {
+                        // Cria uma imagem do iframe (usando html2canvas)
+                        const canvas = await html2canvas(iframe.contentDocument.body);
+
+                        const imageData = canvas.toDataURL('image/png');
+
+                        const config = qz.configs.create(printer);
+
+                        const data = [{
+                            type: 'pixel',
+                            format: 'image',
+                            flavor: 'base64',
+                            data: imageData.split(',')[1],
+                        }];
+
+                        await qz.print(config, data);
+
+                        alert("Comanda enviada para impressão!");
+
+                    } catch (err) {
+                        console.error("Erro no iframe:", err);
+                        alert("Erro ao imprimir: " + err);
+                    } finally {
+                        document.body.removeChild(iframe);
+                        URL.revokeObjectURL(url);
+                    }
+                };
+
+            } catch (err) {
+                console.error("Erro na impressão:", err);
+                alert("Erro ao imprimir: " + err);
+            }
+        }
+    </script>
+
+</body>
+
+</html>

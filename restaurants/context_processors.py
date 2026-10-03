@@ -19,4 +19,5 @@ def restaurant_panel_data(request):
     return {
         "new_orders_count": new_orders_count,
         "membership": membership,
+        "restaurant": membership.restaurant,
     }

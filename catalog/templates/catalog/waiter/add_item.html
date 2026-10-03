@@ -1,0 +1,472 @@
+{% load static %}
+{% load l10n %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>
+        Adicionar item - Comanda #{{ session.id }}
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="{% static 'catalog/css/public_menu.css' %}"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{% static 'catalog/css/waiter.css' %}"
+    >
+
+    <style>
+        :root {
+            {{ restaurant.get_css_variables|safe }}
+        }
+    </style>
+</head>
+
+<body class="waiter-page">
+
+    <header class="waiter-header">
+        <a
+            href="{% url 'waiter_session_detail' restaurant.slug session.id %}"
+            class="back-link"
+        >
+            ← Voltar
+        </a>
+
+        <h1>Adicionar item</h1>
+        <p>Comanda #{{ session.id }} - Mesa {{ table.number }}</p>
+    </header>
+
+    <main class="waiter-container">
+
+        <input
+            type="text"
+            id="product-search"
+            class="waiter-product-search"
+            placeholder="🔍 Buscar produto..."
+        >
+
+        <div id="product-list">
+
+            {% for category in categories %}
+
+                <section
+                    class="waiter-category"
+                    data-category-name="{{ category.name|lower }}"
+                >
+
+                    <h2 class="waiter-category-title">
+                        {{ category.name }}
+                    </h2>
+
+                    {% for product in category.products.all %}
+
+                        {% if product.is_available %}
+
+                            <button
+                                type="button"
+                                class="waiter-product-button"
+                                data-product-id="{{ product.id }}"
+                                data-product-name="{{ product.name|lower }}"
+                                data-product-url="{% url 'waiter_session_add_product' restaurant.slug session.id product.id %}"
+                                data-product-display-name="{{ product.name }}"
+                                data-product-price="{{ product.price|unlocalize }}"
+                                {% if product.image %}
+                                    data-product-image="{{ product.image.url }}"
+                                {% endif %}
+                            >
+                                <span class="waiter-product-name">
+                                    {{ product.name }}
+                                </span>
+
+                                <span class="waiter-product-price">
+                                    R$ {{ product.price }}
+                                </span>
+                            </button>
+
+                            <!-- DADOS DO PRODUTO (escondido, pro modal usar) -->
+                            <script type="application/json" class="product-data" data-product-id="{{ product.id }}">
+                                {
+                                    "id": {{ product.id }},
+                                    "name": "{{ product.name|escapejs }}",
+                                    "price": "{{ product.price|unlocalize }}",
+                                    "image": "{% if product.image %}{{ product.image.url }}{% endif %}",
+                                    "variations": [
+                                        {% for v in product.variations.all %}
+                                            {
+                                                "id": {{ v.id }},
+                                                "name": "{{ v.name|escapejs }}",
+                                                "price": "{{ v.price|unlocalize }}"
+                                            }{% if not forloop.last %},{% endif %}
+                                        {% endfor %}
+                                    ],
+                                    "addon_groups": [
+                                        {% for g in product.addon_groups.all %}
+                                            {
+                                                "id": {{ g.id }},
+                                                "name": "{{ g.name|escapejs }}",
+                                                "min_choices": {{ g.min_choices|default:0 }},
+                                                "max_choices": {{ g.max_choices|default:99 }},
+                                                "addons": [
+                                                    {% for a in g.addons.all %}
+                                                        {% if a.is_available %}
+                                                            {
+                                                                "id": {{ a.id }},
+                                                                "name": "{{ a.name|escapejs }}",
+                                                                "price": "{{ a.price|unlocalize }}"
+                                                            }{% if not forloop.last %},{% endif %}
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                ]
+                                            }{% if not forloop.last %},{% endif %}
+                                        {% endfor %}
+                                    ]
+                                }
+                            </script>
+
+                        {% endif %}
+
+                    {% endfor %}
+
+                </section>
+
+            {% empty %}
+
+                <div class="waiter-empty">
+                    <p>Nenhuma categoria cadastrada.</p>
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    </main>
+
+    <!-- =========================================================
+        MODAL — BOTTOM SHEET
+    ========================================================= -->
+
+    <div id="modal-overlay" class="waiter-modal-overlay"></div>
+
+    <div id="modal" class="waiter-modal">
+
+        <div class="waiter-modal-header">
+            <h2 id="modal-product-name">Produto</h2>
+            <button type="button" class="waiter-modal-close" onclick="closeModal()">
+                ✕
+            </button>
+        </div>
+
+        <div class="waiter-modal-body" id="modal-body">
+            <!-- Preenchido pelo JS -->
+        </div>
+
+        <div class="waiter-modal-footer">
+            <div class="waiter-modal-total">
+                <span>Total:</span>
+                <strong id="modal-total">R$ 0,00</strong>
+            </div>
+
+            <button
+                type="button"
+                class="waiter-modal-confirm"
+                id="modal-confirm-button"
+            >
+                Adicionar à comanda
+            </button>
+        </div>
+
+    </div>
+
+    <!-- FORM ESCONDIDO QUE ENVIA OS DADOS -->
+    <form
+        method="POST"
+        id="add-item-form"
+        style="display: none;"
+    >
+        {% csrf_token %}
+        <input type="hidden" name="variation_id" id="form-variation-id">
+        <input type="hidden" name="quantity" id="form-quantity" value="1">
+        <input type="hidden" name="notes" id="form-notes" value="">
+        <div id="form-addons"></div>
+    </form>
+
+    <script>
+        // =========================================================
+        // BUSCA DE PRODUTOS
+        // =========================================================
+
+        const searchInput = document.getElementById("product-search");
+        const categories = document.querySelectorAll(".waiter-category");
+        const productButtons = document.querySelectorAll(".waiter-product-button");
+
+        searchInput.addEventListener("input", (e) => {
+            const query = e.target.value.toLowerCase().trim();
+
+            productButtons.forEach((btn) => {
+                const name = btn.dataset.productName;
+                btn.style.display = name.includes(query) ? "flex" : "none";
+            });
+
+            categories.forEach((cat) => {
+                if (query === "") {
+                    cat.style.display = "block";
+                    return;
+                }
+
+                const hasVisible = Array.from(
+                    cat.querySelectorAll(".waiter-product-button")
+                ).some((btn) => btn.style.display !== "none");
+
+                cat.style.display = hasVisible ? "block" : "none";
+            });
+        });
+
+
+        // =========================================================
+        // MODAL
+        // =========================================================
+
+        let currentProductData = null;
+
+        function openModal() {
+            document.getElementById("modal").classList.add("open");
+            document.getElementById("modal-overlay").classList.add("open");
+
+            document.body.style.overflow = "hidden";
+        }
+
+        function closeModal() {
+            document.getElementById("modal").classList.remove("open");
+            document.getElementById("modal-overlay").classList.remove("open");
+
+            document.body.style.overflow = "";
+
+            currentProductData = null;
+        }
+
+        document.getElementById("modal-overlay").addEventListener("click", closeModal);
+
+
+        // =========================================================
+        // MONTAR O MODAL QUANDO CLICA NO PRODUTO
+        // =========================================================
+
+        productButtons.forEach((btn) => {
+            btn.addEventListener("click", () => {
+                const productId = btn.dataset.productId;
+
+                const dataScript = document.querySelector(
+                    `.product-data[data-product-id="${productId}"]`
+                );
+
+                if (!dataScript) return;
+
+                const data = JSON.parse(dataScript.textContent);
+
+                currentProductData = data;
+
+                document.getElementById("modal-product-name").textContent = data.name;
+
+                renderModalBody(data);
+
+                updateModalTotal();
+
+                openModal();
+            });
+        });
+
+
+        // =========================================================
+        // RENDERIZAR O CONTEÚDO DO MODAL
+        // =========================================================
+
+        function renderModalBody(data) {
+            const body = document.getElementById("modal-body");
+
+            let html = "";
+
+            // Variações
+            if (data.variations && data.variations.length > 0) {
+                html += `<div class="modal-section">`;
+                html += `<h3>Escolha o tamanho</h3>`;
+
+                data.variations.forEach((v, index) => {
+                    html += `
+                        <label class="modal-option">
+                            <input
+                                type="radio"
+                                name="modal_variation"
+                                value="${v.id}"
+                                data-price="${v.price}"
+                                ${index === 0 ? "checked" : ""}
+                                onchange="updateModalTotal()"
+                            >
+                            <span>${v.name}</span>
+                            <strong>R$ ${parseFloat(v.price).toFixed(2)}</strong>
+                        </label>
+                    `;
+                });
+
+                html += `</div>`;
+            }
+
+            // Adicionais
+            if (data.addon_groups && data.addon_groups.length > 0) {
+                data.addon_groups.forEach((group) => {
+                    html += `<div class="modal-section">`;
+                    html += `<h3>${group.name}</h3>`;
+
+                    if (group.max_choices) {
+                        html += `<p class="modal-hint">Escolha até ${group.max_choices}</p>`;
+                    }
+
+                    group.addons.forEach((a) => {
+                        html += `
+                            <label class="modal-option">
+                                <input
+                                    type="checkbox"
+                                    name="modal_addon"
+                                    value="${a.id}"
+                                    data-price="${a.price}"
+                                    data-group="${group.id}"
+                                    onchange="updateModalTotal()"
+                                >
+                                <span>${a.name}</span>
+                                <strong>+ R$ ${parseFloat(a.price).toFixed(2)}</strong>
+                            </label>
+                        `;
+                    });
+
+                    html += `</div>`;
+                });
+            }
+
+            // Quantidade
+            html += `
+                <div class="modal-section">
+                    <h3>Quantidade</h3>
+                    <div class="modal-quantity">
+                        <button type="button" onclick="changeQuantity(-1)">−</button>
+                        <span id="modal-qty-display">1</span>
+                        <button type="button" onclick="changeQuantity(1)">+</button>
+                    </div>
+                </div>
+            `;
+
+            // Observação
+            html += `
+                <div class="modal-section">
+                    <h3>Observação (opcional)</h3>
+                    <textarea
+                        id="modal-notes"
+                        class="modal-notes"
+                        placeholder="Ex: sem cebola, bem passado..."
+                        rows="2"
+                    ></textarea>
+                </div>
+            `;
+
+            body.innerHTML = html;
+        }
+
+
+        // =========================================================
+        // QUANTIDADE
+        // =========================================================
+
+        let currentQuantity = 1;
+
+        function changeQuantity(delta) {
+            currentQuantity = Math.max(1, currentQuantity + delta);
+
+            document.getElementById("modal-qty-display").textContent = currentQuantity;
+
+            updateModalTotal();
+        }
+
+
+        // =========================================================
+        // CALCULAR TOTAL
+        // =========================================================
+
+        function updateModalTotal() {
+            if (!currentProductData) return;
+
+            let total = 0;
+
+            // Preço base ou variação
+            const variation = document.querySelector('input[name="modal_variation"]:checked');
+
+            if (variation) {
+                total += parseFloat(variation.dataset.price);
+            } else {
+                total += parseFloat(currentProductData.price);
+            }
+
+            // Adicionais
+            document.querySelectorAll('input[name="modal_addon"]:checked').forEach((cb) => {
+                total += parseFloat(cb.dataset.price);
+            });
+
+            // Quantidade
+            total *= currentQuantity;
+
+            document.getElementById("modal-total").textContent = `R$ ${total.toFixed(2)}`;
+        }
+
+
+        // =========================================================
+        // CONFIRMAR — ENVIA O FORM
+        // =========================================================
+
+        document.getElementById("modal-confirm-button").addEventListener("click", () => {
+            if (!currentProductData) return;
+
+            const form = document.getElementById("add-item-form");
+
+            // URL de destino
+            form.action = `/r/{{ restaurant.slug }}/garcom/comanda/{{ session.id }}/produto/${currentProductData.id}/adicionar/`;
+
+            // Variação
+            const variation = document.querySelector('input[name="modal_variation"]:checked');
+            document.getElementById("form-variation-id").value = variation ? variation.value : "";
+
+            // Quantidade
+            document.getElementById("form-quantity").value = currentQuantity;
+
+            // Observação
+            document.getElementById("form-notes").value = document.getElementById("modal-notes").value;
+
+            // Adicionais
+            const addonsContainer = document.getElementById("form-addons");
+            addonsContainer.innerHTML = "";
+
+            document.querySelectorAll('input[name="modal_addon"]:checked').forEach((cb) => {
+                const input = document.createElement("input");
+                input.type = "hidden";
+                input.name = "addon_ids";
+                input.value = cb.value;
+                addonsContainer.appendChild(input);
+            });
+
+            form.submit();
+        });
+
+
+        // Resetar quantidade ao abrir
+        const originalOpenModal = openModal;
+        openModal = function() {
+            currentQuantity = 1;
+            originalOpenModal();
+        };
+    </script>
+
+</body>
+
+</html>

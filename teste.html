@@ -1,23 +1,65 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
+    <meta charset="UTF-8">
+    <title>Teste Accordion</title>
     <style>
-        body { margin: 0; height: 3000px; background: #eee; }
-        .cart {
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            width: 64px;
-            height: 64px;
-            background: red;
-            border-radius: 50%;
-            color: white;
-            text-align: center;
-            line-height: 64px;
+        details {
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            padding: 10px;
+            font-family: sans-serif;
+        }
+        summary {
+            font-weight: bold;
+            cursor: pointer;
+            padding: 5px;
+        }
+        summary:hover {
+            color: #2563eb;
+        }
+        /* O 'details[open]' muda o estilo quando está aberto */
+        details[open] summary {
+            margin-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
         }
     </style>
 </head>
 <body>
-    <div class="cart">🛒</div>
+
+    <h1>Configurações do Sistema</h1>
+
+    <!-- Seção 1 -->
+    <details>
+        <summary>📋 Informações Básicas</summary>
+        <div>
+            <p>Aqui ficam os campos de nome, telefone e link público.</p>
+            <input type="text" placeholder="Nome do Restaurante" style="width: 100%; padding: 8px;">
+        </div>
+    </details>
+
+    <!-- Seção 2 -->
+    <details>
+        <summary>🎨 Aparência (Cores e Fontes)</summary>
+        <div>
+            <p>Aqui ficam as cores principais, de fundo, dos títulos, etc.</p>
+            <label>Cor Principal:</label><br>
+            <input type="color" value="#ff0000">
+        </div>
+    </details>
+
+    <!-- Seção 3 -->
+    <details>
+        <summary>📦 Pedidos e Entrega</summary>
+        <div>
+            <p>Aqui ficam os tipos de pedido e taxas.</p>
+            <label>Taxa de entrega:</label>
+            <input type="number" placeholder="R$ 0,00">
+        </div>
+    </details>
+
 </body>
 </html>

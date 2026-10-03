@@ -411,3 +411,167 @@ class OrderItemAddon(models.Model):
 
     def __str__(self):
         return f"{self.addon_name} - {self.order_item.product_name}"
+
+# =========================================================
+# COMANDA (PAINEL DO GARÇOM)
+# =========================================================
+
+class TableSession(models.Model):
+    """
+    Comanda de uma mesa. Uma mesa pode ter várias comandas abertas.
+    """
+
+    restaurant = models.ForeignKey(
+        "restaurants.Restaurant",
+        on_delete=models.CASCADE,
+        related_name="table_sessions",
+    )
+
+    table = models.ForeignKey(
+        "restaurants.Table",
+        on_delete=models.PROTECT,
+        related_name="table_sessions",
+    )
+
+    is_open = models.BooleanField(
+        default=True,
+        verbose_name="Aberta",
+    )
+
+    is_paid = models.BooleanField(
+        default=False,
+        verbose_name="Paga",
+    )
+
+    total = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0,
+        verbose_name="Total",
+    )
+
+    opened_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Aberta em",
+    )
+
+    closed_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name="Fechada em",
+    )
+
+    class Meta:
+        verbose_name = "Comanda"
+        verbose_name_plural = "Comandas"
+        ordering = ["-opened_at"]
+
+    def __str__(self):
+        return f"Comanda #{self.id} - Mesa {self.table.number}"
+
+    def recalculate_total(self):
+        """Recalcula o total baseado nos itens."""
+        from django.db.models import Sum
+
+        total = self.items.aggregate(
+            total=Sum("total")
+        )["total"] or 0
+
+        self.total = total
+        self.save(update_fields=["total"])
+
+        return total
+
+
+class TableSessionItem(models.Model):
+    """
+    Item de uma comanda. Guarda snapshot do produto, variação e preço.
+    """
+
+    session = models.ForeignKey(
+        TableSession,
+        on_delete=models.CASCADE,
+        related_name="items",
+    )
+
+    product = models.ForeignKey(
+        "catalog.Product",
+        on_delete=models.PROTECT,
+        related_name="session_items",
+    )
+
+    product_name = models.CharField(
+        max_length=200,
+        verbose_name="Nome do produto",
+    )
+
+    variation_name = models.CharField(
+        max_length=200,
+        blank=True,
+        verbose_name="Variação",
+    )
+
+    unit_price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        verbose_name="Preço unitário",
+    )
+
+    quantity = models.PositiveIntegerField(
+        default=1,
+        verbose_name="Quantidade",
+    )
+
+    total = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        verbose_name="Total",
+    )
+
+    notes = models.TextField(
+        blank=True,
+        verbose_name="Observações",
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Criado em",
+    )
+
+    class Meta:
+        verbose_name = "Item da comanda"
+        verbose_name_plural = "Itens da comanda"
+        ordering = ["created_at"]
+
+    def __str__(self):
+        return f"{self.quantity}x {self.product_name}"
+
+
+class TableSessionItemAddon(models.Model):
+    """
+    Adicional de um item da comanda.
+    """
+
+    item = models.ForeignKey(
+        TableSessionItem,
+        on_delete=models.CASCADE,
+        related_name="addons",
+    )
+
+    addon_name = models.CharField(
+        max_length=200,
+        verbose_name="Nome do adicional",
+    )
+
+    addon_price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        verbose_name="Preço do adicional",
+    )
+
+    class Meta:
+        verbose_name = "Adicional do item"
+        verbose_name_plural = "Adicionais do item"
+
+    def __str__(self):
+        return self.addon_name

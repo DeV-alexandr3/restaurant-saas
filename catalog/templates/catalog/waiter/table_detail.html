@@ -1,0 +1,101 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>
+        Mesa {{ table.number }} - {{ restaurant.name }}
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="{% static 'catalog/css/public_menu.css' %}"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{% static 'catalog/css/waiter.css' %}"
+    >
+
+    <style>
+        :root {
+            {{ restaurant.get_css_variables|safe }}
+        }
+    </style>
+</head>
+
+<body class="waiter-page">
+
+    <header class="waiter-header">
+        <a href="{% url 'waiter_panel' restaurant.slug %}" class="back-link">
+            ← Voltar
+        </a>
+
+        <h1>Mesa {{ table.number }}</h1>
+
+        {% if table.name %}
+            <p>{{ table.name }}</p>
+        {% endif %}
+    </header>
+
+    <main class="waiter-container">
+
+        {% if sessions %}
+
+            <div class="waiter-sessions">
+
+                {% for session in sessions %}
+
+                    <a
+                        href="{% url 'waiter_session_detail' restaurant.slug session.id %}"
+                        class="waiter-session-card"
+                    >
+                        <div class="waiter-session-header">
+                            <strong>
+                                Comanda #{{ session.id }}
+                            </strong>
+                            <span class="waiter-session-total">
+                                R$ {{ session.total }}
+                            </span>
+                        </div>
+
+                        <span class="waiter-session-time">
+                            Aberta às {{ session.opened_at|date:"H:i" }}
+                        </span>
+                    </a>
+
+                {% endfor %}
+
+            </div>
+
+            <a
+                href="{% url 'waiter_open_session' restaurant.slug table.id %}"
+                class="waiter-new-session-button"
+            >
+                + Nova comanda
+            </a>
+
+        {% else %}
+
+            <div class="waiter-empty">
+                <p>Mesa livre</p>
+
+                <a
+                    href="{% url 'waiter_open_session' restaurant.slug table.id %}"
+                    class="waiter-open-button"
+                >
+                    Abrir comanda
+                </a>
+            </div>
+
+        {% endif %}
+
+    </main>
+
+</body>
+
+</html>

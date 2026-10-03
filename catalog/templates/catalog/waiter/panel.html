@@ -1,0 +1,99 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>
+        Painel do garçom - {{ restaurant.name }}
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="{% static 'catalog/css/public_menu.css' %}"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{% static 'catalog/css/waiter.css' %}"
+    >
+
+    <style>
+        :root {
+            {{ restaurant.get_css_variables|safe }}
+        }
+    </style>
+</head>
+
+<body class="waiter-page">
+
+    <header class="waiter-header">
+        <h1>Painel do garçom</h1>
+        <p>{{ restaurant.name }}</p>
+    </header>
+
+    <main class="waiter-container">
+
+        {% if tables_data %}
+
+            <div class="waiter-grid">
+
+                {% for item in tables_data %}
+
+                    <a
+                        href="{% url 'waiter_table_detail' restaurant.slug item.table.id %}"
+                        class="waiter-table-card
+                            {% if item.is_occupied %}
+                                occupied
+                            {% else %}
+                                free
+                            {% endif %}
+                        "
+                    >
+                        <strong class="waiter-table-number">
+                            Mesa {{ item.table.number }}
+                        </strong>
+
+                        {% if item.table.name %}
+                            <span class="waiter-table-name">
+                                {{ item.table.name }}
+                            </span>
+                        {% endif %}
+
+                        {% if item.is_occupied %}
+                            <span class="waiter-table-status">
+                                {{ item.sessions_count }} comanda{{ item.sessions_count|pluralize }}
+                            </span>
+                            <span class="waiter-table-total">
+                                R$ {{ item.total }}
+                            </span>
+                        {% else %}
+                            <span class="waiter-table-status">
+                                Livre
+                            </span>
+                        {% endif %}
+                    </a>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <div class="waiter-empty">
+                <p>Nenhuma mesa cadastrada.</p>
+                <a href="{% url 'table_list' %}">
+                    Cadastrar mesas
+                </a>
+            </div>
+
+        {% endif %}
+
+    </main>
+
+</body>
+
+</html>

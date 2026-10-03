@@ -1,0 +1,834 @@
+/* =========================================================
+   PAINEL DO GARÇOM
+========================================================= */
+
+.waiter-page {
+    font-family: var(--restaurant-body-font);
+
+    background: var(--restaurant-background);
+    color: var(--restaurant-text-color);
+
+    min-height: 100vh;
+}
+
+.waiter-header {
+    padding: 24px 20px;
+
+    text-align: center;
+
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.waiter-header h1 {
+    font-family: var(--restaurant-title-font);
+
+    font-size: 26px;
+    font-weight: 700;
+
+    margin-bottom: 4px;
+}
+
+.waiter-header p {
+    font-size: 14px;
+    opacity: 0.7;
+}
+
+.waiter-container {
+    padding: 20px;
+
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.waiter-grid {
+    display: grid;
+
+    grid-template-columns: repeat(
+        auto-fill,
+        minmax(150px, 1fr)
+    );
+
+    gap: 14px;
+}
+
+.waiter-table-card {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    padding: 18px 16px;
+
+    border-radius: 14px;
+
+    text-decoration: none;
+
+    transition:
+        transform 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+.waiter-table-card:hover {
+    transform: translateY(-2px);
+}
+
+/* Mesa livre */
+
+.waiter-table-card.free {
+    background: rgba(0, 0, 0, 0.04);
+
+    color: var(--restaurant-text-color);
+
+    border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+/* Mesa ocupada */
+
+.waiter-table-card.occupied {
+    background: var(--restaurant-primary);
+
+    color: white;
+
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.waiter-table-number {
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.waiter-table-name {
+    font-size: 13px;
+    opacity: 0.8;
+}
+
+.waiter-table-status {
+    font-size: 13px;
+    margin-top: 6px;
+    opacity: 0.85;
+}
+
+.waiter-table-total {
+    font-size: 16px;
+    font-weight: 700;
+
+    margin-top: 2px;
+}
+
+.waiter-empty {
+    text-align: center;
+
+    padding: 60px 20px;
+
+    opacity: 0.7;
+}
+
+.waiter-empty a {
+    color: #ffffff;
+
+    font-weight: 600;
+
+    display: inline-block;
+
+    margin-top: 12px;
+}
+
+/* =========================================================
+   COMANDAS
+========================================================= */
+
+.waiter-sessions {
+    display: flex;
+    flex-direction: column;
+
+    gap: 12px;
+
+    margin-bottom: 20px;
+}
+
+.waiter-session-card {
+    display: flex;
+    flex-direction: column;
+
+    gap: 6px;
+
+    padding: 18px 20px;
+
+    background: var(--restaurant-card-bg);
+
+    border-radius: 14px;
+
+    text-decoration: none;
+    color: var(--restaurant-text-color);
+
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+
+    transition: transform 0.15s ease;
+}
+
+.waiter-session-card:hover {
+    transform: translateY(-2px);
+}
+
+.waiter-session-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 12px;
+}
+
+.waiter-session-header strong {
+    font-size: 17px;
+}
+
+.waiter-session-total {
+    font-size: 17px;
+    font-weight: 700;
+
+    color: var(--restaurant-primary);
+}
+
+.waiter-session-time {
+    font-size: 13px;
+    opacity: 0.7;
+}
+
+/* Botões de ação */
+
+.waiter-open-button,
+.waiter-new-session-button,
+.waiter-add-item-button {
+    display: block;
+
+    width: 100%;
+
+    padding: 16px;
+
+    margin-top: 16px;
+
+    background: var(--restaurant-primary);
+    color: white;
+
+    text-align: center;
+    text-decoration: none;
+
+    border: none;
+    border-radius: 12px;
+
+    font-size: 16px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: opacity 0.2s ease;
+}
+
+.waiter-open-button:hover,
+.waiter-new-session-button:hover,
+.waiter-add-item-button:hover {
+    opacity: 0.9;
+}
+
+/* Itens da comanda */
+
+.waiter-items {
+    display: flex;
+    flex-direction: column;
+
+    gap: 10px;
+
+    margin-bottom: 20px;
+}
+
+.waiter-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+
+    gap: 12px;
+
+    padding: 14px 16px;
+
+    background: var(--restaurant-card-bg);
+
+    border-radius: 12px;
+
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.waiter-item-info {
+    display: flex;
+    flex-direction: column;
+
+    gap: 2px;
+}
+
+.waiter-item-info strong {
+    font-size: 15px;
+}
+
+.waiter-item-info span {
+    font-size: 13px;
+    opacity: 0.75;
+}
+
+.waiter-item-addon {
+    color: var(--restaurant-primary);
+}
+
+.waiter-item-notes {
+    font-style: italic;
+}
+
+.waiter-item-price {
+    font-size: 15px;
+    font-weight: 700;
+
+    white-space: nowrap;
+}
+
+/* Resumo */
+
+.waiter-session-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 18px 20px;
+
+    background: var(--restaurant-card-bg);
+
+    border-radius: 14px;
+
+    font-size: 18px;
+
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.waiter-session-summary strong {
+    font-size: 22px;
+
+    color: var(--restaurant-primary);
+}
+
+/* =========================================================
+   ADICIONAR ITEM NA COMANDA
+========================================================= */
+
+.waiter-product-search {
+    width: 100%;
+
+    padding: 14px 16px;
+
+    margin-bottom: 20px;
+
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+
+    background: var(--restaurant-card-bg);
+    color: var(--restaurant-text-color);
+
+    font-family: inherit;
+    font-size: 15px;
+
+    outline: none;
+}
+
+.waiter-product-search:focus {
+    border-color: var(--restaurant-primary);
+}
+
+.waiter-category {
+    margin-bottom: 24px;
+}
+
+.waiter-category-title {
+    font-family: var(--restaurant-title-font);
+
+    font-size: 18px;
+    font-weight: 700;
+
+    color: var(--restaurant-title-color);
+
+    margin-bottom: 12px;
+}
+
+.waiter-product-button {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 12px;
+
+    width: 100%;
+
+    padding: 14px 18px;
+
+    margin-bottom: 8px;
+
+    background: var(--restaurant-card-bg);
+    color: var(--restaurant-text-color);
+
+    border: none;
+    border-radius: 12px;
+
+    text-align: left;
+    cursor: pointer;
+
+    font-family: inherit;
+    font-size: 15px;
+
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+
+    transition:
+        transform 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+.waiter-product-button:hover {
+    transform: translateY(-1px);
+
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.waiter-product-name {
+    font-weight: 600;
+}
+
+.waiter-product-price {
+    color: var(--restaurant-primary);
+    font-weight: 700;
+
+    white-space: nowrap;
+}
+
+.waiter-empty-text {
+    font-size: 14px;
+    opacity: 0.6;
+
+    padding: 8px 0;
+}
+
+/* =========================================================
+   MODAL (BOTTOM SHEET)
+========================================================= */
+
+.waiter-modal-overlay {
+    position: fixed;
+    inset: 0;
+
+    background: rgba(0, 0, 0, 0.5);
+
+    opacity: 0;
+    visibility: hidden;
+
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+
+    z-index: 900;
+}
+
+.waiter-modal-overlay.open {
+    opacity: 1;
+    visibility: visible;
+}
+
+.waiter-modal {
+    position: fixed;
+
+    bottom: 0;
+    left: 0;
+    right: 0;
+
+    max-height: 90vh;
+
+    background: var(--restaurant-card-bg);
+    color: var(--restaurant-text-color);
+
+    border-radius: 20px 20px 0 0;
+
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.2);
+
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+
+    z-index: 1000;
+
+    display: flex;
+    flex-direction: column;
+
+    overflow: hidden;
+}
+
+.waiter-modal.open {
+    transform: translateY(0);
+}
+
+.waiter-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 18px 20px;
+
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+
+    flex-shrink: 0;
+}
+
+.waiter-modal-header h2 {
+    font-family: var(--restaurant-title-font);
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.waiter-modal-close {
+    background: none;
+    border: none;
+
+    font-size: 20px;
+    cursor: pointer;
+
+    color: var(--restaurant-text-color);
+
+    padding: 4px 8px;
+}
+
+.waiter-modal-body {
+    padding: 20px;
+
+    overflow-y: auto;
+
+    flex: 1;
+}
+
+.modal-section {
+    margin-bottom: 22px;
+}
+
+.modal-section h3 {
+    font-size: 15px;
+    font-weight: 700;
+
+    margin-bottom: 8px;
+
+    color: var(--restaurant-title-color);
+}
+
+.modal-hint {
+    font-size: 12px;
+    opacity: 0.6;
+
+    margin-bottom: 6px;
+}
+
+.modal-option {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 12px 14px;
+
+    margin-bottom: 6px;
+
+    background: rgba(0, 0, 0, 0.03);
+
+    border-radius: 10px;
+
+    cursor: pointer;
+
+    font-size: 14px;
+}
+
+.modal-option:hover {
+    background: rgba(0, 0, 0, 0.06);
+}
+
+.modal-option input {
+    margin-right: 8px;
+}
+
+.modal-option span {
+    flex: 1;
+}
+
+.modal-option strong {
+    color: var(--restaurant-primary);
+
+    font-size: 13px;
+}
+
+.modal-quantity {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 16px;
+
+    padding: 6px;
+
+    background: rgba(0, 0, 0, 0.05);
+
+    border-radius: 10px;
+}
+
+.modal-quantity button {
+    width: 36px;
+    height: 36px;
+
+    background: var(--restaurant-card-bg);
+    color: var(--restaurant-text-color);
+
+    border: none;
+    border-radius: 8px;
+
+    font-size: 18px;
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+.modal-quantity span {
+    min-width: 30px;
+
+    text-align: center;
+
+    font-weight: 700;
+    font-size: 16px;
+}
+
+.modal-notes {
+    width: 100%;
+
+    padding: 10px 12px;
+
+    background: rgba(0, 0, 0, 0.03);
+    color: var(--restaurant-text-color);
+
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 10px;
+
+    font-family: inherit;
+    font-size: 14px;
+
+    resize: vertical;
+
+    outline: none;
+}
+
+.waiter-modal-footer {
+    padding: 16px 20px;
+
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+
+    flex-shrink: 0;
+
+    background: var(--restaurant-card-bg);
+}
+
+.waiter-modal-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    margin-bottom: 12px;
+
+    font-size: 16px;
+}
+
+.waiter-modal-total strong {
+    font-size: 22px;
+    color: var(--restaurant-primary);
+}
+
+.waiter-modal-confirm {
+    width: 100%;
+
+    padding: 16px;
+
+    background: var(--restaurant-primary);
+    color: white;
+
+    border: none;
+    border-radius: 12px;
+
+    font-size: 16px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: opacity 0.2s ease;
+}
+
+.waiter-modal-confirm:hover {
+    opacity: 0.9;
+}
+
+.waiter-item-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.waiter-item-remove {
+    padding: 6px 10px;
+
+    background: #fee2e2;
+    color: #b91c1c;
+
+    border-radius: 6px;
+
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 600;
+
+    transition: opacity 0.15s ease;
+}
+
+.waiter-item-remove:hover {
+    opacity: 0.85;
+}
+
+.waiter-close-session-button {
+    display: block;
+
+    width: 100%;
+
+    padding: 16px;
+
+    margin-top: 12px;
+
+    background: #16a34a;
+    color: white;
+
+    text-align: center;
+
+    border: none;
+    border-radius: 12px;
+
+    font-size: 16px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: opacity 0.2s ease;
+}
+
+.waiter-close-session-button:hover {
+    opacity: 0.9;
+}
+
+.waiter-cancel-session-button {
+    display: block;
+
+    width: 100%;
+
+    padding: 16px;
+
+    margin-top: 12px;
+
+    background: transparent;
+    color: #b91c1c;
+
+    text-align: center;
+
+    border: 1px solid #fecaca;
+    border-radius: 12px;
+
+    font-size: 15px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: background 0.15s ease;
+}
+
+.waiter-cancel-session-button:hover {
+    background: #fef2f2;
+}
+
+.waiter-item-quantity {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 12px;
+
+    margin-top: 10px;
+
+    padding: 4px;
+
+    background: rgba(0, 0, 0, 0.04);
+
+    border-radius: 10px;
+
+    width: fit-content;
+}
+
+.waiter-item-quantity span {
+    min-width: 24px;
+
+    text-align: center;
+
+    font-weight: 700;
+    font-size: 15px;
+}
+
+.waiter-qty-button {
+    width: 32px;
+    height: 32px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    background: var(--restaurant-card-bg);
+    color: var(--restaurant-text-color);
+
+    border: none;
+    border-radius: 8px;
+
+    font-size: 18px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.15s ease,
+        opacity 0.15s ease;
+}
+
+.waiter-qty-button:hover {
+    transform: translateY(-1px);
+    opacity: 0.9;
+}   
+
+.waiter-print-button {
+    display: block;
+
+    width: 100%;
+
+    padding: 16px;
+
+    margin-top: 12px;
+
+    background: #374151;
+    color: white;
+
+    text-align: center;
+
+    border: none;
+    border-radius: 12px;
+
+    font-size: 16px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: opacity 0.2s ease;
+}
+
+.waiter-print-button:hover {
+    opacity: 0.9;
+}

@@ -907,6 +907,7 @@ body {
 }
 
 .checkout-field input[type="text"],
+.checkout-field input[type="tel"],
 .checkout-field select {
     width: 100%;
 
@@ -931,6 +932,7 @@ body {
 }
 
 .checkout-field input[type="text"]:focus,
+.checkout-field input[type="tel"]:focus,
 .checkout-field select:focus {
     border-color: var(--restaurant-primary);
 

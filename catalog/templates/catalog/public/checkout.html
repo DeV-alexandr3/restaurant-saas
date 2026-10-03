@@ -66,9 +66,13 @@
                 </label>
 
                 <input
-                    type="text"
+                    type="tel"
                     id="phone"
                     name="phone"
+                    placeholder="(64) 99999-9999"
+                    maxlength="15"
+                    inputmode="numeric"
+                    autocomplete="tel"
                     required
                 >
             </div>
@@ -371,6 +375,40 @@
                 tableInput.required = true;
             }
         });
+    });
+
+    // =========================================================
+    // MÁSCARA DE TELEFONE
+    // =========================================================
+
+    const phoneInput = document.getElementById("phone");
+
+    phoneInput.addEventListener("input", (e) => {
+        let value = e.target.value.replace(/\D/g, ""); // Remove tudo que não é dígito
+
+        // Limita a 11 dígitos
+        if (value.length > 11) {
+            value = value.slice(0, 11);
+        }
+
+        // Aplica a máscara
+        if (value.length > 0) {
+            value = "(" + value;
+        }
+
+        if (value.length > 3) {
+            value = value.slice(0, 3) + ") " + value.slice(3);
+        }
+
+        if (value.length > 10) {
+            // Celular: (64) 99999-9999
+            value = value.slice(0, 10) + "-" + value.slice(10);
+        } else if (value.length > 9) {
+            // Fixo: (64) 9999-9999
+            value = value.slice(0, 9) + "-" + value.slice(9);
+        }
+
+        e.target.value = value;
     });
 </script>
     

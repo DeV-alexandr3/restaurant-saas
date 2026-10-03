@@ -39,8 +39,6 @@
                     shopping_cart
                 </span>
                 <span>Pedidos</span>
-
-
                     <span
                         id="new-orders-badge"
                         class="sidebar-order-badge"
@@ -50,7 +48,6 @@
                     >
                         {{ new_orders_count }}
                     </span>
-    
             </a>
             <a href="{% url 'category_list' %}" class="sidebar-link">
                 <span class="material-symbols-outlined">
@@ -75,6 +72,12 @@
                     table_restaurant
                 </span>
                 Mesas
+            </a>
+            <a href="{% url 'waiter_panel' restaurant.slug %}" class="sidebar-link" target="_blank">
+                <span class="material-symbols-outlined">
+                    room_service
+                </span>
+                Painel do Garçom
             </a>
             {% if membership.role == "ADMIN" %}
                 <a href="{% url 'employee_list' %}" class="sidebar-link">

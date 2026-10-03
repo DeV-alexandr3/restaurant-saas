@@ -5,6 +5,12 @@ from django.db import transaction
 from django.contrib import messages
 from datetime import timedelta
 from django.utils import timezone
+from django.db.models import Count, Q, Sum
+from .models import (
+    TableSession,
+    TableSessionItem,
+    TableSessionItemAddon,
+)
 
 from restaurants.services import get_current_membership
 from .models import (
@@ -24,6 +30,11 @@ from django.db.models.deletion import ProtectedError
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_image_file_extension
 from PIL import Image, UnidentifiedImageError
+import base64
+from pathlib import Path
+from django.conf import settings
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.asymmetric import padding
 
 @login_required
 def category_list(request):
@@ -2360,6 +2371,16 @@ def checkout(request, slug):
             ""
         ).strip()
 
+        # Valida telefone
+        phone_digits = re.sub(r"\D", "", customer_phone)
+
+        if len(phone_digits) not in (10, 11):
+            messages.error(
+                request,
+                "Telefone inválido. Informe um número com DDD."
+            )
+            return redirect("checkout", slug=restaurant.slug)
+
         order_type = request.POST.get(
             "order_type"
         )
@@ -2813,3 +2834,633 @@ def change_table_context(request, slug):
         "public_menu",
         slug=restaurant.slug,
     )
+
+@login_required
+def waiter_panel(request, slug):
+    """
+    Painel do garçom: grid de mesas.
+    """
+    restaurant = get_object_or_404(
+        Restaurant,
+        slug=slug,
+        is_active=True,
+    )
+
+    membership = get_current_membership(request.user)
+
+    if not membership or membership.restaurant != restaurant:
+        return HttpResponse("Acesso negado.", status=403)
+
+    tables = Table.objects.filter(
+        restaurant=restaurant,
+        is_active=True,
+    ).order_by("number")
+
+    # Pra cada mesa, buscar comandas abertas
+    tables_data = []
+
+    for table in tables:
+        sessions = TableSession.objects.filter(
+            table=table,
+            is_open=True,
+        )
+
+        total = sessions.aggregate(
+            total=Sum("total")
+        )["total"] or 0
+
+        tables_data.append({
+            "table": table,
+            "sessions_count": sessions.count(),
+            "total": total,
+            "is_occupied": sessions.exists(),
+        })
+
+    return render(
+        request,
+        "catalog/waiter/panel.html",
+        {
+            "restaurant": restaurant,
+            "tables_data": tables_data,
+        },
+    )
+
+@login_required
+def waiter_table_detail(request, slug, table_id):
+    restaurant = get_object_or_404(
+        Restaurant,
+        slug=slug,
+        is_active=True,
+    )
+
+    membership = get_current_membership(request.user)
+
+    if not membership or membership.restaurant != restaurant:
+        return HttpResponse("Acesso negado.", status=403)
+
+    table = get_object_or_404(
+        Table,
+        id=table_id,
+        restaurant=restaurant,
+        is_active=True,
+    )
+
+    sessions = TableSession.objects.filter(
+        table=table,
+        is_open=True,
+    ).order_by("opened_at")
+
+    return render(
+        request,
+        "catalog/waiter/table_detail.html",
+        {
+            "restaurant": restaurant,
+            "table": table,
+            "sessions": sessions,
+        },
+    )
+
+@login_required
+def waiter_open_session(request, slug, table_id):
+    """
+    Cria uma nova comanda numa mesa e redireciona pra ela.
+    """
+    restaurant = get_object_or_404(
+        Restaurant,
+        slug=slug,
+        is_active=True,
+    )
+
+    membership = get_current_membership(request.user)
+
+    if not membership or membership.restaurant != restaurant:
+        return HttpResponse("Acesso negado.", status=403)
+
+    table = get_object_or_404(
+        Table,
+        id=table_id,
+        restaurant=restaurant,
+        is_active=True,
+    )
+
+    session = TableSession.objects.create(
+        restaurant=restaurant,
+        table=table,
+    )
+
+    return redirect(
+        "waiter_session_detail",
+        slug=restaurant.slug,
+        session_id=session.id,
+    )
+
+@login_required
+def waiter_session_detail(request, slug, session_id):
+    """
+    Mostra o detalhe de uma comanda (itens + total).
+    """
+    restaurant = get_object_or_404(
+        Restaurant,
+        slug=slug,
+        is_active=True,
+    )
+
+    membership = get_current_membership(request.user)
+
+    if not membership or membership.restaurant != restaurant:
+        return HttpResponse("Acesso negado.", status=403)
+
+    session = get_object_or_404(
+        TableSession,
+        id=session_id,
+        restaurant=restaurant,
+    )
+
+    items = session.items.all().prefetch_related("addons")
+
+    return render(
+        request,
+        "catalog/waiter/session_detail.html",
+        {
+            "restaurant": restaurant,
+            "session": session,
+            "table": session.table,
+            "items": items,
+        },
+    )
+
+@login_required
+def waiter_add_item(request, slug, session_id):
+    """
+    Tela de adicionar item na comanda.
+    Lista produtos agrupados por categoria, com variações e adicionais.
+    """
+    restaurant = get_object_or_404(
+        Restaurant,
+        slug=slug,
+        is_active=True,
+    )
+
+    membership = get_current_membership(request.user)
+
+    if not membership or membership.restaurant != restaurant:
+        return HttpResponse("Acesso negado.", status=403)
+
+    session = get_object_or_404(
+        TableSession,
+        id=session_id,
+        restaurant=restaurant,
+        is_open=True,
+    )
+
+    categories = Category.objects.filter(
+        restaurant=restaurant,
+        is_active=True,
+    ).prefetch_related(
+        "products__variations",
+        "products__addon_groups__addons",
+    ).order_by("position", "name")
+
+    return render(
+        request,
+        "catalog/waiter/add_item.html",
+        {
+            "restaurant": restaurant,
+            "session": session,
+            "table": session.table,
+            "categories": categories,
+        },
+    )
+
+@login_required
+def waiter_session_add_product(request, slug, session_id, product_id):
+    """
+    Adiciona um produto na comanda.
+    Processa POST do modal (variação + adicionais + observação).
+    """
+    restaurant = get_object_or_404(
+        Restaurant,
+        slug=slug,
+        is_active=True,
+    )
+
+    membership = get_current_membership(request.user)
+
+    if not membership or membership.restaurant != restaurant:
+        return HttpResponse("Acesso negado.", status=403)
+
+    session = get_object_or_404(
+        TableSession,
+        id=session_id,
+        restaurant=restaurant,
+        is_open=True,
+    )
+
+    product = get_object_or_404(
+        Product,
+        id=product_id,
+        restaurant=restaurant,
+        is_available=True,
+    )
+
+    if request.method != "POST":
+        return redirect(
+            "waiter_add_item",
+            slug=restaurant.slug,
+            session_id=session.id,
+        )
+
+    # -------------------------
+    # VARIAÇÃO
+    # -------------------------
+
+    variation = None
+
+    variation_id = request.POST.get("variation_id")
+
+    if variation_id:
+        variation = get_object_or_404(
+            ProductVariation,
+            id=variation_id,
+            product=product,
+            is_available=True,
+        )
+
+    # -------------------------
+    # ADICIONAIS
+    # -------------------------
+
+    selected_addon_ids = [
+        int(addon_id)
+        for addon_id in request.POST.getlist("addon_ids")
+        if str(addon_id).isdigit()
+    ]
+
+    addons = Addon.objects.filter(
+        id__in=selected_addon_ids,
+        group__product=product,
+        group__is_active=True,
+        is_available=True,
+    )
+
+    # -------------------------
+    # PREÇO
+    # -------------------------
+
+    if variation:
+        unit_price = variation.price
+    else:
+        unit_price = product.price
+
+    for addon in addons:
+        unit_price += addon.price
+
+    # -------------------------
+    # QUANTIDADE
+    # -------------------------
+
+    try:
+        quantity = int(request.POST.get("quantity", 1))
+    except (TypeError, ValueError):
+        quantity = 1
+
+    if quantity < 1:
+        quantity = 1
+
+    if quantity > 100:
+        quantity = 100
+
+    item_total = unit_price * quantity
+
+    # -------------------------
+    # OBSERVAÇÃO
+    # -------------------------
+
+    notes = request.POST.get("notes", "").strip()
+
+    # -------------------------
+    # CRIAR ITEM
+    # -------------------------
+
+    item = TableSessionItem.objects.create(
+        session=session,
+        product=product,
+        product_name=product.name,
+        variation_name=(
+            variation.name if variation else ""
+        ),
+        unit_price=unit_price,
+        quantity=quantity,
+        total=item_total,
+        notes=notes,
+    )
+
+    for addon in addons:
+        TableSessionItemAddon.objects.create(
+            item=item,
+            addon_name=addon.name,
+            addon_price=addon.price,
+        )
+
+    # Recalcula total da comanda
+    session.recalculate_total()
+
+    return redirect(
+        "waiter_session_detail",
+        slug=restaurant.slug,
+        session_id=session.id,
+    )
+
+@login_required
+def waiter_remove_item(request, slug, item_id):
+    """
+    Remove um item da comanda.
+    """
+    restaurant = get_object_or_404(
+        Restaurant,
+        slug=slug,
+        is_active=True,
+    )
+
+    membership = get_current_membership(request.user)
+
+    if not membership or membership.restaurant != restaurant:
+        return HttpResponse("Acesso negado.", status=403)
+
+    item = get_object_or_404(
+        TableSessionItem,
+        id=item_id,
+        session__restaurant=restaurant,
+    )
+
+    session = item.session
+
+    # Remove o item (não precisa verificar POST, já que é um link)
+    item.delete()
+    session.recalculate_total()
+
+    return redirect(
+        "waiter_session_detail",
+        slug=restaurant.slug,
+        session_id=session.id,
+    )
+
+@login_required
+def waiter_close_session(request, slug, session_id):
+    """
+    Fecha uma comanda:
+    - Cria um Order (pra aparecer no painel de pedidos)
+    - Marca a comanda como paga
+    - Fecha a comanda
+    """
+    restaurant = get_object_or_404(
+        Restaurant,
+        slug=slug,
+        is_active=True,
+    )
+
+    membership = get_current_membership(request.user)
+
+    if not membership or membership.restaurant != restaurant:
+        return HttpResponse("Acesso negado.", status=403)
+
+    session = get_object_or_404(
+        TableSession,
+        id=session_id,
+        restaurant=restaurant,
+        is_open=True,
+    )
+
+    if request.method != "POST":
+        return redirect(
+            "waiter_session_detail",
+            slug=restaurant.slug,
+            session_id=session.id,
+        )
+
+    # Se a comanda não tem itens, não deixa fechar
+    if not session.items.exists():
+        messages.error(request, "Adicione pelo menos um item antes de fechar.")
+        return redirect(
+            "waiter_session_detail",
+            slug=restaurant.slug,
+            session_id=session.id,
+        )
+
+    with transaction.atomic():
+
+        # Cria o Order (pra aparecer no painel de pedidos)
+        order = Order.objects.create(
+            restaurant=restaurant,
+
+            customer_name=f"Comanda #{session.id}",
+            customer_phone="",
+
+            order_type="table",
+
+            table=session.table,
+            table_number=session.table.number,
+
+            total=session.total,
+
+            delivery_fee=0,
+
+            estimated_time_minutes=(
+                restaurant.estimated_time_minutes
+            ),
+
+            status="FINISHED",
+            stock_processed=False,
+        )
+
+        # Copia os itens pra o Order
+        for item in session.items.all():
+            order_item = OrderItem.objects.create(
+                order=order,
+
+                product=item.product,
+
+                product_name=item.product_name,
+
+                variation_name=item.variation_name,
+
+                unit_price=item.unit_price,
+
+                quantity=item.quantity,
+
+                total=item.total,
+            )
+
+            for addon in item.addons.all():
+                OrderItemAddon.objects.create(
+                    order_item=order_item,
+
+                    addon_name=addon.addon_name,
+
+                    addon_price=addon.addon_price,
+                )
+
+        # Fecha a comanda
+        session.is_open = False
+        session.is_paid = True
+        session.closed_at = timezone.now()
+        session.save()
+
+    messages.success(request, "Comanda fechada com sucesso.")
+
+    return redirect(
+        "waiter_table_detail",
+        slug=restaurant.slug,
+        table_id=session.table.id,
+    )
+
+@login_required
+def waiter_cancel_session(request, slug, session_id):
+    """
+    Cancela (deleta) uma comanda vazia.
+    """
+    restaurant = get_object_or_404(
+        Restaurant,
+        slug=slug,
+        is_active=True,
+    )
+
+    membership = get_current_membership(request.user)
+
+    if not membership or membership.restaurant != restaurant:
+        return HttpResponse("Acesso negado.", status=403)
+
+    session = get_object_or_404(
+        TableSession,
+        id=session_id,
+        restaurant=restaurant,
+        is_open=True,
+    )
+
+    # Só cancela se tiver vazia
+    if session.items.exists():
+        messages.error(
+            request,
+            "Não é possível cancelar uma comanda com itens."
+        )
+        return redirect(
+            "waiter_session_detail",
+            slug=restaurant.slug,
+            session_id=session.id,
+        )
+
+    table_id = session.table.id
+    session.delete()
+
+    messages.success(request, "Comanda cancelada.")
+
+    return redirect(
+        "waiter_table_detail",
+        slug=restaurant.slug,
+        table_id=table_id,
+    )
+
+@login_required
+def waiter_update_item_quantity(request, slug, item_id, action):
+    """
+    Aumenta ou diminui a quantidade de um item.
+    action: "increase" ou "decrease"
+    """
+    restaurant = get_object_or_404(
+        Restaurant,
+        slug=slug,
+        is_active=True,
+    )
+
+    membership = get_current_membership(request.user)
+
+    if not membership or membership.restaurant != restaurant:
+        return HttpResponse("Acesso negado.", status=403)
+
+    item = get_object_or_404(
+        TableSessionItem,
+        id=item_id,
+        session__restaurant=restaurant,
+    )
+
+    session = item.session
+
+    if request.method == "POST":
+
+        if action == "increase":
+            item.quantity += 1
+
+        elif action == "decrease":
+            if item.quantity > 1:
+                item.quantity -= 1
+
+        # Recalcula total do item
+        item.total = item.unit_price * item.quantity
+        item.save()
+
+        # Recalcula total da comanda
+        session.recalculate_total()
+
+    return redirect(
+        "waiter_session_detail",
+        slug=restaurant.slug,
+        session_id=session.id,
+    )
+
+@login_required
+def qz_sign_message(request):
+    """
+    Assina mensagens para o QZ Tray.
+    """
+    message = request.GET.get("request", "")
+
+    if not message:
+        return HttpResponse("Missing request", status=400)
+
+    # Carrega a chave privada
+    with open("caminho/para/private-key.pem", "rb") as f:
+        private_key = serialization.load_pem_private_key(
+            f.read(),
+            password=None,
+        )
+
+    # Assina com SHA512
+    signature = private_key.sign(
+        message.encode("utf-8"),
+        padding.PKCS1v15(),
+        hashes.SHA512(),
+    )
+
+    # Retorna em base64
+    encoded = base64.b64encode(signature).decode("utf-8")
+
+    return HttpResponse(encoded, content_type="text/plain")
+
+def qz_sign_message(request):
+    """
+    Assina mensagens do QZ Tray.
+    NÃO precisa de login, porque o QZ Tray chama isso direto.
+    """
+    message = request.GET.get("request", "")
+
+    if not message:
+        return HttpResponse("Missing request", status=400)
+
+    # Caminho da chave privada
+    key_path = Path(settings.BASE_DIR) / "catalog" / "static" / "catalog" / "qz" / "private-key.pem"
+
+    with open(key_path, "rb") as f:
+        private_key = serialization.load_pem_private_key(
+            f.read(),
+            password=None,
+        )
+
+    signature = private_key.sign(
+        message.encode("utf-8"),
+        padding.PKCS1v15(),
+        hashes.SHA512(),
+    )
+
+    encoded = base64.b64encode(signature).decode("utf-8")
+
+    return HttpResponse(encoded, content_type="text/plain")

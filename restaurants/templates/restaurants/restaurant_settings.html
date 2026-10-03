@@ -24,329 +24,390 @@ Configurações
 
         {% csrf_token %}
 
-        <div class="form-group">
-            <label for="name">
-                Nome do restaurante
-            </label>
+        <!-- =========================================
+             ABAS
+        ========================================== -->
 
-            <input
-                type="text"
-                id="name"
-                name="name"
-                value="{{ restaurant.name }}"
-                required
-            >
-        </div>
-
-        <div class="form-group">
-            <label>Link do cardápio público</label>
-
-            <div class="public-menu-link">
-                <a
-                    href="{% url 'public_menu' restaurant.slug %}"
-                    target="_blank"
-                    rel="noopener"
-                >
-                    /r/{{ restaurant.slug }}/
-                </a>
-
-                <button
-                    type="button"
-                    class="copy-link-button"
-                    onclick="copiarLink(this)"
-                    data-link="{{ request.scheme }}://{{ request.get_host }}{% url 'public_menu' restaurant.slug %}"
-                >
-                    Copiar
-                </button>
-            </div>
-
-            <p class="public-menu-hint">
-                Esse é o link que o cliente acessa pra ver o cardápio.
-            </p>
-        </div>
-
-        <div class="form-group">
-            <label for="phone">
-                Telefone
-            </label>
-
-            <input
-                type="text"
-                id="phone"
-                name="phone"
-                value="{{ restaurant.phone }}"
-            >
-        </div>
-
-        <div class="form-group">
-            <label for="primary_color">
-                Cor principal
-            </label>
-
-            <input
-                type="color"
-                id="primary_color"
-                name="primary_color"
-                value="{{ restaurant.primary_color }}"
-            >
-        </div>
-
-        <div class="form-group">
-            <label for="background_color">
-                Cor de fundo
-            </label>
-
-            <input
-                type="color"
-                id="background_color"
-                name="background_color"
-                value="{{ restaurant.background_color }}"
-            >
-        </div>
-
-        <div class="form-group">
-            <label for="id_shortcut_bg_color">
-                Cor de fundo dos atalhos de categoria
-            </label>
-            <input
-                type="text"
-                id="id_shortcut_bg_color"
-                name="shortcut_bg_color"
-                value="{{ restaurant.shortcut_bg_color }}"
-                placeholder="Ex: rgba(255, 255, 255, 0.05)"
-            >
-            <small>
-                Aceita valores como <code>rgba(255, 255, 255, 0.05)</code>,
-                <code>#1A1A1A</code>, ou qualquer cor CSS válida.
-            </small>
-        </div>
-
-        <div class="form-group">
-            <label for="id_title_color">Cor dos títulos</label>
-            <input
-                type="color"
-                id="id_title_color"
-                name="title_color"
-                value="{{ restaurant.title_color }}"
-            >
-        </div>
-
-        <div class="form-group">
-            <label for="id_text_color">Cor do texto</label>
-            <input
-                type="color"
-                id="id_text_color"
-                name="text_color"
-                value="{{ restaurant.text_color }}"
-            >
-        </div>
-
-        <div class="form-group">
-            <label for="id_product_detail_bg">
-                Cor de fundo da página de produto
-            </label>
-            <input
-                type="color"
-                id="id_product_detail_bg"
-                name="product_detail_bg"
-                value="{{ restaurant.product_detail_bg }}"
-            >
-        </div>
-
-        <div class="form-group">
-            <label for="id_card_bg_color">Cor de fundo dos cards</label>
-            <input
-                type="color"
-                id="id_card_bg_color"
-                name="card_bg_color"
-                value="{{ restaurant.card_bg_color }}"
-            >
-        </div>
-
-        <div class="form-group">
-            <label for="id_title_font">Fonte dos títulos</label>
-            <input
-                type="text"
-                id="id_title_font"
-                name="title_font"
-                value="{{ restaurant.title_font }}"
-                placeholder="Ex: Playfair Display"
-            >
-        </div>
-
-        <div class="form-group">
-            <label for="id_body_font">Fonte do corpo</label>
-            <input
-                type="text"
-                id="id_body_font"
-                name="body_font"
-                value="{{ restaurant.body_font }}"
-                placeholder="Ex: Poppins"
-            >
-        </div>
-
-        <div class="form-group">
-            <label for="id_restaurant_name_font">Fonte do nome do restaurante</label>
-            <input
-                type="text"
-                id="id_restaurant_name_font"
-                name="restaurant_name_font"
-                value="{{ restaurant.restaurant_name_font }}"
-                placeholder="Ex: Playfair Display"
-            >
-        </div>
-
-        <div class="form-group form-check">
-            <label>
-                <input
-                    type="checkbox"
-                    name="restaurant_name_italic"
-                    {% if restaurant.restaurant_name_italic %}checked{% endif %}
-                >
-                Nome do restaurante em itálico
-            </label>
-        </div>
-
-        <div class="form-group">
-            <label>Tipos de pedido aceitos</label>
-
-            <label>
-                <input
-                    type="checkbox"
-                    name="accepts_pickup"
-                    {% if restaurant.accepts_pickup %}checked{% endif %}
-                >
-                Retirada
-            </label>
-
-            <label>
-                <input
-                    type="checkbox"
-                    name="accepts_delivery"
-                    {% if restaurant.accepts_delivery %}checked{% endif %}
-                >
-                Entrega
-            </label>
-
-            <label>
-                <input
-                    type="checkbox"
-                    name="accepts_table_orders"
-                    {% if restaurant.accepts_table_orders %}checked{% endif %}
-                >
-                Pedido na mesa
-            </label>
-        </div>
-
-        <div class="form-group">
-            <label for="minimum_order">
-                Pedido mínimo
-            </label>
-
-            <input
-                type="number"
-                id="minimum_order"
-                name="minimum_order"
-                min="0"
-                step="0.01"
-                value="{{ restaurant.minimum_order }}"
-            >
-        </div>
-
-        <div class="form-group">
-            <label for="delivery_fee">
-                Taxa de entrega
-            </label>
-
-            <input
-                type="number"
-                id="delivery_fee"
-                name="delivery_fee"
-                min="0"
-                step="0.01"
-                value="{{ restaurant.delivery_fee }}"
-            >
-        </div>
-
-        <div class="form-group">
-            <label for="estimated_time_minutes">
-                Tempo estimado de preparo (minutos)
-            </label>
-
-            <input
-                type="number"
-                id="estimated_time_minutes"
-                name="estimated_time_minutes"
-                min="1"
-                value="{{ restaurant.estimated_time_minutes }}"
-            >
-        </div>
-
-        <div class="form-group">
-            <label for="logo">
-                Logo
-            </label>
-
-            <input
-                type="file"
-                id="logo"
-                name="logo"
-                accept="image/*"
-            >
-
-            {% if restaurant.logo %}
-                <img
-                    src="{{ restaurant.logo.url }}"
-                    alt="Logo"
-                    style="max-width: 140px; margin-top: 10px;"
-                >
-                <label>
-                    <input
-                        type="checkbox"
-                        name="remove_logo"
-                    >
-                    Remover logo
-                </label>
-            {% endif %}
-        </div>
-
-        <div class="form-group">
-            <label for="banner">
-                Banner
-            </label>
-
-            <input
-                type="file"
-                id="banner"
-                name="banner"
-                accept="image/*"
-            >
-
-            {% if restaurant.banner %}
-                <img
-                    src="{{ restaurant.banner.url }}"
-                    alt="Banner"
-                    style="max-width: 300px; margin-top: 10px;"
-                >
-                <label>
-                    <input
-                        type="checkbox"
-                        name="remove_banner"
-                    >
-                    Remover banner
-                </label>
-            {% endif %}
-        </div>
-
-        <div class="form-actions">
-
+        <div class="settings-tabs">
             <button
-                type="submit"
-                class="btn-primary"
+                type="button"
+                class="settings-tab active"
+                data-tab="tab-info"
             >
-                Salvar configurações
+                📋 Informações
             </button>
 
+            <button
+                type="button"
+                class="settings-tab"
+                data-tab="tab-appearance"
+            >
+                🎨 Aparência
+            </button>
+
+            <button
+                type="button"
+                class="settings-tab"
+                data-tab="tab-orders"
+            >
+                📦 Pedidos
+            </button>
+
+            <button
+                type="button"
+                class="settings-tab"
+                data-tab="tab-images"
+            >
+                🖼️ Imagens
+            </button>
+        </div>
+
+
+        <!-- =========================================
+             ABA 1 — INFORMAÇÕES
+        ========================================== -->
+
+        <div class="settings-panel active" id="tab-info">
+
+            <div class="form-group">
+                <label for="name">Nome do restaurante</label>
+                <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value="{{ restaurant.name }}"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label>Link do cardápio público</label>
+
+                <div class="public-menu-link">
+                    <a
+                        href="{% url 'public_menu' restaurant.slug %}"
+                        target="_blank"
+                        rel="noopener"
+                    >
+                        /r/{{ restaurant.slug }}/
+                    </a>
+
+                    <button
+                        type="button"
+                        class="copy-link-button"
+                        onclick="copiarLink(this)"
+                        data-link="{{ request.scheme }}://{{ request.get_host }}{% url 'public_menu' restaurant.slug %}"
+                    >
+                        Copiar
+                    </button>
+                </div>
+
+                <p class="public-menu-hint">
+                    Esse é o link que o cliente acessa pra ver o cardápio.
+                </p>
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Telefone</label>
+                <input
+                    type="text"
+                    id="phone"
+                    name="phone"
+                    value="{{ restaurant.phone }}"
+                >
+            </div>
+
+        </div>
+
+
+        <!-- =========================================
+             ABA 2 — APARÊNCIA
+        ========================================== -->
+
+        <div class="settings-panel" id="tab-appearance">
+
+            <h3 class="settings-section-title">Cores</h3>
+
+            <div class="form-group">
+                <label for="primary_color">Cor principal</label>
+                <small>Usada em botões ("Ver produto", "Adicionar ao carrinho", "Continuar para o pedido"), no header (quando não tem banner) e em destaques.</small>
+                <input
+                    type="color"
+                    id="primary_color"
+                    name="primary_color"
+                    value="{{ restaurant.primary_color }}"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="background_color">Cor de fundo</label>
+                <small>Cor de fundo geral do cardápio público (atrás dos cards).</small>
+                <input
+                    type="color"
+                    id="background_color"
+                    name="background_color"
+                    value="{{ restaurant.background_color }}"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="id_shortcut_bg_color">
+                    Cor de fundo dos atalhos de categoria
+                </label>
+                <small>Fundo da faixa que contém os atalhos das categorias (Pizza, Bebidas, etc).</small>
+                <input
+                    type="text"
+                    id="id_shortcut_bg_color"
+                    name="shortcut_bg_color"
+                    value="{{ restaurant.shortcut_bg_color }}"
+                    placeholder="Ex: rgba(255, 255, 255, 0.05)"
+                >
+                <small>
+                    Aceita valores como <code>rgba(255, 255, 255, 0.05)</code>,
+                    <code>#1A1A1A</code>, ou qualquer cor CSS válida.
+                </small>
+            </div>
+
+            <div class="form-group">
+                <label for="id_title_color">Cor dos títulos</label>
+                <small>Cor dos títulos das categorias ("Pizza", "Bebidas") no cardápio.</small>
+                <input
+                    type="color"
+                    id="id_title_color"
+                    name="title_color"
+                    value="{{ restaurant.title_color }}"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="id_text_color">Cor do texto</label>
+                <small>Cor do texto geral: nome do produto, descrição, preço, links.</small>
+                <input
+                    type="color"
+                    id="id_text_color"
+                    name="text_color"
+                    value="{{ restaurant.text_color }}"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="id_product_detail_bg">
+                    Cor de fundo da página de produto
+                </label>
+                <small>Cor de fundo do card onde aparecem as opções e adicionais na página de produto.</small>
+                <input
+                    type="color"
+                    id="id_product_detail_bg"
+                    name="product_detail_bg"
+                    value="{{ restaurant.product_detail_bg }}"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="id_card_bg_color">Cor de fundo dos cards</label>
+                <small>Cor de fundo dos cards de produto no cardápio público.</small>
+                <input
+                    type="color"
+                    id="id_card_bg_color"
+                    name="card_bg_color"
+                    value="{{ restaurant.card_bg_color }}"
+                >
+            </div>
+
+            <h3 class="settings-section-title">Fontes</h3>
+
+            <div class="form-group">
+                <label for="id_title_font">Fonte dos títulos</label>
+                <small>Fonte usada nos títulos das categorias ("Pizza", "Bebidas") e nos títulos das seções.</small>
+                <input
+                    type="text"
+                    id="id_title_font"
+                    name="title_font"
+                    value="{{ restaurant.title_font }}"
+                    placeholder="Ex: Playfair Display"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="id_body_font">Fonte do corpo</label>
+                <small>Fonte usada no texto geral do cardápio (nome do produto, descrição, preço).</small>
+                <input
+                    type="text"
+                    id="id_body_font"
+                    name="body_font"
+                    value="{{ restaurant.body_font }}"
+                    placeholder="Ex: Poppins"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="id_restaurant_name_font">
+                    Fonte do nome do restaurante
+                </label>
+                <small>Fonte usada no nome do restaurante no topo do cardápio.</small>
+                <input
+                    type="text"
+                    id="id_restaurant_name_font"
+                    name="restaurant_name_font"
+                    value="{{ restaurant.restaurant_name_font }}"
+                    placeholder="Ex: Playfair Display"
+                >
+            </div>
+
+            <div class="form-group form-check">
+                <label>
+                    Nome do restaurante em itálico
+                    <input
+                        type="checkbox"
+                        name="restaurant_name_italic"
+                        {% if restaurant.restaurant_name_italic %}checked{% endif %}
+                    >
+                </label>
+            </div>
+
+        </div>
+
+
+        <!-- =========================================
+             ABA 3 — PEDIDOS
+        ========================================== -->
+
+        <div class="settings-panel" id="tab-orders">
+
+            <div class="form-group">
+                <label>Tipos de pedido aceitos</label>
+
+                <label>
+                    <input
+                        type="checkbox"
+                        name="accepts_pickup"
+                        {% if restaurant.accepts_pickup %}checked{% endif %}
+                    >
+                    Retirada
+                </label>
+
+                <label>
+                    <input
+                        type="checkbox"
+                        name="accepts_delivery"
+                        {% if restaurant.accepts_delivery %}checked{% endif %}
+                    >
+                    Entrega
+                </label>
+
+                <label>
+                    <input
+                        type="checkbox"
+                        name="accepts_table_orders"
+                        {% if restaurant.accepts_table_orders %}checked{% endif %}
+                    >
+                    Pedido na mesa
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label for="minimum_order">Pedido mínimo</label>
+                <input
+                    type="number"
+                    id="minimum_order"
+                    name="minimum_order"
+                    min="0"
+                    step="0.01"
+                    value="{{ restaurant.minimum_order }}"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="delivery_fee">Taxa de entrega</label>
+                <input
+                    type="number"
+                    id="delivery_fee"
+                    name="delivery_fee"
+                    min="0"
+                    step="0.01"
+                    value="{{ restaurant.delivery_fee }}"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="estimated_time_minutes">
+                    Tempo estimado de preparo (minutos)
+                </label>
+                <input
+                    type="number"
+                    id="estimated_time_minutes"
+                    name="estimated_time_minutes"
+                    min="1"
+                    value="{{ restaurant.estimated_time_minutes }}"
+                >
+            </div>
+
+        </div>
+
+
+        <!-- =========================================
+             ABA 4 — IMAGENS
+        ========================================== -->
+
+        <div class="settings-panel" id="tab-images">
+
+            <div class="form-group">
+                <label for="logo">Logo</label>
+
+                <input
+                    type="file"
+                    id="logo"
+                    name="logo"
+                    accept="image/*"
+                >
+
+                {% if restaurant.logo %}
+                    <img
+                        src="{{ restaurant.logo.url }}"
+                        alt="Logo"
+                        style="max-width: 140px; margin-top: 10px;"
+                    >
+                    <label>
+                        <input type="checkbox" name="remove_logo">
+                        Remover logo
+                    </label>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="banner">Banner</label>
+
+                <input
+                    type="file"
+                    id="banner"
+                    name="banner"
+                    accept="image/*"
+                >
+
+                {% if restaurant.banner %}
+                    <img
+                        src="{{ restaurant.banner.url }}"
+                        alt="Banner"
+                        style="max-width: 300px; margin-top: 10px;"
+                    >
+                    <label>
+                        <input type="checkbox" name="remove_banner">
+                        Remover banner
+                    </label>
+                {% endif %}
+            </div>
+
+        </div>
+
+
+        <!-- =========================================
+             BOTÃO SALVAR (sempre visível)
+        ========================================== -->
+
+        <div class="form-actions">
+            <button type="submit" class="btn-primary">
+                Salvar configurações
+            </button>
         </div>
 
     </form>
@@ -390,6 +451,26 @@ Configurações
             }, 1500);
         });
     }
+
+    // Trocar de aba
+    document.querySelectorAll(".settings-tab").forEach((tab) => {
+        tab.addEventListener("click", () => {
+            // Remove "active" de todas as abas e painéis
+            document.querySelectorAll(".settings-tab").forEach((t) => {
+                t.classList.remove("active");
+            });
+
+            document.querySelectorAll(".settings-panel").forEach((p) => {
+                p.classList.remove("active");
+            });
+
+            // Adiciona "active" na aba clicada e no painel correspondente
+            tab.classList.add("active");
+
+            const targetId = tab.dataset.tab;
+            document.getElementById(targetId).classList.add("active");
+        });
+    });
 </script>
 
 {% endblock %}
