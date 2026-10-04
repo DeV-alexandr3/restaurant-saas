@@ -2751,12 +2751,43 @@ def order_confirmation(request, slug, public_token):
         restaurant=restaurant,
     )
 
+    # Monta a mensagem do WhatsApp
+    linhas = []
+
+    linhas.append(f"*Pedido #{order.id}*")
+    linhas.append(f"Cliente: {order.customer_name}")
+    linhas.append("")
+
+    # Itens
+    for item in order.items.all():
+        linha = f"• {item.quantity}x {item.product_name}"
+
+        if item.variation_name:
+            linha += f" ({item.variation_name})"
+
+        linha += f" — R$ {item.total}"
+        linhas.append(linha)
+
+        for addon in item.addons.all():
+            linhas.append(f"   + {addon.addon_name}")
+
+    linhas.append("")
+    linhas.append(f"*Total: R$ {order.total}*")
+    linhas.append("")
+    linhas.append(f"Tipo: {order.get_order_type_display()}")
+
+    if order.order_type == "delivery":
+        linhas.append(f"Endereço: {order.address}, {order.address_number}")
+
+    mensagem_whatsapp = "\n".join(linhas)
+
     return render(
         request,
         "catalog/public/order_confirmation.html",
         {
             "restaurant": restaurant,
             "order": order,
+            "mensagem_whatsapp": mensagem_whatsapp,
         },
     )
 

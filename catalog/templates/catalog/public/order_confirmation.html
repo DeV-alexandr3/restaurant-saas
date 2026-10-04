@@ -150,6 +150,17 @@
 
         </div>
 
+        {% if restaurant.whatsapp %}
+            <a
+                href="https://wa.me/{{ restaurant.whatsapp }}?text={{ mensagem_whatsapp|urlencode }}"
+                target="_blank"
+                rel="noopener"
+                class="whatsapp-button"
+            >
+                💬 Enviar pedido no WhatsApp
+            </a>
+        {% endif %}
+        
     </main>
 
 {% if order.status != "FINISHED" and order.status != "REJECTED" and order.status != "CANCELLED" %}

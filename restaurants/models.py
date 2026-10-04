@@ -134,7 +134,14 @@ class Restaurant(models.Model):
         max_length=30,
         default="#FFFFFF",
         verbose_name="Cor de fundo da página de produto",
-    )   
+    )
+
+    whatsapp = models.CharField(
+        max_length=20,
+        blank=True,
+        verbose_name="WhatsApp do restaurante",
+        help_text="Formato: 5564999999999 (com código do país e DDD, só números)",
+    )
 
     class Meta:
         constraints = [

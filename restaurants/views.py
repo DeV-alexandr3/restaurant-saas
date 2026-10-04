@@ -801,6 +801,7 @@ def restaurant_settings(request):
     if request.method == "POST":
         restaurant.name = request.POST.get("name", "").strip()
         restaurant.phone = request.POST.get("phone", "").strip()
+        restaurant.whatsapp = request.POST.get("whatsapp", "").strip()
         minimum_order_value = request.POST.get("minimum_order", "")
         delivery_fee_value = request.POST.get("delivery_fee", "")
         estimated_time_value = request.POST.get("estimated_time_minutes", "30")
@@ -1048,6 +1049,9 @@ def restaurant_settings(request):
             restaurant.banner = banner
 
         restaurant.save()
+
+        restaurant.whatsapp = request.POST.get("whatsapp", "").strip()
+
 
         return redirect("restaurant_settings")
 
