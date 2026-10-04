@@ -143,6 +143,19 @@ class Restaurant(models.Model):
         help_text="Formato: 5564999999999 (com código do país e DDD, só números)",
     )
 
+    pix_key = models.CharField(
+        max_length=100,
+        blank=True,
+        verbose_name="Chave Pix",
+        help_text="CPF, CNPJ, telefone, email ou chave aleatória.",
+    )
+
+    pix_qrcode = CloudinaryField(
+        "QR Code do Pix",
+        blank=True,
+        null=True,
+    )
+
     class Meta:
         constraints = [
             models.CheckConstraint(

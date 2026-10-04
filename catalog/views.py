@@ -2565,6 +2565,12 @@ def checkout(request, slug):
                 restaurant.delivery_fee
             )
 
+        payment_method = request.POST.get("payment_method", "cash")
+        
+            
+        if payment_method not in ("cash", "card", "pix"):
+            payment_method = "cash"
+
 
         # =========================
         # CRIAR PEDIDO
@@ -2618,6 +2624,12 @@ def checkout(request, slug):
                 ),
 
                 total=final_total,
+
+                order = Order.objects.create(
+                    # ... campos existentes ...
+                    payment_method=payment_method,
+                    payment_status="pending",   # sempre começa pendente
+                )
             )
 
 
@@ -2709,7 +2721,7 @@ def checkout(request, slug):
             slug=restaurant.slug,
             public_token=order.public_token,
         )
-
+    
 
     # =========================
     # GET DO CHECKOUT
@@ -3290,6 +3302,7 @@ def waiter_close_session(request, slug, session_id):
 
             status="FINISHED",
             stock_processed=False,
+
         )
 
         # Copia os itens pra o Order
@@ -3508,3 +3521,25 @@ def waiter_print_session(request, slug, session_id):
         session.save(update_fields=["needs_print", "printed_at"])
 
     return redirect("waiter_session_detail", slug=restaurant.slug, session_id=session.id)
+
+@login_required
+def order_mark_paid(request, order_id):
+    """
+    Marca um pedido como pago.
+    """
+    membership = get_current_membership(request.user)
+
+    if not membership:
+        return HttpResponse("Acesso negado.", status=403)
+
+    order = get_object_or_404(
+        Order,
+        id=order_id,
+        restaurant=membership.restaurant,
+    )
+
+    if request.method == "POST":
+        order.payment_status = "paid"
+        order.save(update_fields=["payment_status"])
+
+    return redirect("order_list")

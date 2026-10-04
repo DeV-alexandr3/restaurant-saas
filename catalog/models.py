@@ -350,6 +350,27 @@ class Order(models.Model):
         blank=True,
     )
 
+    payment_method = models.CharField(
+        max_length=20,
+        choices=[
+            ("cash", "Dinheiro"),
+            ("card", "Cartão"),
+            ("pix", "Pix"),
+        ],
+        default="cash",
+        verbose_name="Forma de pagamento",
+    )
+
+    payment_status = models.CharField(
+        max_length=20,
+        choices=[
+            ("pending", "Pendente"),
+            ("paid", "Pago"),
+        ],
+        default="pending",
+        verbose_name="Status de pagamento",
+    )
+
     def __str__(self):
         return f"Pedido #{self.id} - {self.restaurant.name}"
 

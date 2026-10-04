@@ -249,6 +249,52 @@
             {% endif %}
 
             <div class="checkout-field">
+                <label>Forma de pagamento</label>
+
+                <label>
+                    <input type="radio" name="payment_method" value="cash" checked>
+                    💵 Dinheiro (pagar na entrega/retirada)
+                </label>
+
+                <label>
+                    <input type="radio" name="payment_method" value="card">
+                    💳 Cartão (pagar na entrega/retirada)
+                </label>
+
+                {% if restaurant.pix_qrcode %}
+                    <label>
+                        <input type="radio" name="payment_method" value="pix">
+                        📱 Pix (pagar agora)
+                    </label>
+                {% endif %}
+            </div>
+
+            <!-- Se escolher Pix, mostra o QR Code -->
+            <div id="pix-fields" class="checkout-extra-fields" style="display: none;">
+                <h3>Pague com Pix</h3>
+
+                {% if restaurant.pix_qrcode %}
+                    <img
+                        src="{{ restaurant.pix_qrcode.url }}"
+                        alt="QR Code Pix"
+                        class="pix-qrcode-image"
+                    >
+                {% endif %}
+
+                {% if restaurant.pix_key %}
+                    <p class="pix-key-line">
+                        <strong>Chave Pix:</strong>
+                        <a href="#" onclick="copiarPix(event)" class="pix-copy-link">
+                            {{ restaurant.pix_key }}
+                        </a>
+                    </p>
+                {% endif %}
+
+                <p class="pix-warning">
+                    Após pagar, clique em "Confirmar dados" abaixo.
+                </p>
+            </div>
+            <div class="checkout-field">
                 <label for="notes">
                     Observações do pedido
                 </label>
@@ -410,6 +456,35 @@
 
         e.target.value = value;
     });
+
+    // Mostrar QR Code Pix quando escolher Pix
+    const paymentRadios = document.querySelectorAll('input[name="payment_method"]');
+    const pixFields = document.getElementById("pix-fields");
+
+    paymentRadios.forEach((radio) => {
+        radio.addEventListener("change", () => {
+            if (radio.value === "pix") {
+                pixFields.style.display = "block";
+            } else {
+                pixFields.style.display = "none";
+            }
+        });
+    });
+
+    function copiarPix(event) {
+        event.preventDefault();
+
+        const chave = event.target.textContent.trim();
+
+        navigator.clipboard.writeText(chave).then(() => {
+            const original = event.target.textContent;
+            event.target.textContent = "✓ Copiado!";
+
+            setTimeout(() => {
+                event.target.textContent = original;
+            }, 1500);
+        });
+    }
 </script>
     
 </body>

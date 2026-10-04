@@ -129,6 +129,35 @@ Configurações
                 <small>Use código do país + DDD + número, só dígitos.</small>
             </div>
 
+            <div class="form-group">
+                <label for="pix_key">Chave Pix</label>
+                <input
+                    type="text"
+                    id="pix_key"
+                    name="pix_key"
+                    value="{{ restaurant.pix_key }}"
+                    placeholder="CPF, CNPJ, telefone, email ou chave aleatória"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="pix_qrcode">QR Code do Pix</label>
+                <input
+                    type="file"
+                    id="pix_qrcode"
+                    name="pix_qrcode"
+                    accept="image/*"
+                >
+
+                {% if restaurant.pix_qrcode %}
+                    <img
+                        src="{{ restaurant.pix_qrcode.url }}"
+                        alt="QR Code Pix"
+                        style="max-width: 200px; margin-top: 10px;"
+                    >
+                {% endif %}
+            </div>
+
         </div>
 
 

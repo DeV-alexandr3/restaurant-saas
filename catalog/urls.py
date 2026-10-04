@@ -273,4 +273,10 @@ urlpatterns = [
         views.waiter_print_session,
         name="waiter_print_session",
     ),
+
+    path(
+        "pedidos/<int:order_id>/marcar-pago/",
+        views.order_mark_paid,
+        name="order_mark_paid",
+    ),
 ]

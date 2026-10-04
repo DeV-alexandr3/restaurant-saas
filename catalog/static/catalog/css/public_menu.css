@@ -1632,3 +1632,55 @@ body {
     transform: translateY(-1px);
     opacity: 0.92;
 }
+
+/* QR Code Pix */
+.pix-qrcode-image {
+    display: block;
+
+    max-width: 250px;
+    margin: 16px auto;
+
+    border-radius: 10px;
+}
+
+/* Chave Pix clicável */
+.pix-key-line {
+    text-align: center;
+
+    margin-top: 12px;
+
+    font-size: 15px;
+}
+
+.pix-key-line strong {
+    color: var(--restaurant-text-color);
+}
+
+.pix-copy-link {
+    color: var(--restaurant-primary);
+
+    text-decoration: none;
+
+    font-weight: 700;
+
+    border-bottom: 1px dashed currentColor;
+
+    cursor: pointer;
+
+    padding: 2px 4px;
+
+    transition: opacity 0.15s ease;
+}
+
+.pix-copy-link:hover {
+    opacity: 0.7;
+}
+
+.pix-warning {
+    text-align: center;
+
+    font-size: 14px;
+    color: #6b7280;
+
+    margin-top: 14px;
+}

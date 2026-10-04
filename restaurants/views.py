@@ -805,6 +805,12 @@ def restaurant_settings(request):
         minimum_order_value = request.POST.get("minimum_order", "")
         delivery_fee_value = request.POST.get("delivery_fee", "")
         estimated_time_value = request.POST.get("estimated_time_minutes", "30")
+        restaurant.pix_key = request.POST.get("pix_key", "").strip()
+
+        pix_qrcode = request.FILES.get("pix_qrcode")
+
+        if pix_qrcode:
+            restaurant.pix_qrcode = pix_qrcode
 
         restaurant.accepts_pickup = (
             request.POST.get("accepts_pickup") == "on"
