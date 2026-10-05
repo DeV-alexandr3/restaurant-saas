@@ -810,6 +810,19 @@ def restaurant_settings(request):
         restaurant.facebook = request.POST.get("facebook", "").strip()
         restaurant.tiktok = request.POST.get("tiktok", "").strip()
         restaurant.website = request.POST.get("website", "").strip()
+        restaurant.restaurant_name_color = request.POST.get(
+            "restaurant_name_color",
+        restaurant.restaurant_name_color,
+        ).strip()
+
+        restaurant.restaurant_name_has_border = (
+            request.POST.get("restaurant_name_has_border") == "on"
+        )
+
+        restaurant.restaurant_name_border_color = request.POST.get(
+            "restaurant_name_border_color",
+            restaurant.restaurant_name_border_color,
+        ).strip()
 
         pix_qrcode = request.FILES.get("pix_qrcode")
 

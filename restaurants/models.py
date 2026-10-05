@@ -183,6 +183,23 @@ class Restaurant(models.Model):
         verbose_name="Site próprio",
     )
 
+    restaurant_name_color = models.CharField(
+        max_length=7,
+        default="#FFFFFF",
+        verbose_name="Cor do nome do restaurante",
+    )
+
+    restaurant_name_has_border = models.BooleanField(
+        default=False,
+        verbose_name="Nome com borda",
+    )
+
+    restaurant_name_border_color = models.CharField(
+        max_length=7,
+        default="#000000",
+        verbose_name="Cor da borda do nome",
+    )
+
     class Meta:
         constraints = [
             models.CheckConstraint(
@@ -246,6 +263,9 @@ class Restaurant(models.Model):
             f"--restaurant-body-font: '{self.body_font}', sans-serif;\n"
             f"--restaurant-name-font: '{self.restaurant_name_font}', serif;\n"
             f"--restaurant-name-style: {'italic' if self.restaurant_name_italic else 'normal'};"
+            f"--restaurant-name-color: {self.restaurant_name_color};\n"
+            f"--restaurant-name-border-color: {self.restaurant_name_border_color};\n"
+            f"--restaurant-name-border-width: {'2px' if self.restaurant_name_has_border else '0'};\n"
         )
 
     def __str__(self):

@@ -225,6 +225,26 @@ Configurações
             </div>
 
             <div class="form-group">
+                <label for="restaurant_name_color">Cor do nome do restaurante</label>
+                <input type="color" id="restaurant_name_color" name="restaurant_name_color"
+                    value="{{ restaurant.restaurant_name_color }}">
+            </div>
+
+            <div class="form-group form-check">
+                <label>
+                    <input type="checkbox" name="restaurant_name_has_border"
+                        {% if restaurant.restaurant_name_has_border %}checked{% endif %}>
+                    Nome com borda
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label for="restaurant_name_border_color">Cor da borda do nome</label>
+                <input type="color" id="restaurant_name_border_color" name="restaurant_name_border_color"
+                    value="{{ restaurant.restaurant_name_border_color }}">
+            </div>
+
+            <div class="form-group">
                 <label for="background_color">Cor de fundo</label>
                 <small>Cor de fundo geral do cardápio público (atrás dos cards).</small>
                 <input
