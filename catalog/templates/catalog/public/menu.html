@@ -255,5 +255,74 @@
         {% endif %}
     </a>
 
+    <footer class="menu-footer">
+
+        {% if restaurant.instagram or restaurant.whatsapp or restaurant.facebook or restaurant.tiktok or restaurant.website %}
+            <div class="footer-social">
+
+                {% if restaurant.instagram %}
+                    <a
+                        href="https://instagram.com/{{ restaurant.instagram|cut:'@' }}"
+                        target="_blank"
+                        rel="noopener"
+                        class="footer-social-link"
+                    >
+                        📷 Instagram
+                    </a>
+                {% endif %}
+
+                {% if restaurant.whatsapp %}
+                    <a
+                        href="https://wa.me/{{ restaurant.whatsapp }}"
+                        target="_blank"
+                        rel="noopener"
+                        class="footer-social-link"
+                    >
+                        💬 WhatsApp
+                    </a>
+                {% endif %}
+
+                {% if restaurant.facebook %}
+                    <a
+                        href="{{ restaurant.facebook }}"
+                        target="_blank"
+                        rel="noopener"
+                        class="footer-social-link"
+                    >
+                        👍 Facebook
+                    </a>
+                {% endif %}
+
+                {% if restaurant.tiktok %}
+                    <a
+                        href="https://tiktok.com/@{{ restaurant.tiktok|cut:'@' }}"
+                        target="_blank"
+                        rel="noopener"
+                        class="footer-social-link"
+                    >
+                        🎵 TikTok
+                    </a>
+                {% endif %}
+
+                {% if restaurant.website %}
+                    <a
+                        href="{{ restaurant.website }}"
+                        target="_blank"
+                        rel="noopener"
+                        class="footer-social-link"
+                    >
+                        🌐 Site
+                    </a>
+                {% endif %}
+
+            </div>
+        {% endif %}
+
+        <p class="footer-copyright">
+            © {% now "Y" %} {{ restaurant.name }}. Todos os direitos reservados.
+        </p>
+
+    </footer>
+
 </body>
 </html>

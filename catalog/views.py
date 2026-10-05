@@ -1974,9 +1974,8 @@ def add_to_cart(request, slug, product_id):
     request.session.modified = True
 
     return redirect(
-        "public_product_detail",
+        "public_menu",
         slug=restaurant.slug,
-        product_id=product.id,
     )
 
 def cart_detail(request, slug):

@@ -806,6 +806,10 @@ def restaurant_settings(request):
         delivery_fee_value = request.POST.get("delivery_fee", "")
         estimated_time_value = request.POST.get("estimated_time_minutes", "30")
         restaurant.pix_key = request.POST.get("pix_key", "").strip()
+        restaurant.instagram = request.POST.get("instagram", "").strip()
+        restaurant.facebook = request.POST.get("facebook", "").strip()
+        restaurant.tiktok = request.POST.get("tiktok", "").strip()
+        restaurant.website = request.POST.get("website", "").strip()
 
         pix_qrcode = request.FILES.get("pix_qrcode")
 

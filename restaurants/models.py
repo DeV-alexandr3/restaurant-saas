@@ -156,6 +156,33 @@ class Restaurant(models.Model):
         null=True,
     )
 
+    instagram = models.CharField(
+        max_length=100,
+        blank=True,
+        verbose_name="Instagram",
+        help_text="Só o @usuário (ex: @pizzarianapoli)",
+    )
+
+    facebook = models.CharField(
+        max_length=200,
+        blank=True,
+        verbose_name="Facebook",
+        help_text="URL completa (ex: https://facebook.com/pizzarianapoli)",
+    )
+
+    tiktok = models.CharField(
+        max_length=100,
+        blank=True,
+        verbose_name="TikTok",
+        help_text="Só o @usuário (ex: @pizzarianapoli)",
+    )
+
+    website = models.URLField(
+        max_length=200,
+        blank=True,
+        verbose_name="Site próprio",
+    )
+
     class Meta:
         constraints = [
             models.CheckConstraint(

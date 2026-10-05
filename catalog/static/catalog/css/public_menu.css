@@ -1684,3 +1684,65 @@ body {
 
     margin-top: 14px;
 }
+
+/* =========================================================
+   RODAPÉ DO CARDÁPIO
+========================================================= */
+
+.menu-footer {
+    padding: 32px 20px;
+
+    margin-top: 40px;
+
+    text-align: center;
+
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.footer-social {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+
+    gap: 12px;
+
+    margin-bottom: 20px;
+}
+
+.footer-social-link {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 6px;
+
+    padding: 10px 16px;
+
+    background: var(--restaurant-card-bg);
+    color: var(--restaurant-text-color);
+
+    border-radius: 999px;
+
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+
+    transition:
+        transform 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+.footer-social-link:hover {
+    transform: translateY(-2px);
+
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+}
+
+.footer-copyright {
+    font-size: 13px;
+
+    color: var(--restaurant-text-color);
+
+    opacity: 0.6;
+}
