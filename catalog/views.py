@@ -2577,6 +2577,9 @@ def checkout(request, slug):
 
         with transaction.atomic():
 
+            print("DEBUG restaurant:", restaurant)
+            print("DEBUG restaurant.id:", restaurant.id if restaurant else "NONE")
+
             order = Order.objects.create(
                 restaurant=restaurant,
 
@@ -2624,11 +2627,6 @@ def checkout(request, slug):
 
                 total=final_total,
 
-                order = Order.objects.create(
-                    # ... campos existentes ...
-                    payment_method=payment_method,
-                    payment_status="pending",   # sempre começa pendente
-                )
             )
 
 
