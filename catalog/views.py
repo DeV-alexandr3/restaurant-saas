@@ -3064,37 +3064,13 @@ def waiter_add_item(request, slug, session_id):
 def waiter_session_add_product(request, slug, session_id, product_id):
     """
     Adiciona um produto na comanda.
-    Processa POST do modal (variação + adicionais + observação).
+    Processa POST do modal (variação + adicionais + observação + peso).
     """
     restaurant = get_object_or_404(
         Restaurant,
         slug=slug,
         is_active=True,
     )
-
-    # Se for por peso
-    if product.is_by_weight:
-        try:
-            weight = Decimal(request.POST.get("weight", "0"))
-        except (InvalidOperation, ValueError):
-            weight = Decimal("0")
-
-        if weight <= 0:
-            messages.error(request, "Informe um peso válido.")
-            return redirect("waiter_add_item", slug=restaurant.slug, session_id=session.id)
-
-        quantity = 1
-        item_total = unit_price * weight
-
-    else:
-        # Lógica de quantidade normal
-        try:
-            quantity = int(request.POST.get("quantity", 1))
-        except (TypeError, ValueError):
-            quantity = 1
-
-        weight = None
-        item_total = unit_price * quantity
 
     membership = get_current_membership(request.user)
 
@@ -3156,7 +3132,7 @@ def waiter_session_add_product(request, slug, session_id, product_id):
     )
 
     # -------------------------
-    # PREÇO
+    # PREÇO UNITÁRIO
     # -------------------------
 
     if variation:
@@ -3168,21 +3144,44 @@ def waiter_session_add_product(request, slug, session_id, product_id):
         unit_price += addon.price
 
     # -------------------------
-    # QUANTIDADE
+    # QUANTIDADE OU PESO
     # -------------------------
 
-    try:
-        quantity = int(request.POST.get("quantity", 1))
-    except (TypeError, ValueError):
+    if product.is_by_weight:
+
+        # Produto vendido por peso
+        try:
+            weight = Decimal(request.POST.get("weight", "0"))
+        except (InvalidOperation, ValueError):
+            weight = Decimal("0")
+
+        if weight <= 0:
+            messages.error(request, "Informe um peso válido.")
+            return redirect(
+                "waiter_add_item",
+                slug=restaurant.slug,
+                session_id=session.id,
+            )
+
         quantity = 1
+        item_total = unit_price * weight
 
-    if quantity < 1:
-        quantity = 1
+    else:
 
-    if quantity > 100:
-        quantity = 100
+        # Produto vendido por unidade
+        try:
+            quantity = int(request.POST.get("quantity", 1))
+        except (TypeError, ValueError):
+            quantity = 1
 
-    item_total = unit_price * quantity
+        if quantity < 1:
+            quantity = 1
+
+        if quantity > 100:
+            quantity = 100
+
+        weight = None
+        item_total = unit_price * quantity
 
     # -------------------------
     # OBSERVAÇÃO
@@ -3203,7 +3202,7 @@ def waiter_session_add_product(request, slug, session_id, product_id):
         ),
         unit_price=unit_price,
         quantity=quantity,
-        weight=weight, 
+        weight=weight,
         total=item_total,
         notes=notes,
     )

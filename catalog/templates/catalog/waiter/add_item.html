@@ -234,20 +234,18 @@
         // =========================================================
 
         let currentProductData = null;
+        let currentQuantity = 1;
 
         function openModal() {
             document.getElementById("modal").classList.add("open");
             document.getElementById("modal-overlay").classList.add("open");
-
             document.body.style.overflow = "hidden";
         }
 
         function closeModal() {
             document.getElementById("modal").classList.remove("open");
             document.getElementById("modal-overlay").classList.remove("open");
-
             document.body.style.overflow = "";
-
             currentProductData = null;
         }
 
@@ -255,7 +253,7 @@
 
 
         // =========================================================
-        // MONTAR O MODAL QUANDO CLICA NO PRODUTO
+        // ABRIR MODAL QUANDO CLICA NO PRODUTO
         // =========================================================
 
         productButtons.forEach((btn) => {
@@ -271,29 +269,26 @@
                 const data = JSON.parse(dataScript.textContent);
 
                 currentProductData = data;
+                currentQuantity = 1;
 
                 document.getElementById("modal-product-name").textContent = data.name;
 
                 renderModalBody(data);
-
                 updateModalTotal();
-
                 openModal();
             });
         });
 
 
         // =========================================================
-        // RENDERIZAR O CONTEÚDO DO MODAL
+        // RENDERIZAR O MODAL
         // =========================================================
 
         function renderModalBody(data) {
-
             const body = document.getElementById("modal-body");
-
             let html = "";
 
-            // Se for por peso, mostra o campo de peso
+            // Se for por peso, mostra campo de peso
             if (data.is_by_weight) {
                 html += `
                     <div class="modal-section">
@@ -305,7 +300,6 @@
                             placeholder="Ex: 0.450"
                             step="0.001"
                             min="0.001"
-                            onchange="updateModalTotal()"
                             oninput="updateModalTotal()"
                         >
                         <p class="modal-hint">
@@ -314,7 +308,7 @@
                     </div>
                 `;
             } else {
-                // Senão, mostra quantidade (como já tá)
+                // Senão, mostra botões de quantidade
                 html += `
                     <div class="modal-section">
                         <h3>Quantidade</h3>
@@ -383,18 +377,6 @@
                 });
             }
 
-            // Quantidade
-            html += `
-                <div class="modal-section">
-                    <h3>Quantidade</h3>
-                    <div class="modal-quantity">
-                        <button type="button" onclick="changeQuantity(-1)">−</button>
-                        <span id="modal-qty-display">1</span>
-                        <button type="button" onclick="changeQuantity(1)">+</button>
-                    </div>
-                </div>
-            `;
-
             // Observação
             html += `
                 <div class="modal-section">
@@ -416,8 +398,6 @@
         // QUANTIDADE
         // =========================================================
 
-        let currentQuantity = 1;
-
         function changeQuantity(delta) {
             currentQuantity = Math.max(1, currentQuantity + delta);
 
@@ -434,11 +414,10 @@
         function updateModalTotal() {
             if (!currentProductData) return;
 
-            let total = 0;
+            let unitPrice = 0;
 
             // Preço base ou variação
             const variation = document.querySelector('input[name="modal_variation"]:checked');
-            let unitPrice;
 
             if (variation) {
                 unitPrice = parseFloat(variation.dataset.price);
@@ -451,6 +430,8 @@
                 unitPrice += parseFloat(cb.dataset.price);
             });
 
+            let total = 0;
+
             // Se for por peso
             if (currentProductData.is_by_weight) {
                 const weightInput = document.getElementById("modal-weight");
@@ -460,23 +441,6 @@
                 // Senão, multiplica por quantidade
                 total = unitPrice * currentQuantity;
             }
-
-            // Preço base ou variação
-            const variation = document.querySelector('input[name="modal_variation"]:checked');
-
-            if (variation) {
-                total += parseFloat(variation.dataset.price);
-            } else {
-                total += parseFloat(currentProductData.price);
-            }
-
-            // Adicionais
-            document.querySelectorAll('input[name="modal_addon"]:checked').forEach((cb) => {
-                total += parseFloat(cb.dataset.price);
-            });
-
-            // Quantidade
-            total *= currentQuantity;
 
             document.getElementById("modal-total").textContent = `R$ ${total.toFixed(2)}`;
         }
@@ -501,10 +465,10 @@
                 const weightInput = document.getElementById("modal-weight");
                 const weight = weightInput ? weightInput.value : "0";
                 document.getElementById("form-weight").value = weight;
-                document.getElementById("form-quantity").value = "1";   // quantidade sempre 1
+                document.getElementById("form-quantity").value = "1";
             } else {
                 document.getElementById("form-quantity").value = currentQuantity;
-                document.getElementById("form-weight").value = "";   // limpa
+                document.getElementById("form-weight").value = "";
             }
 
             // Observação
@@ -513,6 +477,7 @@
             // Adicionais
             const addonsContainer = document.getElementById("form-addons");
             addonsContainer.innerHTML = "";
+
             document.querySelectorAll('input[name="modal_addon"]:checked').forEach((cb) => {
                 const input = document.createElement("input");
                 input.type = "hidden";
@@ -523,22 +488,6 @@
 
             form.submit();
         });
-
-
-        // Resetar quantidade ao abrir
-        const originalOpenModal = openModal;
-        openModal = function() {
-            currentQuantity = 1;
-            originalOpenModal();
-        };
-
-        {
-            "id": {{ product.id }},
-            "name": "{{ product.name|escapejs }}",
-            "price": "{{ product.price|unlocalize }}",
-            "is_by_weight": {% if product.is_by_weight %}true{% else %}false{% endif %},
-            ...
-        }
     </script>
 
 </body>
