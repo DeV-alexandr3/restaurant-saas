@@ -903,3 +903,26 @@
     font-size: 14px;
     font-weight: 700;
 }
+
+.modal-weight-input {
+    width: 100%;
+
+    padding: 14px 16px;
+
+    background: rgba(0, 0, 0, 0.03);
+    color: var(--restaurant-text-color);
+
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+
+    font-family: inherit;
+    font-size: 18px;
+    font-weight: 700;
+    text-align: center;
+
+    outline: none;
+}
+
+.modal-weight-input:focus {
+    border-color: var(--restaurant-primary);
+}

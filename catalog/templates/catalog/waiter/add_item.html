@@ -192,6 +192,7 @@
         {% csrf_token %}
         <input type="hidden" name="variation_id" id="form-variation-id">
         <input type="hidden" name="quantity" id="form-quantity" value="1">
+        <input type="hidden" name="weight" id="form-weight">
         <input type="hidden" name="notes" id="form-notes" value="">
         <div id="form-addons"></div>
     </form>
@@ -287,9 +288,44 @@
         // =========================================================
 
         function renderModalBody(data) {
+
             const body = document.getElementById("modal-body");
 
             let html = "";
+
+            // Se for por peso, mostra o campo de peso
+            if (data.is_by_weight) {
+                html += `
+                    <div class="modal-section">
+                        <h3>Peso (kg)</h3>
+                        <input
+                            type="number"
+                            id="modal-weight"
+                            class="modal-weight-input"
+                            placeholder="Ex: 0.450"
+                            step="0.001"
+                            min="0.001"
+                            onchange="updateModalTotal()"
+                            oninput="updateModalTotal()"
+                        >
+                        <p class="modal-hint">
+                            Preço por kg: R$ ${parseFloat(data.price).toFixed(2)}
+                        </p>
+                    </div>
+                `;
+            } else {
+                // Senão, mostra quantidade (como já tá)
+                html += `
+                    <div class="modal-section">
+                        <h3>Quantidade</h3>
+                        <div class="modal-quantity">
+                            <button type="button" onclick="changeQuantity(-1)">−</button>
+                            <span id="modal-qty-display">1</span>
+                            <button type="button" onclick="changeQuantity(1)">+</button>
+                        </div>
+                    </div>
+                `;
+            }
 
             // Variações
             if (data.variations && data.variations.length > 0) {
@@ -402,6 +438,31 @@
 
             // Preço base ou variação
             const variation = document.querySelector('input[name="modal_variation"]:checked');
+            let unitPrice;
+
+            if (variation) {
+                unitPrice = parseFloat(variation.dataset.price);
+            } else {
+                unitPrice = parseFloat(currentProductData.price);
+            }
+
+            // Adicionais
+            document.querySelectorAll('input[name="modal_addon"]:checked').forEach((cb) => {
+                unitPrice += parseFloat(cb.dataset.price);
+            });
+
+            // Se for por peso
+            if (currentProductData.is_by_weight) {
+                const weightInput = document.getElementById("modal-weight");
+                const weight = weightInput ? parseFloat(weightInput.value) || 0 : 0;
+                total = weight * unitPrice;
+            } else {
+                // Senão, multiplica por quantidade
+                total = unitPrice * currentQuantity;
+            }
+
+            // Preço base ou variação
+            const variation = document.querySelector('input[name="modal_variation"]:checked');
 
             if (variation) {
                 total += parseFloat(variation.dataset.price);
@@ -429,16 +490,22 @@
             if (!currentProductData) return;
 
             const form = document.getElementById("add-item-form");
-
-            // URL de destino
             form.action = `/r/{{ restaurant.slug }}/garcom/comanda/{{ session.id }}/produto/${currentProductData.id}/adicionar/`;
 
             // Variação
             const variation = document.querySelector('input[name="modal_variation"]:checked');
             document.getElementById("form-variation-id").value = variation ? variation.value : "";
 
-            // Quantidade
-            document.getElementById("form-quantity").value = currentQuantity;
+            // Se for por peso
+            if (currentProductData.is_by_weight) {
+                const weightInput = document.getElementById("modal-weight");
+                const weight = weightInput ? weightInput.value : "0";
+                document.getElementById("form-weight").value = weight;
+                document.getElementById("form-quantity").value = "1";   // quantidade sempre 1
+            } else {
+                document.getElementById("form-quantity").value = currentQuantity;
+                document.getElementById("form-weight").value = "";   // limpa
+            }
 
             // Observação
             document.getElementById("form-notes").value = document.getElementById("modal-notes").value;
@@ -446,7 +513,6 @@
             // Adicionais
             const addonsContainer = document.getElementById("form-addons");
             addonsContainer.innerHTML = "";
-
             document.querySelectorAll('input[name="modal_addon"]:checked').forEach((cb) => {
                 const input = document.createElement("input");
                 input.type = "hidden";
@@ -465,6 +531,14 @@
             currentQuantity = 1;
             originalOpenModal();
         };
+
+        {
+            "id": {{ product.id }},
+            "name": "{{ product.name|escapejs }}",
+            "price": "{{ product.price|unlocalize }}",
+            "is_by_weight": {% if product.is_by_weight %}true{% else %}false{% endif %},
+            ...
+        }
     </script>
 
 </body>

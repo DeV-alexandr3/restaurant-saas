@@ -88,6 +88,11 @@ class Product(models.Model):
     updated_at = models.DateTimeField(
         auto_now=True
     )
+
+    is_by_weight = models.BooleanField(
+        default=False,
+        verbose_name="Vendido por peso (kg)",
+    )
     
     class Meta:
         ordering = ["name"]
@@ -568,6 +573,14 @@ class TableSessionItem(models.Model):
     created_at = models.DateTimeField(
         auto_now_add=True,
         verbose_name="Criado em",
+    )
+
+    weight = models.DecimalField(
+        max_digits=10,
+        decimal_places=3,
+        null=True,
+        blank=True,
+        verbose_name="Peso (kg)",
     )
 
     class Meta:

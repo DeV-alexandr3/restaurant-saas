@@ -76,30 +76,41 @@
                                 </span>
                             {% endif %}
 
-                            <!-- QUANTIDADE -->
-                            <div class="waiter-item-quantity">
+                            {% if item.weight %}
 
-                                <form
-                                    method="POST"
-                                    action="{% url 'waiter_update_item_quantity' restaurant.slug item.id 'decrease' %}"
-                                    style="display: inline;"
-                                >
-                                    {% csrf_token %}
-                                    <button type="submit" class="waiter-qty-button">−</button>
-                                </form>
+                                {# Produto vendido por peso #}
+                                <div class="waiter-item-weight-info">
+                                    <span>{{ item.weight }} kg &times; R$ {{ item.unit_price }}</span>
+                                </div>
 
-                                <span>{{ item.quantity }}</span>
+                            {% else %}
 
-                                <form
-                                    method="POST"
-                                    action="{% url 'waiter_update_item_quantity' restaurant.slug item.id 'increase' %}"
-                                    style="display: inline;"
-                                >
-                                    {% csrf_token %}
-                                    <button type="submit" class="waiter-qty-button">+</button>
-                                </form>
+                                {# Produto vendido por unidade #}
+                                <div class="waiter-item-quantity">
 
-                            </div>
+                                    <form
+                                        method="POST"
+                                        action="{% url 'waiter_update_item_quantity' restaurant.slug item.id 'decrease' %}"
+                                        style="display: inline;"
+                                    >
+                                        {% csrf_token %}
+                                        <button type="submit" class="waiter-qty-button">−</button>
+                                    </form>
+
+                                    <span>{{ item.quantity }}</span>
+
+                                    <form
+                                        method="POST"
+                                        action="{% url 'waiter_update_item_quantity' restaurant.slug item.id 'increase' %}"
+                                        style="display: inline;"
+                                    >
+                                        {% csrf_token %}
+                                        <button type="submit" class="waiter-qty-button">+</button>
+                                    </form>
+
+                                </div>
+
+                            {% endif %}
 
                         </div>
 
@@ -158,43 +169,41 @@
 
         {% if items %}
 
-        <form
-            method="POST"
-            action="{% url 'waiter_close_session' restaurant.slug session.id %}"
-            style="margin-top: 12px;"
-            onsubmit="return confirm('Fechar esta comanda? Ela não poderá ser alterada depois.');"
-        >
-            {% csrf_token %}
-
-            
-
-            <button
-                type="submit"
-                class="waiter-close-session-button"
+            <form
+                method="POST"
+                action="{% url 'waiter_close_session' restaurant.slug session.id %}"
+                style="margin-top: 12px;"
+                onsubmit="return confirm('Fechar esta comanda? Ela não poderá ser alterada depois.');"
             >
-                ✓ Fechar comanda
-            </button>
-        </form>
+                {% csrf_token %}
 
-    {% else %}
+                <button
+                    type="submit"
+                    class="waiter-close-session-button"
+                >
+                    ✓ Fechar comanda
+                </button>
+            </form>
 
-        <form
-            method="POST"
-            action="{% url 'waiter_cancel_session' restaurant.slug session.id %}"
-            style="margin-top: 12px;"
-            onsubmit="return confirm('Cancelar esta comanda vazia?');"
-        >
-            {% csrf_token %}
+        {% else %}
 
-            <button
-                type="submit"
-                class="waiter-cancel-session-button"
+            <form
+                method="POST"
+                action="{% url 'waiter_cancel_session' restaurant.slug session.id %}"
+                style="margin-top: 12px;"
+                onsubmit="return confirm('Cancelar esta comanda vazia?');"
             >
-                ✕ Cancelar comanda
-            </button>
-        </form>
+                {% csrf_token %}
 
-    {% endif %}
+                <button
+                    type="submit"
+                    class="waiter-cancel-session-button"
+                >
+                    ✕ Cancelar comanda
+                </button>
+            </form>
+
+        {% endif %}
 
     </main>
 
@@ -235,7 +244,7 @@
                     await qz.websocket.connect();
                 }
 
-                const printer = "Microsoft Print to PDF";
+                const printer = "Print iD";
 
                 // Monta o HTML da comanda
                 let html = `
@@ -264,7 +273,12 @@
                 {% for item in items %}
                     html += `
                         <div class="item">
-                            <strong>{{ item.quantity }}x {{ item.product_name }}</strong><br>
+                            {% if item.weight %}
+                                <strong>{{ item.product_name }}</strong><br>
+                                {{ item.weight }} kg &times; R$ {{ item.unit_price }}<br>
+                            {% else %}
+                                <strong>{{ item.quantity }}x {{ item.product_name }}</strong><br>
+                            {% endif %}
                             {% if item.variation_name %}{{ item.variation_name }}<br>{% endif %}
                             {% for addon in item.addons.all %}+ {{ addon.addon_name }}<br>{% endfor %}
                             {% if item.notes %}Obs: {{ item.notes }}<br>{% endif %}

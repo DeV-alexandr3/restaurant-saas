@@ -147,12 +147,6 @@ def category_edit(request, id):
     if membership.role != "ADMIN":
         return redirect("category_list")
 
-    category = get_object_or_404(
-        Category,
-        id=id,
-        restaurant=membership.restaurant,
-    )
-
     if request.method == "POST":
         name = request.POST.get("name", "").strip()
         position_value = request.POST.get("position", "0")
@@ -340,6 +334,8 @@ def product_create(request):
             "image"
         )
 
+        is_by_weight = request.POST.get("is_by_weight") == "on"
+
         if image:
             # Limite de tamanho: 5 MB
             if image.size > 5 * 1024 * 1024:
@@ -437,7 +433,8 @@ def product_create(request):
                 description=description,
                 image=image,
                 price=price,
-                is_available=is_available, 
+                is_available=is_available,
+                is_by_weight=is_by_weight,
             )
 
             return redirect(
@@ -493,6 +490,7 @@ def product_edit(request, id):
         price_value = request.POST.get("price", "").strip()
         category_id = request.POST.get("category")
         is_available = request.POST.get("is_available") == "on"
+        is_by_weight = request.POST.get("is_by_weight") == "on"
 
         image = request.FILES.get("image")
 
@@ -592,7 +590,6 @@ def product_edit(request, id):
             restaurant=membership.restaurant,
         )
 
-        
 
         if name:
             product.name = name
@@ -600,9 +597,12 @@ def product_edit(request, id):
             product.price = price
             product.category = category
             product.is_available = is_available
+            product.is_by_weight = is_by_weight
             if image:
                 product.image = image
             product.save()
+
+            
 
             return redirect("product_list")
 
@@ -3074,6 +3074,30 @@ def waiter_session_add_product(request, slug, session_id, product_id):
         is_active=True,
     )
 
+    # Se for por peso
+    if product.is_by_weight:
+        try:
+            weight = Decimal(request.POST.get("weight", "0"))
+        except (InvalidOperation, ValueError):
+            weight = Decimal("0")
+
+        if weight <= 0:
+            messages.error(request, "Informe um peso válido.")
+            return redirect("waiter_add_item", slug=restaurant.slug, session_id=session.id)
+
+        quantity = 1
+        item_total = unit_price * weight
+
+    else:
+        # Lógica de quantidade normal
+        try:
+            quantity = int(request.POST.get("quantity", 1))
+        except (TypeError, ValueError):
+            quantity = 1
+
+        weight = None
+        item_total = unit_price * quantity
+
     membership = get_current_membership(request.user)
 
     if not membership or membership.restaurant != restaurant:
@@ -3181,6 +3205,7 @@ def waiter_session_add_product(request, slug, session_id, product_id):
         ),
         unit_price=unit_price,
         quantity=quantity,
+        weight=weight, 
         total=item_total,
         notes=notes,
     )
