@@ -356,12 +356,15 @@
                         html += `<p class="modal-hint">Escolha até ${group.max_choices}</p>`;
                     }
 
+                    // Se for escolha única, usa radio. Senão, checkbox.
+                    const isSingleChoice = group.max_choices === 1;
+
                     group.addons.forEach((a) => {
                         html += `
                             <label class="modal-option">
                                 <input
-                                    type="checkbox"
-                                    name="modal_addon"
+                                    type="${isSingleChoice ? 'radio' : 'checkbox'}"
+                                    name="${isSingleChoice ? `modal_addon_group_${group.id}` : 'modal_addon'}"
                                     value="${a.id}"
                                     data-price="${a.price}"
                                     data-group="${group.id}"
@@ -401,7 +404,8 @@
         function changeQuantity(delta) {
             currentQuantity = Math.max(1, currentQuantity + delta);
 
-            document.getElementById("modal-qty-display").textContent = currentQuantity;
+            const display = document.getElementById("modal-qty-display");
+            if (display) display.textContent = currentQuantity;
 
             updateModalTotal();
         }
@@ -425,8 +429,8 @@
                 unitPrice = parseFloat(currentProductData.price);
             }
 
-            // Adicionais
-            document.querySelectorAll('input[name="modal_addon"]:checked').forEach((cb) => {
+            // Adicionais (radio e checkbox) — pega qualquer input marcado com data-group
+            document.querySelectorAll('input[data-price][data-group]:checked').forEach((cb) => {
                 unitPrice += parseFloat(cb.dataset.price);
             });
 
@@ -474,11 +478,11 @@
             // Observação
             document.getElementById("form-notes").value = document.getElementById("modal-notes").value;
 
-            // Adicionais
+            // Adicionais (radio e checkbox)
             const addonsContainer = document.getElementById("form-addons");
             addonsContainer.innerHTML = "";
 
-            document.querySelectorAll('input[name="modal_addon"]:checked').forEach((cb) => {
+            document.querySelectorAll('input[data-price][data-group]:checked').forEach((cb) => {
                 const input = document.createElement("input");
                 input.type = "hidden";
                 input.name = "addon_ids";
