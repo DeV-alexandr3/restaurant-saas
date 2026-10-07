@@ -224,6 +224,19 @@ Pedidos
                                     ✓ Pago
                                 </span>
                             {% endif %}
+                            {% if order.status != "CANCELLED" and order.status != "REJECTED" %}
+                                <form
+                                    method="POST"
+                                    action="{% url 'order_cancel' order.id %}"
+                                    style="display: inline; margin-left: 6px;"
+                                    onsubmit="return confirm('Cancelar este pedido? Ele sairá dos totais, mas ficará no histórico.');"
+                                >
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-cancel-order">
+                                        ✕ Cancelar
+                                    </button>
+                                </form>
+                            {% endif %}
                         </td>
 
                     </tr>

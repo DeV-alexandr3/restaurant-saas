@@ -2800,6 +2800,34 @@ def order_confirmation(request, slug, public_token):
         },
     )
 
+@login_required
+def order_cancel(request, order_id):
+    """
+    Cancela um pedido. Não apaga, só muda o status.
+    """
+    membership = get_current_membership(request.user)
+
+    if not membership:
+        return redirect("login")
+
+    if membership.role != "ADMIN":
+        return redirect("order_list")
+
+    order = get_object_or_404(
+        Order,
+        id=order_id,
+        restaurant=membership.restaurant,
+    )
+
+    if request.method == "POST":
+
+        # Só permite cancelar se não estiver já cancelado/rejeitado
+        if order.status not in ("CANCELLED", "REJECTED"):
+            order.status = "CANCELLED"
+            order.save(update_fields=["status"])
+
+    return redirect("order_list")
+
 def public_table_menu(request, slug, table_number):
     restaurant = get_object_or_404(
         Restaurant,

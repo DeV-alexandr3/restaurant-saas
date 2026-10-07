@@ -1319,3 +1319,24 @@ main {
 .btn-mark-paid:hover {
     opacity: 0.9;
 }
+
+.btn-cancel-order {
+    padding: 6px 12px;
+
+    background: #fee2e2;
+    color: #b91c1c;
+
+    border: none;
+    border-radius: 6px;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: opacity 0.15s ease;
+}
+
+.btn-cancel-order:hover {
+    opacity: 0.85;
+}

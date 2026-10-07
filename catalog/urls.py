@@ -279,4 +279,10 @@ urlpatterns = [
         views.order_mark_paid,
         name="order_mark_paid",
     ),
+
+    path(
+        "pedidos/<int:order_id>/cancelar/",
+        views.order_cancel,
+        name="order_cancel",
+    ),
 ]
