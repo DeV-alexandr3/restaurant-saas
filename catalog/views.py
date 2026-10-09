@@ -11,7 +11,7 @@ from .models import (
     TableSessionItem,
     TableSessionItemAddon,
 )
-
+from django.db.models import Prefetch
 import re
 
 from restaurants.services import get_current_membership
@@ -146,6 +146,12 @@ def category_edit(request, id):
 
     if membership.role != "ADMIN":
         return redirect("category_list")
+
+    category = get_object_or_404(
+        Category,
+        id=id,
+        restaurant=membership.restaurant,
+    )
 
     if request.method == "POST":
         name = request.POST.get("name", "").strip()
@@ -1706,8 +1712,24 @@ def public_menu(request, slug):
     categories = Category.objects.filter(
         restaurant=restaurant,
         is_active=True,
+    ).annotate(
+        visible_products=Count(
+            "products",
+            filter=Q(
+                products__is_by_weight=False,
+                products__is_available=True,
+            ),
+        )
+    ).filter(
+        visible_products__gt=0,
     ).prefetch_related(
-        "products"
+        Prefetch(
+            "products",
+            queryset=Product.objects.filter(
+                is_by_weight=False,
+                is_available=True,
+            ),
+        )
     )
 
     table_context = request.session.get("table_context")
@@ -1791,6 +1813,7 @@ def public_product_detail(request, slug, product_id):
         id=product_id,
         restaurant=restaurant,
         is_available=True,
+        is_by_weight=False,
     )
 
     variations = ProductVariation.objects.filter(
