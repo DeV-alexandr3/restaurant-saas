@@ -200,6 +200,14 @@ class Restaurant(models.Model):
         verbose_name="Cor da borda do nome",
     )
 
+    printer_name = models.CharField(
+        max_length=200,
+        blank=True,
+        default="Microsoft Print to PDF",
+        verbose_name="Nome da impressora",
+        help_text="Nome exato da impressora instalada no Windows.",
+    )
+
     class Meta:
         constraints = [
             models.CheckConstraint(

@@ -91,10 +91,11 @@
 
                             <!-- DADOS DO PRODUTO (escondido, pro modal usar) -->
                             <script type="application/json" class="product-data" data-product-id="{{ product.id }}">
-                                {
+                            {
                                     "id": {{ product.id }},
                                     "name": "{{ product.name|escapejs }}",
                                     "price": "{{ product.price|unlocalize }}",
+                                    "is_by_weight": {% if product.is_by_weight %}true{% else %}false{% endif %},
                                     "image": "{% if product.image %}{{ product.image.url }}{% endif %}",
                                     "variations": [
                                         {% for v in product.variations.all %}

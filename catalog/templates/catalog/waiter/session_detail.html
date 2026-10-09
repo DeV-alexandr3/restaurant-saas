@@ -178,7 +178,8 @@
                 {% csrf_token %}
 
                 <button
-                    type="submit"
+                    type="button"   
+                    onclick="openCloseModal()"
                     class="waiter-close-session-button"
                 >
                     ✓ Fechar comanda
@@ -204,6 +205,85 @@
             </form>
 
         {% endif %}
+
+        <!-- =========================================================
+            MODAL DE FECHAMENTO DE COMANDA
+        ========================================================= -->
+
+        <div id="close-modal-overlay" class="waiter-modal-overlay"></div>
+
+        <div id="close-modal" class="waiter-modal">
+
+            <div class="waiter-modal-header">
+                <h2>Fechar comanda</h2>
+                <button
+                    type="button"
+                    class="waiter-modal-close"
+                    onclick="closeCloseModal()"
+                >
+                    ✕
+                </button>
+            </div>
+
+            <form
+                method="POST"
+                action="{% url 'waiter_close_session' restaurant.slug session.id %}"
+                id="close-session-form"
+            >
+                {% csrf_token %}
+
+                <div class="waiter-modal-body">
+
+                    <div class="modal-section">
+                        <h3>Forma de pagamento</h3>
+
+                        <label class="modal-option">
+                            <input type="radio" name="payment_method" value="cash" checked>
+                            <span>💵 Dinheiro</span>
+                        </label>
+
+                        <label class="modal-option">
+                            <input type="radio" name="payment_method" value="card">
+                            <span>💳 Cartão</span>
+                        </label>
+
+                        <label class="modal-option">
+                            <input type="radio" name="payment_method" value="pix">
+                            <span>📱 Pix</span>
+                        </label>
+                    </div>
+
+                    <div class="modal-section">
+                        <h3>Observação (opcional)</h3>
+                        <textarea
+                            name="notes"
+                            class="modal-notes"
+                            placeholder="Ex: cliente pagou com nota de 100..."
+                            rows="2"
+                        ></textarea>
+                    </div>
+
+                </div>
+
+                <div class="waiter-modal-footer">
+
+                    <div class="waiter-modal-total">
+                        <span>Total:</span>
+                        <strong>R$ {{ session.total }}</strong>
+                    </div>
+
+                    <button
+                        type="submit"
+                        class="waiter-modal-confirm"
+                    >
+                        ✓ Confirmar fechamento
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
 
     </main>
 
@@ -244,7 +324,7 @@
                     await qz.websocket.connect();
                 }
 
-                const printer = "Print iD";
+                const printer = "{{ restaurant.printer_name|default:'Microsoft Print to PDF' }}";
 
                 // Monta o HTML da comanda
                 let html = `
@@ -357,6 +437,23 @@
             }
         }
 
+        // =========================================================
+        // MODAL DE FECHAMENTO
+        // =========================================================
+
+        function openCloseModal() {
+            document.getElementById("close-modal").classList.add("open");
+            document.getElementById("close-modal-overlay").classList.add("open");
+            document.body.style.overflow = "hidden";
+        }
+
+        function closeCloseModal() {
+            document.getElementById("close-modal").classList.remove("open");
+            document.getElementById("close-modal-overlay").classList.remove("open");
+            document.body.style.overflow = "";
+        }
+
+        document.getElementById("close-modal-overlay").addEventListener("click", closeCloseModal);
         
     </script>
 

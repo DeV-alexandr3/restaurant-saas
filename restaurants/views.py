@@ -814,7 +814,10 @@ def restaurant_settings(request):
             "restaurant_name_color",
         restaurant.restaurant_name_color,
         ).strip()
-
+        restaurant.printer_name = request.POST.get(
+            "printer_name",
+            restaurant.printer_name,
+        ).strip()
         restaurant.restaurant_name_has_border = (
             request.POST.get("restaurant_name_has_border") == "on"
         )

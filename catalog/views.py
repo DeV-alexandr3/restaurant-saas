@@ -2564,12 +2564,7 @@ def checkout(request, slug):
                 restaurant.delivery_fee
             )
 
-        payment_method = request.POST.get("payment_method", "cash")
         
-            
-        if payment_method not in ("cash", "card", "pix"):
-            payment_method = "cash"
-
 
         # =========================
         # CRIAR PEDIDO
@@ -3327,12 +3322,23 @@ def waiter_close_session(request, slug, session_id):
             session_id=session.id,
         )
 
+    # Lê a forma de pagamento
+    payment_method = request.POST.get("payment_method", "cash")
+
+    if payment_method not in ("cash", "card", "pix"):
+        payment_method = "cash"
+
+    if payment_method not in ("cash", "card", "pix"):
+        payment_method = "cash"
+
+    # Lê a observação
+    notes = request.POST.get("notes", "").strip()
+
     with transaction.atomic():
 
         # Cria o Order (pra aparecer no painel de pedidos)
         order = Order.objects.create(
             restaurant=restaurant,
-
             customer_name=f"Comanda #{session.id}",
             customer_phone="",
 
@@ -3351,6 +3357,11 @@ def waiter_close_session(request, slug, session_id):
 
             status="FINISHED",
             stock_processed=False,
+
+            notes=notes,
+            payment_method=payment_method,
+            payment_status="paid",
+            
 
         )
 
