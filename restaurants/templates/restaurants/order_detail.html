@@ -39,6 +39,20 @@ Pedido #{{ order.id }}
         {{ order.get_status_display }}
     </p>
 
+    <p>
+    <strong>Pagamento:</strong>
+        {{ order.get_payment_method_display }}
+    </p>
+
+    <p>
+        <strong>Status do pagamento:</strong>
+        {% if order.payment_status == "paid" %}
+            <span class="payment-status paid">Pago</span>
+        {% else %}
+            <span class="payment-status pending">Pendente</span>
+        {% endif %}
+    </p>
+
     <form
         method="POST"
         action="{% url 'order_update_status' order.id %}"

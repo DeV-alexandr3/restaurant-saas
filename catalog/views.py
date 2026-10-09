@@ -3325,10 +3325,10 @@ def waiter_close_session(request, slug, session_id):
     # Lê a forma de pagamento
     payment_method = request.POST.get("payment_method", "cash")
 
-    if payment_method not in ("cash", "card", "pix"):
+    if payment_method not in ("cash", "credit", "debit", "pix"):
         payment_method = "cash"
 
-    if payment_method not in ("cash", "card", "pix"):
+    if payment_method not in ("cash", "credit", "debit", "pix"):
         payment_method = "cash"
 
     # Lê a observação

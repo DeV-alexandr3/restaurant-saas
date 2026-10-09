@@ -359,7 +359,8 @@ class Order(models.Model):
         max_length=20,
         choices=[
             ("cash", "Dinheiro"),
-            ("card", "Cartão"),
+            ("credit", "Cartão de Crédito"),
+            ("debit", "Cartão de Débito"),
             ("pix", "Pix"),
         ],
         default="cash",
