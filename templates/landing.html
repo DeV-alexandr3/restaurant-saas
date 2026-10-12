@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>CardápioPro — O cardápio digital do seu restaurante</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+
+    <style>
+        /* =========================================================
+           RESET
+        ========================================================= */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Inter", sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            line-height: 1.6;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* =========================================================
+           HEADER
+        ========================================================= */
+
+        .lp-header {
+            padding: 20px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .lp-logo {
+            font-size: 22px;
+            font-weight: 800;
+            color: white;
+        }
+
+        .lp-logo span {
+            color: #f97316;
+        }
+
+        .lp-cta-top {
+            padding: 10px 20px;
+            background: #f97316;
+            color: white;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            transition: opacity 0.2s ease;
+        }
+
+        .lp-cta-top:hover {
+            opacity: 0.9;
+        }
+
+        /* =========================================================
+           HERO
+        ========================================================= */
+
+        .lp-hero {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 60px 24px 80px;
+            text-align: center;
+        }
+
+        .lp-hero h1 {
+            font-size: 48px;
+            line-height: 1.15;
+            font-weight: 800;
+            margin-bottom: 24px;
+        }
+
+        .lp-hero h1 span {
+            color: #f97316;
+        }
+
+        .lp-hero p {
+            font-size: 19px;
+            color: #a1a1aa;
+            max-width: 600px;
+            margin: 0 auto 36px;
+        }
+
+        .lp-cta-hero {
+            display: inline-block;
+            padding: 16px 32px;
+            background: #f97316;
+            color: white;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 16px;
+            transition: opacity 0.2s ease;
+        }
+
+        .lp-cta-hero:hover {
+            opacity: 0.9;
+        }
+
+        /* =========================================================
+           BENEFÍCIOS
+        ========================================================= */
+
+        .lp-benefits {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 80px 24px;
+        }
+
+        .lp-section-title {
+            font-size: 36px;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .lp-section-subtitle {
+            text-align: center;
+            color: #a1a1aa;
+            margin-bottom: 60px;
+            font-size: 17px;
+        }
+
+        .lp-benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .lp-benefit-card {
+            padding: 32px 28px;
+            background: #18181b;
+            border-radius: 16px;
+            border: 1px solid #27272a;
+        }
+
+        .lp-benefit-icon {
+            font-size: 32px;
+            margin-bottom: 16px;
+        }
+
+        .lp-benefit-card h3 {
+            font-size: 19px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .lp-benefit-card p {
+            color: #a1a1aa;
+            font-size: 15px;
+        }
+
+        /* =========================================================
+           COMO FUNCIONA
+        ========================================================= */
+
+        .lp-steps {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 80px 24px;
+        }
+
+        .lp-step {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 32px;
+            align-items: flex-start;
+        }
+
+        .lp-step-number {
+            width: 48px;
+            height: 48px;
+            flex-shrink: 0;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background: #f97316;
+            color: white;
+
+            border-radius: 50%;
+
+            font-size: 20px;
+            font-weight: 800;
+        }
+
+        .lp-step-content h3 {
+            font-size: 19px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .lp-step-content p {
+            color: #a1a1aa;
+            font-size: 15px;
+        }
+
+        /* =========================================================
+           PREÇO
+        ========================================================= */
+
+        .lp-pricing {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 80px 24px;
+            text-align: center;
+        }
+
+        .lp-price-card {
+            padding: 48px 32px;
+            background: #18181b;
+            border: 2px solid #f97316;
+            border-radius: 20px;
+        }
+
+        .lp-price-tag {
+            font-size: 56px;
+            font-weight: 800;
+            color: #f97316;
+            line-height: 1;
+        }
+
+        .lp-price-tag small {
+            font-size: 20px;
+            color: #a1a1aa;
+            font-weight: 500;
+        }
+
+        .lp-price-desc {
+            color: #a1a1aa;
+            margin: 16px 0 32px;
+        }
+
+        .lp-price-features {
+            list-style: none;
+            text-align: left;
+            margin-bottom: 32px;
+        }
+
+        .lp-price-features li {
+            padding: 10px 0;
+            border-bottom: 1px solid #27272a;
+            font-size: 15px;
+        }
+
+        .lp-price-features li::before {
+            content: "✓";
+            color: #f97316;
+            font-weight: 800;
+            margin-right: 10px;
+        }
+
+        /* =========================================================
+           FAQ
+        ========================================================= */
+
+        .lp-faq {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 80px 24px;
+        }
+
+        .lp-faq-item {
+            padding: 24px;
+            background: #18181b;
+            border-radius: 12px;
+            margin-bottom: 12px;
+        }
+
+        .lp-faq-item h3 {
+            font-size: 17px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .lp-faq-item p {
+            color: #a1a1aa;
+            font-size: 15px;
+        }
+
+        /* =========================================================
+           CTA FINAL
+        ========================================================= */
+
+        .lp-final-cta {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 80px 24px;
+            text-align: center;
+        }
+
+        .lp-final-cta h2 {
+            font-size: 38px;
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+
+        .lp-final-cta p {
+            color: #a1a1aa;
+            font-size: 17px;
+            margin-bottom: 32px;
+        }
+
+        /* =========================================================
+           FOOTER
+        ========================================================= */
+
+        .lp-footer {
+            padding: 40px 24px;
+            text-align: center;
+            color: #71717a;
+            font-size: 14px;
+            border-top: 1px solid #27272a;
+        }
+
+        /* =========================================================
+           RESPONSIVIDADE
+        ========================================================= */
+
+        @media (max-width: 768px) {
+            .lp-hero h1 {
+                font-size: 32px;
+            }
+
+            .lp-hero p {
+                font-size: 17px;
+            }
+
+            .lp-section-title {
+                font-size: 28px;
+            }
+
+            .lp-price-tag {
+                font-size: 42px;
+            }
+
+            .lp-final-cta h2 {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <header class="lp-header">
+        <div class="lp-logo">
+            Cardápio<span>Pro</span>
+        </div>
+
+        <a
+            href="https://wa.me/5564981497556?text=Olá!%20Vi%20o%20CardápioPro%20e%20quero%20saber%20mais"
+            target="_blank"
+            rel="noopener"
+            class="lp-cta-top"
+        >
+            Fale conosco
+        </a>
+    </header>
+
+    <!-- HERO -->
+    <section class="lp-hero">
+        <h1>
+            O cardápio digital que <span>aumenta as vendas</span> do seu restaurante
+        </h1>
+
+        <p>
+            Seus clientes fazem o pedido pelo celular, direto pelo QR Code ou link.
+            Sem comissão, sem app, sem complicação.
+        </p>
+
+        <a
+            href="https://wa.me/5564981497556?text=Olá!%20Vi%20o%20CardápioPro%20e%20quero%20saber%20mais"
+            target="_blank"
+            rel="noopener"
+            class="lp-cta-hero"
+        >
+            Quero saber mais →
+        </a>
+    </section>
+
+    <!-- BENEFÍCIOS -->
+    <section class="lp-benefits">
+        <h2 class="lp-section-title">Por que usar o CardápioPro?</h2>
+        <p class="lp-section-subtitle">
+            Tudo que seu restaurante precisa pra vender mais
+        </p>
+
+        <div class="lp-benefits-grid">
+            <div class="lp-benefit-card">
+                <div class="lp-benefit-icon">🎨</div>
+                <h3>Cardápio com a sua cara</h3>
+                <p>
+                    Cores, fontes, logo e banner personalizados pro seu restaurante.
+                </p>
+            </div>
+
+            <div class="lp-benefit-card">
+                <div class="lp-benefit-icon">📱</div>
+                <h3>Pedido pelo celular</h3>
+                <p>
+                    O cliente escaneia o QR Code e faz o pedido. Sem baixar app.
+                </p>
+            </div>
+
+            <div class="lp-benefit-card">
+                <div class="lp-benefit-icon">💰</div>
+                <h3>Sem comissão</h3>
+                <p>
+                    Diferente do iFood, aqui é só uma mensalidade fixa. Você fica com tudo.
+                </p>
+            </div>
+
+            <div class="lp-benefit-card">
+                <div class="lp-benefit-icon">🖨️</div>
+                <h3>Impressão de comanda</h3>
+                <p>
+                    O garçom lança o pedido e imprime a comanda na hora.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- COMO FUNCIONA -->
+    <section class="lp-steps">
+        <h2 class="lp-section-title">Como funciona?</h2>
+        <p class="lp-section-subtitle">3 passos simples</p>
+
+        <div class="lp-step">
+            <div class="lp-step-number">1</div>
+            <div class="lp-step-content">
+                <h3>Cadastre seu cardápio</h3>
+                <p>
+                    Você cadastra categorias, produtos, preços e fotos no painel.
+                </p>
+            </div>
+        </div>
+
+        <div class="lp-step">
+            <div class="lp-step-number">2</div>
+            <div class="lp-step-content">
+                <h3>Compartilhe com o cliente</h3>
+                <p>
+                    Mandamos um QR Code pra mesa e um link direto pro WhatsApp.
+                </p>
+            </div>
+        </div>
+
+        <div class="lp-step">
+            <div class="lp-step-number">3</div>
+            <div class="lp-step-content">
+                <h3>Receba os pedidos</h3>
+                <p>
+                    O cliente faz o pedido, cai no seu painel, e o garçom imprime.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- PREÇO -->
+    <section class="lp-pricing">
+        <h2 class="lp-section-title">Quanto custa?</h2>
+        <p class="lp-section-subtitle">Preço único. Sem surpresa.</p>
+
+        <div class="lp-price-card">
+            <div class="lp-price-tag">
+                R$ 150<small>/mês</small>
+            </div>
+
+            <p class="lp-price-desc">
+                Tudo incluso. Sem taxa por pedido, sem comissão.
+            </p>
+
+            <ul class="lp-price-features">
+                <li>Cardápio digital personalizado</li>
+                <li>Pedido pelo celular (QR Code)</li>
+                <li>Painel do garçom com comanda</li>
+                <li>Impressão automática</li>
+                <li>Controle de estoque</li>
+                <li>Suporte via WhatsApp</li>
+            </ul>
+
+            <a
+                href="https://wa.me/5564981497556?text=Olá!%20Quero%20assinar%20o%20CardápioPro"
+                target="_blank"
+                rel="noopener"
+                class="lp-cta-hero"
+            >
+                Quero assinar
+            </a>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="lp-faq">
+        <h2 class="lp-section-title">Perguntas frequentes</h2>
+        <p class="lp-section-subtitle">Tire suas dúvidas</p>
+
+        <div class="lp-faq-item">
+            <h3>Preciso instalar algo?</h3>
+            <p>Não. O cliente acessa direto pelo navegador do celular.</p>
+        </div>
+
+        <div class="lp-faq-item">
+            <h3>Tem comissão por pedido?</h3>
+            <p>Não. Você paga só a mensalidade fixa. Tudo que vender é seu.</p>
+        </div>
+
+        <div class="lp-faq-item">
+            <h3>Funciona no meu celular?</h3>
+            <p>Sim. Funciona em qualquer celular com internet.</p>
+        </div>
+
+        <div class="lp-faq-item">
+            <h3>Posso personalizar o cardápio?</h3>
+            <p>Sim. Cores, fontes, logo e banner do seu jeito.</p>
+        </div>
+
+        <div class="lp-faq-item">
+            <h3>Tem fidelidade?</h3>
+            <p>Não. Você pode cancelar quando quiser.</p>
+        </div>
+    </section>
+
+    <!-- CTA FINAL -->
+    <section class="lp-final-cta">
+        <h2>Pronto pra vender mais?</h2>
+        <p>Fala com a gente no WhatsApp e a gente monta seu cardápio.</p>
+
+        <a
+            href="https://wa.me/5564981497556?text=Olá!%20Quero%20saber%20mais%20sobre%20o%20CardápioPro"
+            target="_blank"
+            rel="noopener"
+            class="lp-cta-hero"
+        >
+            Falar no WhatsApp →
+        </a>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="lp-footer">
+        © 2026 CardápioPro. Todos os direitos reservados.
+    </footer>
+
+</body>
+</html>
