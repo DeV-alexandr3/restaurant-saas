@@ -118,4 +118,10 @@ urlpatterns = [
         name="dashboard",
     ),
 
+    path(
+        "pedidos/<int:order_id>/pagamento/",
+        views.order_update_payment,
+        name="order_update_payment",
+    ),
+
 ]

@@ -1270,6 +1270,31 @@ def dashboard(request):
         quantity__lte=F("minimum_quantity"),
     ).order_by("quantity")
 
+    # Contagem por forma de pagamento
+    payment_counts = {
+        item["payment_method"]: item["count"]
+        for item in (
+            Order.objects
+            .filter(restaurant=restaurant)
+            .exclude(status__in=["CANCELLED", "REJECTED"])
+            .values("payment_method")
+            .annotate(count=Count("id"))
+        )
+    }
+
+    # Garante que todas as formas apareçam (mesmo com 0)
+    payment_labels = {
+        "cash": "Dinheiro",
+        "credit": "Cartão de Crédito",
+        "debit": "Cartão de Débito",
+        "pix": "Pix",
+    }
+
+    payment_data = {
+        "labels": [payment_labels[key] for key in payment_labels.keys()],
+        "values": [payment_counts.get(key, 0) for key in payment_labels.keys()],
+    }
+
     return render(
         request,
         "restaurants/dashboard.html",
@@ -1290,5 +1315,34 @@ def dashboard(request):
             "order_type_values": order_type_values,
             "low_stock_items": low_stock_items,
             "low_stock_count": low_stock_items.count(),
+            "payment_data": payment_data,
         },
     )
+
+@login_required
+def order_update_payment(request, order_id):
+    """
+    Atualiza a forma de pagamento de um pedido.
+    """
+    membership = get_current_membership(request.user)
+
+    if not membership:
+        return redirect("login")
+
+    if membership.role != "ADMIN":
+        return redirect("order_list")
+
+    order = get_object_or_404(
+        Order,
+        id=order_id,
+        restaurant=membership.restaurant,
+    )
+
+    if request.method == "POST":
+        payment_method = request.POST.get("payment_method", "cash")
+
+        if payment_method in ("cash", "credit", "debit", "pix"):
+            order.payment_method = payment_method
+            order.save(update_fields=["payment_method"])
+
+    return redirect("order_detail", order_id=order.id)

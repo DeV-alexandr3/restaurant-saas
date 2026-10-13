@@ -1358,3 +1358,108 @@ main {
     background: #fef3c7;
     color: #92400e;
 }
+
+/* =========================================================
+   IMPRESSÃO DO DETALHE DO PEDIDO
+========================================================= */
+
+@media print {
+
+    /* Esconde sidebar, menu, botões de ação */
+    aside,
+    .sidebar,
+    .page-header button,
+    .btn-print-order,
+    nav,
+    .sidebar-order-badge,
+    .sidebar-link {
+        display: none !important;
+    }
+
+    /* Fundo branco, texto preto */
+    body,
+    main,
+    .content-card,
+    .order-detail-card {
+        background: white !important;
+        color: black !important;
+    }
+
+    /* Remove sombras e bordas */
+    .content-card,
+    .order-detail-card {
+        box-shadow: none !important;
+        border: none !important;
+    }
+
+    /* Layout limpo */
+    main {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    /* Tamanho do papel */
+    @page {
+        size: 80mm auto;
+        margin: 5mm;
+    }
+}
+
+.payment-section {
+    margin-bottom: 12px;
+}
+
+.payment-section p {
+    margin-bottom: 8px;
+}
+
+.payment-form {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    flex-wrap: wrap;
+}
+
+.payment-form label {
+    font-size: 13px;
+    color: #6b7280;
+
+    font-weight: 600;
+}
+
+.payment-method-select {
+    padding: 6px 10px;
+
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+
+    background: white;
+    color: #111827;
+
+    font-family: inherit;
+    font-size: 13px;
+
+    cursor: pointer;
+}
+
+.btn-update-payment {
+    padding: 6px 12px;
+
+    background: #2563eb;
+    color: white;
+
+    border: none;
+    border-radius: 6px;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: opacity 0.15s ease;
+}
+
+.btn-update-payment:hover {
+    opacity: 0.9;
+}

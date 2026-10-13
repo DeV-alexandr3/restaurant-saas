@@ -159,6 +159,18 @@ Dashboard
 
 </div>
 
+<!-- =========================================================
+     PEDIDOS POR FORMA DE PAGAMENTO
+========================================================= -->
+
+<div class="dashboard-section">
+    <h2>Pedidos por forma de pagamento</h2>
+
+    <div class="dashboard-chart">
+        <canvas id="paymentChart"></canvas>
+    </div>
+</div>
+
 {{ status_labels|json_script:"status-labels" }}
 {{ status_values|json_script:"status-values" }}
 
@@ -373,6 +385,46 @@ Dashboard
             }
         }
     });
+
+    // =========================================================
+    // GRÁFICO DE FORMA DE PAGAMENTO
+    // =========================================================
+
+    const paymentData = {{ payment_data|safe }};
+
+    const paymentCtx = document.getElementById("paymentChart");
+
+    if (paymentCtx) {
+        new Chart(paymentCtx, {
+            type: "doughnut",
+            data: {
+                labels: paymentData.labels,
+                datasets: [{
+                    data: paymentData.values,
+                    backgroundColor: [
+                        "#10b981",  // Dinheiro - verde
+                        "#3b82f6",  // Crédito - azul
+                        "#8b5cf6",  // Débito - roxo
+                        "#06b6d4",  // Pix - ciano
+                    ],
+                    borderWidth: 0,
+                }],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: "bottom",
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true,
+                        },
+                    },
+                },
+            },
+        });
+    }
 </script>
 
 {% endblock %}

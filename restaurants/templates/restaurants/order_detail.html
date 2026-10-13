@@ -39,10 +39,41 @@ Pedido #{{ order.id }}
         {{ order.get_status_display }}
     </p>
 
-    <p>
-    <strong>Pagamento:</strong>
-        {{ order.get_payment_method_display }}
-    </p>
+    <div class="payment-section">
+        <p>
+            <strong>Pagamento:</strong>
+            {{ order.get_payment_method_display }}
+        </p>
+
+        <form
+            method="POST"
+            action="{% url 'order_update_payment' order.id %}"
+            class="payment-form"
+        >
+            {% csrf_token %}
+
+            <label for="payment_method">Alterar para:</label>
+
+            <select name="payment_method" id="payment_method" class="payment-method-select">
+                <option value="cash" {% if order.payment_method == "cash" %}selected{% endif %}>
+                    Dinheiro
+                </option>
+                <option value="credit" {% if order.payment_method == "credit" %}selected{% endif %}>
+                    Cartão de Crédito
+                </option>
+                <option value="debit" {% if order.payment_method == "debit" %}selected{% endif %}>
+                    Cartão de Débito
+                </option>
+                <option value="pix" {% if order.payment_method == "pix" %}selected{% endif %}>
+                    Pix
+                </option>
+            </select>
+
+            <button type="submit" class="btn-update-payment">
+                Atualizar
+            </button>
+        </form>
+    </div>
 
     <p>
         <strong>Status do pagamento:</strong>
@@ -210,5 +241,13 @@ Pedido #{{ order.id }}
     </h2>
 
 </div>
+
+<button
+    type="button"
+    onclick="window.print()"
+    class="btn-print-order"
+>
+    🖨️ Imprimir
+</button>
 
 {% endblock %}
