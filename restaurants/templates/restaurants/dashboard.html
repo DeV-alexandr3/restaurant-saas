@@ -10,6 +10,72 @@ Dashboard
     <h1>Dashboard</h1>
 </div>
 
+<!-- =========================================================
+     RESUMO DE VENDAS
+========================================================= -->
+
+<div class="sales-summary">
+
+    <div class="sales-summary-header">
+        <h2>Vendas do período</h2>
+
+        <div class="sales-period-tabs">
+            <a
+                href="?period=today"
+                class="{% if period == 'today' %}active{% endif %}"
+            >
+                Hoje
+            </a>
+            <a
+                href="?period=7days"
+                class="{% if period == '7days' %}active{% endif %}"
+            >
+                Últimos 7 dias
+            </a>
+            <a
+                href="?period=30days"
+                class="{% if period == '30days' %}active{% endif %}"
+            >
+                Últimos 30 dias
+            </a>
+        </div>
+    </div>
+
+    <div class="sales-summary-grid">
+
+        <div class="sales-card total">
+            <span>Total vendido</span>
+            <strong>R$ {{ total_sales|floatformat:2 }}</strong>
+        </div>
+
+        <div class="sales-card">
+            <span>Pedidos</span>
+            <strong>{{ total_orders }}</strong>
+        </div>
+
+        <div class="sales-card">
+            <span>💵 Dinheiro</span>
+            <strong>R$ {{ cash_total|floatformat:2 }}</strong>
+        </div>
+
+        <div class="sales-card">
+            <span>💳 Crédito</span>
+            <strong>R$ {{ credit_total|floatformat:2 }}</strong>
+        </div>
+
+        <div class="sales-card">
+            <span>💳 Débito</span>
+            <strong>R$ {{ debit_total|floatformat:2 }}</strong>
+        </div>
+
+        <div class="sales-card">
+            <span>📱 Pix</span>
+            <strong>R$ {{ pix_total|floatformat:2 }}</strong>
+        </div>
+
+    </div>
+</div>
+
 <div class="dashboard-cards">
 
     <div class="dashboard-card">

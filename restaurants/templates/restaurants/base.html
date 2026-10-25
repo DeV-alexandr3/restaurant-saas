@@ -28,12 +28,14 @@
         <h2>{{ restaurant.name }}</h2>
 
         <nav>
-            <a href="{% url 'dashboard' %}" class="sidebar-link">
-                <span class="material-symbols-outlined">
-                    dashboard
-                </span>
-                Dashboard
-            </a>
+            {% if membership.role == "ADMIN" %}
+                <a href="{% url 'dashboard' %}" class="sidebar-link">
+                    <span class="material-symbols-outlined">
+                        dashboard
+                    </span>
+                    Dashboard
+                </a>
+            {% endif %}
             <a href="{% url 'order_list' %}" class="sidebar-order-link">
                 <span class="material-symbols-outlined">
                     shopping_cart
@@ -61,12 +63,14 @@
                 </span>
                 Produtos
             </a>
-            <a href="{% url 'inventory_list' %}" class="sidebar-link">
-                <span class="material-symbols-outlined">
-                    inventory_2
-                </span>
-                Estoque
-            </a>
+            {% if membership.role == "ADMIN" %}
+                <a href="{% url 'inventory_list' %}" class="sidebar-link">
+                    <span class="material-symbols-outlined">
+                        inventory_2
+                    </span>
+                    Estoque
+                </a>
+            {% endif %}
             <a href="{% url 'table_list' %}" class="sidebar-link">
                 <span class="material-symbols-outlined">
                     table_restaurant

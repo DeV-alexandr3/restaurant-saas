@@ -1463,3 +1463,103 @@ main {
 .btn-update-payment:hover {
     opacity: 0.9;
 }
+
+/* =========================================================
+   RESUMO DE VENDAS
+========================================================= */
+
+.sales-summary {
+    margin-bottom: 32px;
+}
+
+.sales-summary-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    flex-wrap: wrap;
+    gap: 12px;
+
+    margin-bottom: 20px;
+}
+
+.sales-summary-header h2 {
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.sales-period-tabs {
+    display: flex;
+    gap: 6px;
+}
+
+.sales-period-tabs a {
+    padding: 8px 14px;
+
+    background: white;
+    color: #4b5563;
+
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+
+    transition: background 0.15s ease;
+}
+
+.sales-period-tabs a:hover {
+    background: #f3f4f6;
+}
+
+.sales-period-tabs a.active {
+    background: #111827;
+    color: white;
+    border-color: #111827;
+}
+
+.sales-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+}
+
+.sales-card {
+    padding: 20px;
+
+    background: white;
+    border-radius: 12px;
+
+    border: 1px solid #e5e7eb;
+}
+
+.sales-card.total {
+    background: #111827;
+    color: white;
+    border-color: transparent;
+}
+
+.sales-card span {
+    display: block;
+
+    font-size: 13px;
+    color: #6b7280;
+
+    margin-bottom: 6px;
+}
+
+.sales-card.total span {
+    color: #9ca3af;
+}
+
+.sales-card strong {
+    font-size: 24px;
+    font-weight: 800;
+
+    color: #111827;
+}
+
+.sales-card.total strong {
+    color: white;
+}

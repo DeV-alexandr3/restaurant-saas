@@ -93,35 +93,40 @@ Pedidos
 
 </form>
 
-<div class="orders-summary">
+{% if membership.role == "ADMIN" %}
 
-    <div class="summary-card">
-        <span>Pedidos encontrados</span>
-        <strong>{{ summary.total_orders }}</strong>
+    <div class="orders-summary">
+
+        <div class="summary-card">
+            <span>Pedidos encontrados</span>
+            <strong>{{ summary.total_orders }}</strong>
+        </div>
+
+        <div class="summary-card">
+            <span>Total vendido</span>
+            <strong>
+                R$ {{ sales_summary.total_sales|default:"0.00" |floatformat:2|localize }}
+            </strong>
+        </div>
+
+        <div class="summary-card">
+            <span>Ticket médio</span>
+            <strong>
+                R$ {{ sales_summary.average_ticket|default:"0.00" |floatformat:2|localize }}
+            </strong>
+        </div>
+
     </div>
+    <button
+        type="button"
+        id="copy-excel-button"
+        class="copy-excel-button"
+    >
+        📋 Copiar para Excel
+    </button>
 
-    <div class="summary-card">
-        <span>Total vendido</span>
-        <strong>
-            R$ {{ sales_summary.total_sales|default:"0.00" |floatformat:2|localize }}
-        </strong>
-    </div>
+{% endif %}
 
-    <div class="summary-card">
-        <span>Ticket médio</span>
-        <strong>
-            R$ {{ sales_summary.average_ticket|default:"0.00" |floatformat:2|localize }}
-        </strong>
-    </div>
-
-</div>
-<button
-    type="button"
-    id="copy-excel-button"
-    class="copy-excel-button"
->
-    📋 Copiar para Excel
-</button>
 <div class="order-filters">
 
     <a

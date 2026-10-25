@@ -1295,6 +1295,61 @@ def dashboard(request):
         "values": [payment_counts.get(key, 0) for key in payment_labels.keys()],
     }
 
+    # -------------------------
+    # FILTRO DE PERÍODO
+    # -------------------------
+
+    period = request.GET.get("period", "today")
+
+    today = timezone.now().date()
+
+    if period == "7days":
+        date_from = today - timedelta(days=7)
+    elif period == "30days":
+        date_from = today - timedelta(days=30)
+    else:
+        period = "today"
+        date_from = today
+
+    # -------------------------
+    # PEDIDOS DO PERÍODO
+    # -------------------------
+
+    orders_period = Order.objects.filter(
+        restaurant=restaurant,
+        created_at__date__gte=date_from,
+    ).exclude(
+        status__in=["CANCELLED", "REJECTED"],
+    )
+
+    # -------------------------
+    # TOTAIS
+    # -------------------------
+
+    total_sales = orders_period.aggregate(
+        total=Sum("total")
+    )["total"] or 0
+
+    total_orders = orders_period.count()
+
+    # -------------------------
+    # POR FORMA DE PAGAMENTO
+    # -------------------------
+
+    payment_totals = {
+        item["payment_method"]: item["total"]
+        for item in (
+            orders_period
+            .values("payment_method")
+            .annotate(total=Sum("total"))
+        )
+    }
+
+    cash_total = payment_totals.get("cash", 0)
+    credit_total = payment_totals.get("credit", 0)
+    debit_total = payment_totals.get("debit", 0)
+    pix_total = payment_totals.get("pix", 0)
+
     return render(
         request,
         "restaurants/dashboard.html",
@@ -1316,6 +1371,13 @@ def dashboard(request):
             "low_stock_items": low_stock_items,
             "low_stock_count": low_stock_items.count(),
             "payment_data": payment_data,
+            "period": period,
+            "total_sales": total_sales,
+            "total_orders": total_orders,
+            "cash_total": cash_total,
+            "credit_total": credit_total,
+            "debit_total": debit_total,
+            "pix_total": pix_total,
         },
     )
 
