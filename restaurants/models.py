@@ -208,6 +208,12 @@ class Restaurant(models.Model):
         help_text="Nome exato da impressora instalada no Windows.",
     )
 
+    last_cash_closure = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name="Último fechamento de caixa",
+    )
+
     class Meta:
         constraints = [
             models.CheckConstraint(
@@ -356,3 +362,21 @@ class Table(models.Model):
 
     def __str__(self):
         return f"Mesa {self.number} - {self.restaurant.name}"
+
+class CashClosure(models.Model):
+    restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE, related_name="cash_closures")
+    closure_date = models.DateTimeField(auto_now_add=True)
+    
+    total_sales = models.DecimalField(max_digits=10, decimal_places=2)
+    total_orders = models.IntegerField()
+    
+    cash_total = models.DecimalField(max_digits=10, decimal_places=2)
+    credit_total = models.DecimalField(max_digits=10, decimal_places=2)
+    debit_total = models.DecimalField(max_digits=10, decimal_places=2)
+    pix_total = models.DecimalField(max_digits=10, decimal_places=2)
+
+    class Meta:
+        ordering = ["-closure_date"]
+
+    def __str__(self):
+        return f"Fechamento {self.closure_date.strftime('%d/%m/%Y %H:%M')}"

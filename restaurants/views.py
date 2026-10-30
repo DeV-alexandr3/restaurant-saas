@@ -1099,249 +1099,47 @@ def dashboard(request):
 
     restaurant = membership.restaurant
 
-    today = timezone.localdate()
-
-    today_orders = Order.objects.filter(
-        restaurant=restaurant,
-        created_at__date=today,
-    )
-
-    valid_today_orders = today_orders.exclude(
-        status__in=["REJECTED", "CANCELLED"]
-    )
-
-    dashboard_summary = valid_today_orders.aggregate(
-        total_sales=Sum("total"),
-        average_ticket=Avg("total"),
-    )
-
-    today_orders_count = today_orders.count()
-
-    new_orders_count = today_orders.filter(
-        status="NEW"
-    ).count()
-
-    recent_orders = Order.objects.filter(
-        restaurant=restaurant
-    ).order_by("-created_at")[:5]
-
-    sales_labels = []
-    sales_values = []
-
-    for days_ago in range(6, -1, -1):
-
-        day = timezone.localdate() - timedelta(days=days_ago)
-
-        day_sales = Order.objects.filter(
-            restaurant=restaurant,
-            created_at__date=day,
-        ).exclude(
-            status__in=["REJECTED", "CANCELLED"]
-        ).aggregate(
-            total=Sum("total")
-        )["total"] or 0
-
-        sales_labels.append(
-            day.strftime("%d/%m")
-        )
-
-        sales_values.append(
-            float(day_sales)
-        )
-
-    status_labels = [
-        "Novo",
-        "Confirmado",
-        "Em preparo",
-        "Pronto",
-        "Saiu para entrega",
-        "Finalizado",
-        "Recusado",
-        "Cancelado",
-    ]
-
-    status_counts = {
-        item["status"]: item["count"]
-        for item in (
-            Order.objects.filter(
-                restaurant=restaurant
-            )
-            .values("status")
-            .annotate(
-                count=Count("id")
-            )
-        )
-    }
-
-    status_values = [
-        status_counts.get("NEW", 0),
-        status_counts.get("CONFIRMED", 0),
-        status_counts.get("PREPARING", 0),
-        status_counts.get("READY", 0),
-        status_counts.get("OUT_FOR_DELIVERY", 0),
-        status_counts.get("FINISHED", 0),
-        status_counts.get("REJECTED", 0),
-        status_counts.get("CANCELLED", 0),
-    ]
-
-    products_period = request.GET.get(
-        "products_period",
-        "7days"
-    )
-
-    products_start_date = None
-
-    if products_period == "today":
-        products_start_date = timezone.localdate()
-
-    elif products_period == "7days":
-        products_start_date = (
-            timezone.localdate()
-            - timedelta(days=6)
-        )
-
-    elif products_period == "30days":
-        products_start_date = (
-            timezone.localdate()
-            - timedelta(days=29)
-        )
-
-    top_products_query = OrderItem.objects.filter(
-        order__restaurant=restaurant
-    ).exclude(
-        order__status__in=[
-            "REJECTED",
-            "CANCELLED",
-        ]
-    )
-
-    if products_start_date:
-        top_products_query = top_products_query.filter(
-            order__created_at__date__gte=products_start_date
-        )
-
-    top_products = (
-        top_products_query
-        .values("product_name")
-        .annotate(
-            total_quantity=Sum("quantity")
-        )
-        .order_by("-total_quantity")[:5]
-    )
-
-    top_product_labels = [
-        item["product_name"]
-        for item in top_products
-    ]
-
-    top_product_values = [
-        item["total_quantity"]
-        for item in top_products
-    ]
-
-    order_type_labels = [
-        "Entrega",
-        "Retirada",
-        "Mesa",
-    ]
-
-    order_type_counts = {
-        item["order_type"]: item["count"]
-        for item in (
-            Order.objects.filter(
-                restaurant=restaurant
-            )
-            .values("order_type")
-            .annotate(
-                count=Count("id")
-            )
-        )
-    }
-
-    order_type_values = [
-        order_type_counts.get("delivery", 0),
-        order_type_counts.get("pickup", 0),
-        order_type_counts.get("table", 0),
-    ]
-
-    low_stock_items = InventoryItem.objects.filter(
-        restaurant=restaurant,
-        is_active=True,
-        quantity__lte=F("minimum_quantity"),
-    ).order_by("quantity")
-
-    # Contagem por forma de pagamento
-    payment_counts = {
-        item["payment_method"]: item["count"]
-        for item in (
-            Order.objects
-            .filter(restaurant=restaurant)
-            .exclude(status__in=["CANCELLED", "REJECTED"])
-            .values("payment_method")
-            .annotate(count=Count("id"))
-        )
-    }
-
-    # Garante que todas as formas apareçam (mesmo com 0)
-    payment_labels = {
-        "cash": "Dinheiro",
-        "credit": "Cartão de Crédito",
-        "debit": "Cartão de Débito",
-        "pix": "Pix",
-    }
-
-    payment_data = {
-        "labels": [payment_labels[key] for key in payment_labels.keys()],
-        "values": [payment_counts.get(key, 0) for key in payment_labels.keys()],
-    }
-
-    # -------------------------
-    # FILTRO DE PERÍODO
-    # -------------------------
-
+    # ==========================================
+    # 1. RESUMO DE HOJE (CARD PADRÃO / 7 DIAS / 30 DIAS)
+    # ==========================================
+    
     period = request.GET.get("period", "today")
-
-    today = timezone.now().date()
+    
+    # Pega a hora exata AGORA no fuso do Brasil
+    agora_brasil = timezone.localtime(timezone.now())
+    today = agora_brasil.date()
 
     if period == "7days":
-        date_from = today - timedelta(days=7)
+        date_from = agora_brasil - timedelta(days=7)
     elif period == "30days":
-        date_from = today - timedelta(days=30)
+        date_from = agora_brasil - timedelta(days=30)
+    elif period == "all_today":
+        date_from = agora_brasil.replace(hour=0, minute=0, second=0, microsecond=0)
     else:
         period = "today"
-        date_from = today
+        # Se clicou em Hoje, mas tem um fechamento salvo, começa a contar DEPOIS do fechamento
+        if restaurant.last_cash_closure:
+            date_from = timezone.localtime(restaurant.last_cash_closure)
+        else:
+            date_from = agora_brasil.replace(hour=0, minute=0, second=0, microsecond=0)
 
-    # -------------------------
-    # PEDIDOS DO PERÍODO
-    # -------------------------
-
+    # Filtra os pedidos do período selecionado
     orders_period = Order.objects.filter(
         restaurant=restaurant,
-        created_at__date__gte=date_from,
+        created_at__gte=date_from, 
     ).exclude(
         status__in=["CANCELLED", "REJECTED"],
     )
 
-    # -------------------------
-    # TOTAIS
-    # -------------------------
-
-    total_sales = orders_period.aggregate(
-        total=Sum("total")
-    )["total"] or 0
-
+    # Totais para os cards principais
+    total_sales = orders_period.aggregate(total=Sum("total"))["total"] or 0
     total_orders = orders_period.count()
 
-    # -------------------------
-    # POR FORMA DE PAGAMENTO
-    # -------------------------
-
+    # Totais por forma de pagamento
     payment_totals = {
         item["payment_method"]: item["total"]
         for item in (
-            orders_period
-            .values("payment_method")
-            .annotate(total=Sum("total"))
+            orders_period.values("payment_method").annotate(total=Sum("total"))
         )
     }
 
@@ -1350,6 +1148,105 @@ def dashboard(request):
     debit_total = payment_totals.get("debit", 0)
     pix_total = payment_totals.get("pix", 0)
 
+    # ==========================================
+    # 2. RESUMO DE HOJE (PARTE DE BAIXO DO DASHBOARD - TEXTO)
+    # ==========================================
+
+    # Aqui usa a data do dia, independente do fechamento, apenas para o resumo em texto
+    today_orders = Order.objects.filter(
+        restaurant=restaurant,
+        created_at__date=today,
+    )
+    valid_today_orders = today_orders.exclude(status__in=["REJECTED", "CANCELLED"])
+
+    dashboard_summary = valid_today_orders.aggregate(
+        total_sales=Sum("total"),
+        average_ticket=Avg("total"),
+    )
+
+    today_orders_count = today_orders.count()
+    new_orders_count = today_orders.filter(status="NEW").count()
+
+    # ==========================================
+    # 3. GRÁFICOS E LISTAS
+    # ==========================================
+
+    recent_orders = Order.objects.filter(restaurant=restaurant).order_by("-created_at")[:5]
+
+    # Gráfico de vendas dos últimos 7 dias
+    sales_labels = []
+    sales_values = []
+    for days_ago in range(6, -1, -1):
+        day = today - timedelta(days=days_ago)
+        day_sales = Order.objects.filter(
+            restaurant=restaurant,
+            created_at__date=day,
+        ).exclude(status__in=["REJECTED", "CANCELLED"]).aggregate(total=Sum("total"))["total"] or 0
+        sales_labels.append(day.strftime("%d/%m"))
+        sales_values.append(float(day_sales))
+
+    # Gráfico de status
+    status_labels = ["Novo", "Confirmado", "Em preparo", "Pronto", "Saiu para entrega", "Finalizado", "Recusado", "Cancelado"]
+    status_counts = {
+        item["status"]: item["count"]
+        for item in Order.objects.filter(restaurant=restaurant).values("status").annotate(count=Count("id"))
+    }
+    status_values = [
+        status_counts.get("NEW", 0), status_counts.get("CONFIRMED", 0),
+        status_counts.get("PREPARING", 0), status_counts.get("READY", 0),
+        status_counts.get("OUT_FOR_DELIVERY", 0), status_counts.get("FINISHED", 0),
+        status_counts.get("REJECTED", 0), status_counts.get("CANCELLED", 0),
+    ]
+
+    # Gráfico de produtos mais vendidos
+    products_period = request.GET.get("products_period", "7days")
+    products_start_date = None
+    if products_period == "today":
+        products_start_date = today
+    elif products_period == "7days":
+        products_start_date = today - timedelta(days=6)
+    elif products_period == "30days":
+        products_start_date = today - timedelta(days=29)
+
+    top_products_query = OrderItem.objects.filter(order__restaurant=restaurant).exclude(order__status__in=["REJECTED", "CANCELLED"])
+    if products_start_date:
+        top_products_query = top_products_query.filter(order__created_at__date__gte=products_start_date)
+
+    top_products = top_products_query.values("product_name").annotate(total_quantity=Sum("quantity")).order_by("-total_quantity")[:5]
+    top_product_labels = [item["product_name"] for item in top_products]
+    top_product_values = [item["total_quantity"] for item in top_products]
+
+    # Gráfico de tipos de pedido
+    order_type_labels = ["Entrega", "Retirada", "Mesa"]
+    order_type_counts = {
+        item["order_type"]: item["count"]
+        for item in Order.objects.filter(restaurant=restaurant).values("order_type").annotate(count=Count("id"))
+    }
+    order_type_values = [
+        order_type_counts.get("delivery", 0),
+        order_type_counts.get("pickup", 0),
+        order_type_counts.get("table", 0),
+    ]
+
+    # Estoque baixo
+    low_stock_items = InventoryItem.objects.filter(
+        restaurant=restaurant, is_active=True, quantity__lte=F("minimum_quantity"),
+    ).order_by("quantity")
+
+    # Gráfico de formas de pagamento (do dia inteiro)
+    payment_counts = {
+        item["payment_method"]: item["count"]
+        for item in Order.objects.filter(restaurant=restaurant).exclude(status__in=["CANCELLED", "REJECTED"]).values("payment_method").annotate(count=Count("id"))
+    }
+    payment_labels = {"cash": "Dinheiro", "credit": "Cartão de Crédito", "debit": "Cartão de Débito", "pix": "Pix"}
+    payment_data = {
+        "labels": [payment_labels[key] for key in payment_labels.keys()],
+        "values": [payment_counts.get(key, 0) for key in payment_labels.keys()],
+    }
+
+    # ==========================================
+    # 4. RETORNO DO CONTEXTO
+    # ==========================================
     return render(
         request,
         "restaurants/dashboard.html",
@@ -1371,6 +1268,8 @@ def dashboard(request):
             "low_stock_items": low_stock_items,
             "low_stock_count": low_stock_items.count(),
             "payment_data": payment_data,
+            
+            # Variáveis dos Cards Superiores
             "period": period,
             "total_sales": total_sales,
             "total_orders": total_orders,
@@ -1408,3 +1307,21 @@ def order_update_payment(request, order_id):
             order.save(update_fields=["payment_method"])
 
     return redirect("order_detail", order_id=order.id)
+
+@login_required
+def close_cash_register(request):
+    if request.method != "POST":
+        return redirect("dashboard")
+
+    membership = get_current_membership(request.user)
+    if not membership or membership.role != "ADMIN":
+        return HttpResponse("Acesso negado.", status=403)
+
+    restaurant = membership.restaurant
+    
+    # MÁGICA AQUI: Salva no banco a hora exata do fechamento
+    restaurant.last_cash_closure = timezone.now() 
+    restaurant.save(update_fields=["last_cash_closure"])
+
+    messages.success(request, "Caixa fechado com sucesso! O dashboard foi zerado.")
+    return redirect("dashboard")

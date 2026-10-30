@@ -124,4 +124,9 @@ urlpatterns = [
         name="order_update_payment",
     ),
 
+    path(
+        "fechar-caixa/", 
+        views.close_cash_register, 
+        name="close_cash_register"
+    ),
 ]

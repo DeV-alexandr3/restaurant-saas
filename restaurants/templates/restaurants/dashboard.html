@@ -10,6 +10,16 @@ Dashboard
     <h1>Dashboard</h1>
 </div>
 
+{% if messages %}
+    <div class="messages-container" style="margin-bottom: 20px;">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}" style="padding: 15px; border-radius: 8px; background: #d1fae5; color: #065f46; border: 1px solid #34d399; margin-bottom: 10px; font-weight: bold;">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
 <!-- =========================================================
      RESUMO DE VENDAS
 ========================================================= -->
@@ -20,6 +30,11 @@ Dashboard
         <h2>Vendas do período</h2>
 
         <div class="sales-period-tabs">
+
+            <a href="?period=all_today" class="{% if period == 'all_today' %}active{% endif %}">
+                Ver Tudo de Hoje
+            </a>
+
             <a
                 href="?period=today"
                 class="{% if period == 'today' %}active{% endif %}"
@@ -39,6 +54,30 @@ Dashboard
                 Últimos 30 dias
             </a>
         </div>
+    </div>
+
+    <div class="sales-period-tabs">
+        <!-- Botões de filtro -->
+        
+        {% if membership.role == "ADMIN" %}
+        <form method="POST" action="{% url 'close_cash_register' %}" style="display: inline-block; margin-left: 20px;" onsubmit="return confirm('Tem certeza que deseja fechar o caixa? O histórico será salvo e o dashboard será zerado.');">
+            {% csrf_token %}
+            <button type="submit" style="background: #dc2626; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                Zerar Caixa
+            </button>
+            <a href="?period=default" class="{% if period == 'default' %}active{% endif %}">
+                Pós-Fechamento
+            </a>
+            <button
+                type="button"
+                onclick="window.print()"
+                class="btn-secondary"
+                style="margin-left: 10px; background: #374151; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer;"
+            >
+                🖨️ Imprimir Fechamento
+            </button>
+        </form>
+        {% endif %}
     </div>
 
     <div class="sales-summary-grid">

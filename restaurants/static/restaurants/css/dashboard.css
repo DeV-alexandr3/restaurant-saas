@@ -1563,3 +1563,47 @@ main {
 .sales-card.total strong {
     color: white;
 }
+
+@media print {
+    /* Esconde tudo que não é essencial */
+    aside, 
+    .sidebar, 
+    .page-header, 
+    .sales-period-tabs, 
+    .btn-secondary, 
+    .btn-primary,
+    .copy-excel-button,
+    .dashboard-chart,
+    form {
+        display: none !important;
+    }
+
+    /* Ajusta o fundo e as cores para economizar tinta */
+    body, main, .content-card {
+        background: white !important;
+        color: black !important;
+        box-shadow: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* Formata os cards de vendas para ficarem lado a lado no papel */
+    .sales-summary-grid {
+        display: flex !important;
+        flex-wrap: wrap;
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+
+    .sales-card {
+        border: 1px solid #000 !important;
+        padding: 10px !important;
+        width: 30% !important;
+    }
+
+    /* Força a impressão em formato de cupom ou A4 */
+    @page {
+        size: A4;
+        margin: 10mm;
+    }
+}
