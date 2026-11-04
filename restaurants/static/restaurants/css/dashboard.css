@@ -1565,38 +1565,40 @@ main {
 }
 
 @media print {
-    /* Esconde tudo que não é essencial */
-    aside, 
-    .sidebar, 
-    .page-header, 
-    .sales-period-tabs, 
-    .btn-secondary, 
-    .btn-primary,
-    .copy-excel-button,
-    .dashboard-chart,
-    form {
+    /* 1. Força o fundo branco e texto preto */
+    body, main, .content-card, .order-detail-card {
+        background: white !important;
+        color: black !important;
+    }
+
+    /* 2. Esconde tudo que não é do pedido */
+    aside, nav, .sidebar, .btn-print-order, .page-header button, .no-print {
         display: none !important;
     }
 
-   /* Aumenta a fonte geral do papel */
-    body, main, p, span, strong, td, th, div {
-        font-size: 16px !important; /* Tamanho base maior */
-        line-height: 1.4 !important;
+    /* 3. AQUI ESTÁ A MÁGICA DO TAMANHO DA FONTE */
+    /* Aumenta o texto geral de forma brutal */
+    body, p, span, td, th, div {
+        font-size: 18px !important; 
+        line-height: 1.5 !important;
     }
 
-    /* Deixa os títulos e totais mais destacados */
+    /* 4. Títulos bem maiores */
     h1, h2, h3 {
-        font-size: 20px !important;
-        font-weight: bold !important;
-        margin-bottom: 10px !important;
+        font-size: 24px !important;
+        font-weight: 800 !important;
+        margin-bottom: 12px !important;
     }
 
-    .order-number {
-        font-size: 18px !important;
+    /* 5. O Total fica gigante */
+    .order-total strong, .order-confirmation-info strong:last-child {
+        font-size: 24px !important;
+        font-weight: 900 !important;
     }
 
-    /* Aumenta especificamente o total geral */
-    strong {
-        font-size: 18px !important;
+    /* 6. Ajusta margens para o papel */
+    @page {
+        size: 80mm auto; /* Se for impressora térmica */
+        margin: 10mm;
     }
 }
