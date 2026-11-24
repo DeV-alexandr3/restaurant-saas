@@ -165,19 +165,14 @@
     <!-- =========================================================
          CARRINHO FLUTUANTE
     ========================================================= -->
-
-    <a
-        href="{% url 'cart_detail' restaurant.slug %}"
-        class="cart-link"
-    >
-        <span class="cart-link-icon">🛒</span>
-
-        {% if cart_count > 0 %}
-            <span class="cart-badge">
-                {{ cart_count }}
-            </span>
-        {% endif %}
-    </a>
+    {% if restaurant.accepts_pickup or restaurant.accepts_delivery or restaurant.accepts_table_orders %}
+        <a href="{% url 'cart_detail' restaurant.slug %}" class="cart-link">
+            <span class="cart-link-icon">🛒</span>
+            {% if cart_count > 0 %}
+                <span class="cart-badge">{{ cart_count }}</span>
+            {% endif %}
+        </a>
+    {% endif %}
 
 </body>
 
@@ -214,6 +209,7 @@
             content.classList.toggle("open");
         });
     });
+    
 </script>
 
 </html>

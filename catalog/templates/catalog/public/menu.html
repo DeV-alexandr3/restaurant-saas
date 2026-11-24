@@ -238,22 +238,19 @@
 
     </main>
 
-    <!-- =========================================================
-         CARRINHO FLUTUANTE
-    ========================================================= -->
+    {% if restaurant.accepts_pickup or restaurant.accepts_delivery or restaurant.accepts_table_orders %}
+        <a href="{% url 'cart_detail' restaurant.slug %}" class="cart-link">
+            <span class="cart-link-icon">🛒</span>
 
-    <a
-        href="{% url 'cart_detail' restaurant.slug %}"
-        class="cart-link"
-    >
-        <span class="cart-link-icon">🛒</span>
+            {% if cart_count > 0 %}
+                <span class="cart-badge">
+                    {{ cart_count }}
+                </span>
+            {% endif %}
+        </a>
+    {% endif %}
 
-        {% if cart_count > 0 %}
-            <span class="cart-badge">
-                {{ cart_count }}
-            </span>
-        {% endif %}
-    </a>
+    
 
     <footer class="menu-footer">
 
@@ -325,4 +322,31 @@
     </footer>
 
 </body>
+<script>
+    // 1. Pega os elementos da tela
+    const carrinho = document.getElementById('carrinho-flutuante');
+    const contador = document.getElementById('contador-carrinho');
+
+    // 2. Função que mostra/esconde
+    function atualizarCarrinho(quantidade) {
+        if (quantidade > 0) {
+            carrinho.style.display = 'flex'; // Mostra se tiver item
+        } else {
+            carrinho.style.display = 'none'; // Esconde se não tiver
+        }
+    }
+
+    // 3. ESSA É A PARTE QUE FALTAVA: Roda a função assim que a página carrega
+    // Vamos supor que o seu contador comece com "0" escrito no HTML.
+    // Se você usa Django, pode colocar a quantidade inicial aqui:
+    
+    // Exemplo: Lendo o número que está dentro do contador no HTML
+    let quantidadeInicial = parseInt(contador.innerText) || 0;
+    
+    // Executa a função ao abrir a página
+    atualizarCarrinho(quantidadeInicial);
+
+    document.getElementById('meu-carrinho').style.display = 'flex';
+
+</script>
 </html>

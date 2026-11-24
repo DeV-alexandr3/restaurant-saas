@@ -844,6 +844,8 @@ def restaurant_settings(request):
             request.POST.get("accepts_table_orders") == "on"
         )
 
+        restaurant.save()
+
         if not (
             restaurant.accepts_pickup
             or restaurant.accepts_delivery
