@@ -289,7 +289,7 @@
             const body = document.getElementById("modal-body");
             let html = "";
 
-            // Se for por peso, mostra campo de peso
+            // Se for por peso, mostra campos de peso e valor direto
             if (data.is_by_weight) {
                 html += `
                     <div class="modal-section">
@@ -301,11 +301,25 @@
                             placeholder="Ex: 0.450"
                             step="0.001"
                             min="0.001"
-                            oninput="updateModalTotal()"
+                            oninput="syncFromWeight()"
                         >
                         <p class="modal-hint">
                             Preço por kg: R$ ${parseFloat(data.price).toFixed(2)}
                         </p>
+                    </div>
+                    
+                    <div class="modal-section" style="margin-top: 15px; border-top: 1px dashed #ccc; padding-top: 15px;">
+                        <h3>OU Valor Total (R$)</h3>
+                        <input
+                            type="number"
+                            id="modal-price-direct"
+                            class="modal-weight-input"
+                            placeholder="Ex: 30.00"
+                            step="0.01"
+                            min="0.01"
+                            oninput="syncFromPrice()"
+                        >
+                        <p class="modal-hint">O peso será calculado automaticamente.</p>
                     </div>
                 `;
             } else {
@@ -357,7 +371,6 @@
                         html += `<p class="modal-hint">Escolha até ${group.max_choices}</p>`;
                     }
 
-                    // Se for escolha única, usa radio. Senão, checkbox.
                     const isSingleChoice = group.max_choices === 1;
 
                     group.addons.forEach((a) => {
@@ -413,37 +426,84 @@
 
 
         // =========================================================
-        // CALCULAR TOTAL
+        // CALCULAR TOTAL E SINCRONIZAR PESO/VALOR
         // =========================================================
+
+        // Quando digita o peso, atualiza o valor
+        function syncFromWeight() {
+            if (!currentProductData) return;
+            const weightInput = document.getElementById("modal-weight");
+            const priceInput = document.getElementById("modal-price-direct");
+            
+            if (!weightInput || !priceInput) return;
+
+            const weight = parseFloat(weightInput.value) || 0;
+            let unitPrice = parseFloat(currentProductData.price);
+            
+            // Soma os adicionais selecionados
+            document.querySelectorAll('input[data-price][data-group]:checked').forEach((cb) => {
+                unitPrice += parseFloat(cb.dataset.price);
+            });
+
+            const total = weight * unitPrice;
+            
+            if (weight > 0) {
+                priceInput.value = total.toFixed(2);
+            } else {
+                priceInput.value = "";
+            }
+            
+            updateModalTotal();
+        }
+
+        // Quando digita o valor, calcula o peso
+        function syncFromPrice() {
+            if (!currentProductData) return;
+            const priceInput = document.getElementById("modal-price-direct");
+            const weightInput = document.getElementById("modal-weight");
+
+            if (!priceInput || !weightInput) return;
+
+            const total = parseFloat(priceInput.value) || 0;
+            let unitPrice = parseFloat(currentProductData.price);
+            
+            document.querySelectorAll('input[data-price][data-group]:checked').forEach((cb) => {
+                unitPrice += parseFloat(cb.dataset.price);
+            });
+
+            if (unitPrice > 0 && total > 0) {
+                const calculatedWeight = total / unitPrice;
+                weightInput.value = calculatedWeight.toFixed(3);
+            } else {
+                weightInput.value = "";
+            }
+
+            updateModalTotal();
+        }
 
         function updateModalTotal() {
             if (!currentProductData) return;
 
             let unitPrice = 0;
 
-            // Preço base ou variação
             const variation = document.querySelector('input[name="modal_variation"]:checked');
-
             if (variation) {
                 unitPrice = parseFloat(variation.dataset.price);
             } else {
                 unitPrice = parseFloat(currentProductData.price);
             }
 
-            // Adicionais (radio e checkbox) — pega qualquer input marcado com data-group
             document.querySelectorAll('input[data-price][data-group]:checked').forEach((cb) => {
                 unitPrice += parseFloat(cb.dataset.price);
             });
 
             let total = 0;
 
-            // Se for por peso
             if (currentProductData.is_by_weight) {
                 const weightInput = document.getElementById("modal-weight");
                 const weight = weightInput ? parseFloat(weightInput.value) || 0 : 0;
                 total = weight * unitPrice;
             } else {
-                // Senão, multiplica por quantidade
                 total = unitPrice * currentQuantity;
             }
 
@@ -469,6 +529,13 @@
             if (currentProductData.is_by_weight) {
                 const weightInput = document.getElementById("modal-weight");
                 const weight = weightInput ? weightInput.value : "0";
+                
+                // Validação simples para não enviar peso zero
+                if (parseFloat(weight) <= 0) {
+                    alert("Por favor, informe o peso ou o valor total.");
+                    return;
+                }
+
                 document.getElementById("form-weight").value = weight;
                 document.getElementById("form-quantity").value = "1";
             } else {
@@ -479,7 +546,7 @@
             // Observação
             document.getElementById("form-notes").value = document.getElementById("modal-notes").value;
 
-            // Adicionais (radio e checkbox)
+            // Adicionais
             const addonsContainer = document.getElementById("form-addons");
             addonsContainer.innerHTML = "";
 
